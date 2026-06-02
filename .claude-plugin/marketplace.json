@@ -1,0 +1,23 @@
+{
+  "name": "agent-council-marketplace",
+  "owner": {
+    "name": "Agent Council Maintainers"
+  },
+  "description": "Marketplace for the Agent Council workflow plugin.",
+  "version": "1.2.0",
+  "plugins": [
+    {
+      "name": "agent-council",
+      "source": "./plugins/agent-council",
+      "description": "A manual cross-review workflow for Claude Code and Codex using isolated topic state.",
+      "version": "1.2.0",
+      "category": "Development",
+      "tags": [
+        "skills",
+        "review",
+        "design-review",
+        "workflow"
+      ]
+    }
+  ]
+}

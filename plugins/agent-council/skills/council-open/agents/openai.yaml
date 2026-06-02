@@ -1,0 +1,5 @@
+interface:
+  display_name: "Council Open"
+  short_description: "Agent Council workflow action: open."
+policy:
+  allow_implicit_invocation: false

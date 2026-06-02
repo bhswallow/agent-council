@@ -1,0 +1,5 @@
+interface:
+  display_name: "Council Review"
+  short_description: "Agent Council workflow action: review."
+policy:
+  allow_implicit_invocation: false

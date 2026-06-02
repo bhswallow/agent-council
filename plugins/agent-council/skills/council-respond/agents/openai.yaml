@@ -1,0 +1,5 @@
+interface:
+  display_name: "Council Respond"
+  short_description: "Agent Council workflow action: respond."
+policy:
+  allow_implicit_invocation: false
