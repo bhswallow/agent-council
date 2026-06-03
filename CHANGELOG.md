@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.0
+
+- Added `council-version` for direct installed-version checks.
+- Clarified `council-upgrade` so standalone upgrades update the active standalone install and plugin users reinstall the plugin.
+- Reflowed README files for better raw-text readability.
+- Tightened skill output rules to keep topic judgments short and avoid discussing Council mechanics.
+
 ## 2.3.0
 
 - Added lightweight guardrails: canonical lowercase agent ids, side effects summaries, and `council-status --doctor`.

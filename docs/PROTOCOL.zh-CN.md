@@ -43,6 +43,16 @@ agent id 统一使用小写。内置合法值是 `claude` 和 `codex`。路径�
 
 除非 topic 本身就是 Agent Council，否则不要评审 Agent Council 协议、文件结构、skill 行为或工作流机制。
 
+`council-review` 面向用户的输出应该保持紧凑：
+
+- 先给 verdict；
+- 再给简短 topic 判断；
+- 只在有价值时列出 blockers 或 must-preserve nits；
+- 输出 `Next action`；
+- 输出 `Side effects`。
+
+正常 topic review 不要长篇解释 Council 协议。
+
 ## 轻量 metadata
 
 `turns/*` 和 `consensus.md` 可以使用简短 YAML frontmatter：

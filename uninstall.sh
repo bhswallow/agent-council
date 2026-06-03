@@ -14,14 +14,14 @@ ROOT="$1"
 MODE="${2:-}"
 
 remove_claude() {
-  for skill in council-open council-review council-respond council-apply council-status council-help council-upgrade; do
+  for skill in council-open council-review council-respond council-apply council-status council-help council-upgrade council-version; do
     rm -rf "$ROOT/.claude/skills/$skill"
   done
   echo "Removed Claude Code skills from $ROOT/.claude/skills"
 }
 
 remove_codex() {
-  for skill in council-open council-review council-respond council-apply council-status council-help council-upgrade; do
+  for skill in council-open council-review council-respond council-apply council-status council-help council-upgrade council-version; do
     rm -rf "$ROOT/.agents/skills/$skill"
   done
   echo "Removed Codex skills from $ROOT/.agents/skills"

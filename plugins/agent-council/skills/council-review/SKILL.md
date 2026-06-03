@@ -61,16 +61,18 @@ Do not spend the response explaining Council mechanics. At most, add one short l
 
 Evaluate the peer's latest content directly.
 
-Use this structure where useful:
+Use this compact structure:
 
-- Verdict: CONSENSUS, CONSENSUS_WITH_NITS, NEEDS_DISCUSSION, USER_DECISION_NEEDED, BLOCKED, USER_FORCED_CONSENSUS, or DISCUSSION
-- Main judgment
-- Blockers, if any
-- Major concerns, if any
-- What you agree with
-- What you disagree with
-- Proposed next step
-- Exact command for the peer, if another round is useful
+- `Verdict: <state>`
+- Topic judgment: one short paragraph about the actual topic.
+- Blockers: only if present.
+- Non-blocking nits or constraints: only if useful.
+- Next action.
+- Side effects.
+
+Do not include long explanations of the Council protocol, file structure,
+status model, or why the bridge exists. The user asked for a topic review, not
+an essay about the tool.
 
 If the user includes `CONSENSUS`:
 
@@ -161,7 +163,12 @@ consensus: <consensus.md or empty>
 
 ## User-facing response
 
-Start with your substantive judgment about the topic. Then list only the most important points.
+Start with the verdict line.
+
+Then give the topic judgment. Keep it short and about the user's actual
+technical, product, design, planning, or writing content.
+
+List only material blockers and must-preserve nits. Skip protocol commentary.
 
 Every response must end with `Next action`.
 

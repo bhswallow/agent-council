@@ -18,11 +18,15 @@ This skill is read-only. Do not write `.agent-council/` files and do not modify 
 
 If the user asks in Chinese or passes `zh`, answer in Chinese. If the user passes `en`, answer in English.
 
-Do not review Agent Council protocol, file structure, skill behavior, or workflow mechanics unless the user is asking about Agent Council itself.
+Do not review Agent Council protocol, file structure, skill behavior, or
+workflow mechanics unless the user is asking about Agent Council itself. Keep
+help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.3.0 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
+Agent Council v2.4.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
+
+它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 
 常用命令：
 - `council-open <topic-id> [-- 交接说明]`
@@ -30,6 +34,7 @@ Agent Council v2.3.0 是 Claude Code 和 Codex 之间的“最新一轮交接”
 - `council-apply <topic-id> [-- 应用要求]`
 - `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
+- `council-version [--check]`
 - `council-upgrade [--check] [--claude-only|--codex-only]`
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。安装脚本会清理 standalone 旧版残留。
@@ -41,13 +46,16 @@ Agent Council v2.3.0 是 Claude Code 和 Codex 之间的“最新一轮交接”
 - `/council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛。`
 - `$council-apply retry-design -- 根据共识修改 docs/design.md。`
 - `$council-status product-l1-gate --doctor`
+- `$council-version --check`
 - `/council-upgrade --check`
 
-原则：默认只读取对方最新交接内容，不读完整历史。agent id 和路径统一小写。讨论重点是 topic 对应的实际内容，不是 Council 流程本身。`council-review` 每次都给出 `Next action` 和简短 `Side effects`。只有 `council-apply` 应该修改项目正式文件。
+原则：默认只读取对方最新交接内容，不读完整历史。agent id 和路径统一小写。讨论重点是 topic 对应的实际内容，不是 Council 流程本身。`council-review` 先给 verdict，再给 topic 判断，最后给 `Next action` 和简短 `Side effects`。只有 `council-apply` 应该修改项目正式文件。
 
 ## English help
 
-Agent Council v2.3.0 is a latest-turn bridge between Claude Code and Codex.
+Agent Council v2.4.0 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
+
+It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 
 Commands:
 - `council-open <topic-id> [-- handoff note]`
@@ -55,6 +63,7 @@ Commands:
 - `council-apply <topic-id> [-- apply instruction]`
 - `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
+- `council-version [--check]`
 - `council-upgrade [--check] [--claude-only|--codex-only]`
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead. The installer cleans stale standalone installs.
@@ -66,6 +75,7 @@ Examples:
 - `/council-review retry-design CONSENSUS -- Converge if only non-blocking issues remain.`
 - `$council-apply retry-design -- Apply the consensus to docs/design.md.`
 - `$council-status product-l1-gate --doctor`
+- `$council-version --check`
 - `/council-upgrade --check`
 
-Rule of thumb: read the peer's latest handoff, not the full history. Agent ids and paths are lowercase. Keep the discussion focused on the topic, not on the Council workflow. `council-review` always ends with `Next action` and a short `Side effects` summary. Only `council-apply` should modify formal project files.
+Rule of thumb: read the peer's latest handoff, not the full history. Agent ids and paths are lowercase. Keep the discussion focused on the topic, not on the Council workflow. `council-review` starts with a verdict, then a topic judgment, then `Next action` and a short `Side effects` summary. Only `council-apply` should modify formal project files.

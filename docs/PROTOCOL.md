@@ -43,6 +43,16 @@ Ignore workflow boilerplate in peer messages. Extract and review the actual tech
 
 Do not review Agent Council protocol, file structure, skill behavior, or workflow mechanics unless the topic itself is Agent Council.
 
+User-facing `council-review` output should be compact:
+
+- verdict first;
+- short topic judgment;
+- blockers or must-preserve nits only when useful;
+- `Next action`;
+- `Side effects`.
+
+Do not add long protocol explanations to normal topic reviews.
+
 ## Lightweight metadata
 
 Turn records and `consensus.md` may use short YAML frontmatter:

@@ -27,7 +27,7 @@ for f in "${required[@]}"; do
   require_file "$f"
 done
 
-skills=(council-open council-review council-apply council-status council-help council-upgrade)
+skills=(council-open council-review council-apply council-status council-help council-version council-upgrade)
 
 for skill in "${skills[@]}"; do
   skill_file="$ROOT/plugins/agent-council/skills/$skill/SKILL.md"
@@ -62,7 +62,15 @@ for readme in README.md README.zh-CN.md; do
   grep -q 'latest/claude.md' "$file" || fail "$readme missing lowercase claude path guidance"
   grep -q 'latest/codex.md' "$file" || fail "$readme missing lowercase codex path guidance"
   grep -q -- '--doctor' "$file" || fail "$readme missing doctor guidance"
+  grep -q 'council-version' "$file" || fail "$readme missing council-version guidance"
 done
+
+grep -q 'lightweight, manual latest-turn bridge' "$ROOT/README.md" || \
+  fail "README.md missing lightweight manual bridge positioning"
+grep -q 'preserves consensus without polluting project files' "$ROOT/README.md" || \
+  fail "README.md missing clean project files positioning"
+grep -q 'Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板' "$ROOT/README.zh-CN.md" || \
+  fail "README.zh-CN.md missing lightweight manual bridge positioning"
 
 python3 - "$ROOT" "$VERSION" <<'PY'
 import json
@@ -96,9 +104,11 @@ PY
 grep -q "Current version: $VERSION" "$ROOT/README.md" || fail "README.md version does not match VERSION"
 grep -q "当前版本：$VERSION" "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md version does not match VERSION"
 grep -q "Agent Council v$VERSION" "$ROOT/plugins/agent-council/skills/council-help/SKILL.md" || fail "council-help version does not match VERSION"
+grep -q "Agent Council v$VERSION" "$ROOT/plugins/agent-council/skills/council-version/SKILL.md" || fail "council-version version does not match VERSION"
 
 grep -q -- '--doctor' "$ROOT/plugins/agent-council/skills/council-status/SKILL.md" || fail "council-status missing --doctor"
 grep -q 'Side effects' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing Side effects"
+grep -q 'Verdict: <state>' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing compact verdict-first output"
 grep -q 'Must-Preserve Nits' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing consensus nits template"
 grep -q 'formal_files_modified' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing lightweight frontmatter"
 grep -q 'canonical lowercase' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing lowercase agent id rule"
