@@ -32,6 +32,10 @@ install_claude() {
     rm -rf "$ROOT/.claude/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.claude/skills/$skill"
   done
+  if [ -e "$ROOT/.claude/skills/council-respond" ]; then
+    echo "Deprecated skill still exists after cleanup: $ROOT/.claude/skills/council-respond" >&2
+    exit 1
+  fi
   echo "Installed Claude Code skills into $ROOT/.claude/skills"
 }
 
@@ -42,6 +46,10 @@ install_codex() {
     rm -rf "$ROOT/.agents/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.agents/skills/$skill"
   done
+  if [ -e "$ROOT/.agents/skills/council-respond" ]; then
+    echo "Deprecated skill still exists after cleanup: $ROOT/.agents/skills/council-respond" >&2
+    exit 1
+  fi
   echo "Installed Codex skills into $ROOT/.agents/skills"
 }
 

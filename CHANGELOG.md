@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.3
+
+- Added explicit v1 upgrade cleanup for stale `council-respond` standalone installs.
+- Documented the safest v1-to-v2 upgrade path.
+
 ## 2.0.2
 
 - Removed the deprecated `council-respond` compatibility alias.

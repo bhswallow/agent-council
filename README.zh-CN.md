@@ -63,6 +63,8 @@ Agent Council 会把最新交接内容写入 `.agent-council/active/<topic-id>/`
 - Claude Code：`.claude/skills/`
 - Codex：`.agents/skills/`
 
+从 v1 升级时，直接重新运行安装脚本即可。它会覆盖当前 skills，并清理 `.claude/skills/` 和 `.agents/skills/` 下旧版残留的 standalone `council-respond` 目录。
+
 除非团队明确想保留本地讨论状态，否则建议在目标项目的 `.gitignore` 中加入：
 
     .agent-council/
@@ -87,6 +89,8 @@ Agent Council 会把最新交接内容写入 `.agent-council/active/<topic-id>/`
     /plugin marketplace add bhswallow/agent-council
     /plugin install agent-council@agent-council-marketplace
     /reload-plugins
+
+从旧版 plugin 升级时，如果 plugin 管理器里仍能看到 `council-respond`，请先卸载旧的 `agent-council` plugin，再重新安装并 reload。
 
 通过 plugin 安装后，Claude Code 会给 skill 加命名空间：
 
@@ -116,6 +120,8 @@ Agent Council 会把最新交接内容写入 `.agent-council/active/<topic-id>/`
     codex plugin marketplace add bhswallow/agent-council
 
 然后打开 Codex，执行 `/plugins`，选择 Agent Council marketplace，安装 `agent-council` plugin。
+
+从旧版 plugin 升级时，如果 `/plugins` 里仍列出 `council-respond`，请先删除旧的 `agent-council` plugin，再从 marketplace 重新安装。
 
 安装后显式调用内置 skills：
 

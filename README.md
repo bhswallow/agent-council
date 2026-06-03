@@ -63,6 +63,8 @@ The installer copies skills into:
 - `.claude/skills/` for Claude Code.
 - `.agents/skills/` for Codex.
 
+When upgrading from v1, run the installer again. It overwrites the active skills and removes stale standalone `council-respond` directories from both `.claude/skills/` and `.agents/skills/`.
+
 Add this to the target project's `.gitignore` unless your team wants to keep local discussion state:
 
     .agent-council/
@@ -87,6 +89,8 @@ Add this repository as a Claude Code marketplace and install the plugin:
     /plugin marketplace add bhswallow/agent-council
     /plugin install agent-council@agent-council-marketplace
     /reload-plugins
+
+When upgrading an older plugin install, uninstall the old plugin first if your plugin manager still shows `council-respond`, then install again and reload plugins.
 
 When installed as a plugin, Claude Code namespaces skills with the plugin name:
 
@@ -116,6 +120,8 @@ Add this repository as a Codex marketplace:
     codex plugin marketplace add bhswallow/agent-council
 
 Then open Codex, run `/plugins`, choose the Agent Council marketplace, and install the `agent-council` plugin.
+
+When upgrading an older plugin install, remove the old `agent-council` plugin in `/plugins` first if `council-respond` is still listed, then install it again from the marketplace.
 
 After installation, use the bundled skills explicitly:
 
