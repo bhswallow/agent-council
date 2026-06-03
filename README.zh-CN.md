@@ -1,5 +1,7 @@
 # Agent Council
 
+当前版本：2.0.3
+
 Agent Council 是一个小型工作流包，适合在同一个仓库中同时使用 Claude Code 和 Codex 的场景。
 
 它提供一个轻量、手动的沟通桥梁。一个工具可以写出方案、计划、评审或下一步建议；另一个工具可以直接读取最新交接内容进行评审，而不需要拥有原始聊天上下文。
@@ -12,7 +14,7 @@ Agent Council 的目标是保持简单：
 - `council-status` 查看当前状态。
 - `council-help` 查看帮助。
 
-`council-respond` 已在 v2.0.2 移除。请统一使用 `council-review` 完成评审、回应、反驳、确认和收敛。
+`council-respond` 已在 v2.0.2 移除。请统一使用 `council-review` 完成评审、回应、反驳、确认和收敛。v2.0.3 安装脚本会清理旧版残留的 standalone `council-respond`。
 
 ## 解决什么问题
 

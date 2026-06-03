@@ -1,5 +1,7 @@
 # Agent Council
 
+Current version: 2.0.3
+
 Agent Council is a small workflow package for people who use Claude Code and Codex in the same repository.
 
 It provides a lightweight, manual bridge between the two tools. One tool can write a proposal, plan, review, or next-step recommendation. The other tool can review the latest handoff without needing the original chat history.
@@ -12,7 +14,7 @@ Agent Council is intentionally simple:
 - `council-status` shows the current state.
 - `council-help` explains usage.
 
-`council-respond` was removed in v2.0.2. Use `council-review` for review, response, rebuttal, confirmation, and consensus.
+`council-respond` was removed in v2.0.2. Use `council-review` for review, response, rebuttal, confirmation, and consensus. The v2.0.3 installer also cleans stale standalone `council-respond` installs from older versions.
 
 ## What problem it solves
 
