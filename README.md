@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.1.0
+Current version: 2.3.0
 
 Agent Council is a small workflow package for people who use Claude Code and Codex in the same repository.
 
@@ -16,6 +16,8 @@ Agent Council is intentionally simple:
 - `council-upgrade` updates standalone installs.
 
 `council-respond` was removed in v2.0.2. Use `council-review` for review, response, rebuttal, confirmation, and consensus. The installer also cleans stale standalone `council-respond` installs from older versions.
+
+Agent Council should stay focused on the user's topic. Unless the topic itself is Agent Council, reviews should not analyze Council protocol, file layout, skill behavior, or the workflow mechanics.
 
 ## What problem it solves
 
@@ -43,6 +45,107 @@ A topic stores:
 
 By default, skills read only the current topic and the peer's latest message. They should not scan the whole history unless you explicitly ask.
 
+## Lightweight Guardrails
+
+Agent Council stays lightweight, but uses a few guardrails to reduce drift:
+
+- Agent ids are canonical lowercase: `claude` and `codex`.
+- File paths must use lowercase agent ids, such as `latest/claude.md`, `latest/codex.md`, and `turns/0005-claude-review.md`.
+- `council-review` and `council-open` may write only `.agent-council/` files.
+- `council-apply` is the only command that may modify formal project files.
+- User-facing command responses include a short `Side effects` summary.
+- `council-status <topic-id> --doctor` checks common consistency problems without turning Council into a strict workflow engine.
+
+The bridge should remain a low-friction shared notepad with guardrails, not a heavy process manager.
+
+## Topic States
+
+`status.md` uses a small state set:
+
+- `REVIEW_REQUESTED`: a handoff is ready for the peer to review.
+- `DISCUSSION`: both tools are still exchanging substantive points.
+- `CONSENSUS`: both sides naturally agree. There are no blockers and no disputed decisions, so peer review can stop.
+- `CONSENSUS_WITH_NITS`: both sides agree on direction and only non-blocking small issues remain. Another peer-review round is usually not useful; apply or move to the next stage.
+- `USER_FORCED_CONSENSUS`: the user explicitly passed `CONSENSUS` to stop discussion, but unresolved issues may remain. Record that this was user-forced; do not present it as natural agreement.
+- `NEEDS_DISCUSSION`: the peer still needs to answer specific questions. The response must tell the user which tool should run which `council-review` command next.
+- `USER_DECISION_NEEDED`: the tools cannot decide, or there is a product or tradeoff choice. Stop the peer loop and ask the user to decide.
+- `BLOCKED`: there is a blocking safety, data-loss, rollback, requirement, or evidence issue. Do not apply unless the user explicitly overrides the risk.
+- `APPLIED`: the consensus has been applied to formal project files.
+- `CLOSED`: the topic is closed and should not be reviewed unless the user reopens it.
+- `ABANDONED`: the topic was abandoned and should not be reviewed unless the user reopens it.
+
+The stable `status.md` shape is:
+
+```yaml
+topic: product-l1-gate
+state: REVIEW_REQUESTED
+turn: 1
+last_agent: codex
+next_agent: claude
+updated_at: 2026-06-03T12:00:00Z
+latest_handoff: latest/for-peer.md
+consensus:
+```
+
+## Consensus Usage
+
+Use `CONSENSUS` when you want a tool to decide whether the discussion can stop:
+
+```text
+$council-review product-l1-gate CONSENSUS -- If you agree there are no blockers, converge and preserve the status/evidence matrix requirement.
+```
+
+This does not mean the model should blindly declare agreement.
+
+- If no blocker remains, write `CONSENSUS` or `CONSENSUS_WITH_NITS`.
+- If disagreements remain but the user explicitly wants to stop, write `USER_FORCED_CONSENSUS`.
+- If a serious blocker remains, state the risk and ask the user whether to explicitly override it.
+
+When `council-review` finishes, it always ends with `Next action`. If the state is `NEEDS_DISCUSSION`, it gives the exact command for the other tool. If the state is `CONSENSUS` or `CONSENSUS_WITH_NITS`, it says no further peer-review round is recommended and suggests `council-apply` as an optional next step.
+
+`disable-model-invocation: true` only means Claude Code will not auto-trigger a skill. It does not prevent a skill from telling the user what command to run next. Next-step guidance is controlled by `council-review`'s output rules.
+
+Consensus files should stay short and stable:
+
+```markdown
+---
+topic: product-l1-gate
+state: CONSENSUS_WITH_NITS
+agent: codex
+turn: 6
+formal_files_modified: false
+---
+
+# Consensus
+
+Verdict: CONSENSUS_WITH_NITS
+
+## Decision
+
+Ready for:
+- writing-plans
+
+Not authorized:
+- code changes
+- completion claim
+
+## Blockers
+
+None.
+
+## Must-Preserve Nits
+
+1. Keep owner decisions separate from implementation tasks.
+2. Preserve abnormal-case terminal semantics.
+
+## Side Effects
+
+Formal project files modified:
+- none
+```
+
+Turn records and `consensus.md` may use lightweight YAML frontmatter. Keep it short: `topic`, `agent`, `turn`, `state` or `verdict`, and whether formal files were modified are enough for the default flow.
+
 ## Local installation
 
 Install the standalone skills into a project repository:
@@ -68,7 +171,7 @@ The installer copies skills into:
 
 When upgrading from v1, run the installer again. It overwrites the active skills and removes stale standalone `council-respond` directories from both `.claude/skills/` and `.agents/skills/`.
 
-After v2.1.0 is installed, standalone users can upgrade later with:
+After v2.1.0 or newer is installed, standalone users can upgrade later with:
 
     /council-upgrade
     $council-upgrade
@@ -147,23 +250,23 @@ After installation, use the bundled skills explicitly:
 
 Tool A opens a topic:
 
-    $council-open retry-design -- I changed the retry plan. Please ask the peer to review whether the next step is reasonable.
+    $council-open retry-plan -- I changed the retry plan. Please ask the peer to review whether the next step is reasonable.
 
 Tool B reviews the latest handoff:
 
-    /council-review retry-design -- Focus on risks and whether we should proceed.
+    /council-review retry-plan -- Focus on risks and whether we should proceed.
 
 Tool A reviews the reply:
 
-    $council-review retry-design -- Respond to the peer's blockers only.
+    $council-review retry-plan -- Respond to the peer's blockers only.
 
 When the discussion is ready to stop:
 
-    /council-review retry-design CONSENSUS -- If only non-blocking issues remain, write the final agreed result.
+    /council-review retry-plan CONSENSUS -- If only non-blocking issues remain, write the final agreed result.
 
 Then choose one tool to apply the result:
 
-    $council-apply retry-design -- Apply the consensus to docs/design.md.
+    $council-apply retry-plan -- Apply the consensus to docs/design.md.
 
 ## Topic ids
 
@@ -172,8 +275,10 @@ A topic id is a short name for an isolated discussion. Use lowercase kebab-case.
 Good examples:
 
 - `retry-design`
+- `product-l1-gate`
 - `checkout-plan`
 - `search-index-review`
+- `retry-plan`
 
 Avoid reusing the same topic id for unrelated work.
 

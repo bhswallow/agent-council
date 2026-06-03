@@ -1,6 +1,7 @@
 ---
 name: council-help
 description: Show concise help for Agent Council in English or Chinese.
+disable-model-invocation: true
 ---
 
 # Council Help
@@ -17,15 +18,17 @@ This skill is read-only. Do not write `.agent-council/` files and do not modify 
 
 If the user asks in Chinese or passes `zh`, answer in Chinese. If the user passes `en`, answer in English.
 
+Do not review Agent Council protocol, file structure, skill behavior, or workflow mechanics unless the user is asking about Agent Council itself.
+
 ## Chinese help
 
-Agent Council v2.1.0 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
+Agent Council v2.3.0 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
 
 常用命令：
 - `council-open <topic-id> [-- 交接说明]`
 - `council-review <topic-id> [CONSENSUS] [-- 评审要求]`
 - `council-apply <topic-id> [-- 应用要求]`
-- `council-status [topic-id|all]`
+- `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
 - `council-upgrade [--check] [--claude-only|--codex-only]`
 
@@ -37,19 +40,20 @@ Agent Council v2.1.0 是 Claude Code 和 Codex 之间的“最新一轮交接”
 - `$council-review retry-design -- 只回应对方提出的阻塞问题。`
 - `/council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛。`
 - `$council-apply retry-design -- 根据共识修改 docs/design.md。`
+- `$council-status product-l1-gate --doctor`
 - `/council-upgrade --check`
 
-原则：默认只读取对方最新交接内容，不读完整历史。讨论重点是 topic 对应的实际内容，不是 Council 流程本身。只有 `council-apply` 应该修改项目正式文件。
+原则：默认只读取对方最新交接内容，不读完整历史。agent id 和路径统一小写。讨论重点是 topic 对应的实际内容，不是 Council 流程本身。`council-review` 每次都给出 `Next action` 和简短 `Side effects`。只有 `council-apply` 应该修改项目正式文件。
 
 ## English help
 
-Agent Council v2.1.0 is a latest-turn bridge between Claude Code and Codex.
+Agent Council v2.3.0 is a latest-turn bridge between Claude Code and Codex.
 
 Commands:
 - `council-open <topic-id> [-- handoff note]`
 - `council-review <topic-id> [CONSENSUS] [-- review instruction]`
 - `council-apply <topic-id> [-- apply instruction]`
-- `council-status [topic-id|all]`
+- `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
 - `council-upgrade [--check] [--claude-only|--codex-only]`
 
@@ -61,6 +65,7 @@ Examples:
 - `$council-review retry-design -- Reply only to the peer's blockers.`
 - `/council-review retry-design CONSENSUS -- Converge if only non-blocking issues remain.`
 - `$council-apply retry-design -- Apply the consensus to docs/design.md.`
+- `$council-status product-l1-gate --doctor`
 - `/council-upgrade --check`
 
-Rule of thumb: read the peer's latest handoff, not the full history. Keep the discussion focused on the topic, not on the Council workflow. Only `council-apply` should modify formal project files.
+Rule of thumb: read the peer's latest handoff, not the full history. Agent ids and paths are lowercase. Keep the discussion focused on the topic, not on the Council workflow. `council-review` always ends with `Next action` and a short `Side effects` summary. Only `council-apply` should modify formal project files.

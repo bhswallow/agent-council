@@ -1,6 +1,7 @@
 ---
 name: council-upgrade
 description: Upgrade Agent Council standalone installs and explain plugin upgrade steps.
+disable-model-invocation: true
 ---
 
 # Council Upgrade
@@ -18,6 +19,8 @@ Examples:
 Upgrade Agent Council to the latest repository version.
 
 This skill may modify local skill installation directories, but it must not modify project source files or `.agent-council/` discussion state.
+
+Do not review Agent Council protocol or workflow mechanics. This skill only handles installation state and upgrade guidance.
 
 ## Behavior
 

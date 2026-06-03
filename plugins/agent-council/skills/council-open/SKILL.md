@@ -1,6 +1,7 @@
 ---
 name: council-open
 description: Open a lightweight Agent Council topic using the latest turn as the peer handoff.
+disable-model-invocation: true
 ---
 
 # Council Open
@@ -18,11 +19,15 @@ Open one isolated topic under `.agent-council/active/<topic-id>/` and write the 
 
 Keep this action simple. Do not require artifact paths, stages, or special modes. If the user includes a file path in the note, record it. If not, do not invent one.
 
+`council-open` is only a latest-turn bridge. It captures the current tool's latest key content for the peer; it does not summarize full history.
+
 ## Current agent
 
 If running in Claude Code, use `claude` as the current agent and `codex` as the peer.
 
 If running in Codex, use `codex` as the current agent and `claude` as the peer.
+
+Agent ids are canonical lowercase. Never write paths with `Claude`, `CLAUDE`, `Codex`, or `CODEX`.
 
 ## Read policy
 
@@ -44,9 +49,13 @@ Create or update:
 
 Do not modify formal project files.
 
+Before writing, check for case-conflict paths such as `latest/CLAUDE.md` or `latest/Codex.md`. If found, mention the canonical lowercase path and avoid writing the mixed-case path.
+
 ## Content policy
 
 The handoff should focus on the actual topic. Do not explain or analyze Agent Council itself unless the user explicitly asks for that.
+
+Hard rule: unless the topic itself is Agent Council, do not review Agent Council protocol, file structure, skill behavior, or workflow mechanics.
 
 Write a concise handoff with this shape:
 
@@ -57,12 +66,37 @@ Write a concise handoff with this shape:
 
 Do not summarize the entire chat history. Capture only the latest meaningful answer or the user's explicit note.
 
+Add short YAML frontmatter to the turn record:
+
+```yaml
+---
+topic: <topic-id>
+agent: <current-agent>
+turn: <number>
+state: REVIEW_REQUESTED
+formal_files_modified: false
+---
+```
+
+Write `status.md` with this schema:
+
+```yaml
+topic: <topic-id>
+state: REVIEW_REQUESTED
+turn: <number>
+last_agent: <current-agent>
+next_agent: <peer-agent>
+updated_at: <ISO-8601 UTC timestamp>
+latest_handoff: latest/for-peer.md
+consensus:
+```
+
 ## User-facing response
 
 Reply with:
 
 - one short summary of what was handed off;
-- files written;
 - the exact command the peer should run next.
+- `Side effects` with Council files modified, formal project files modified, code changes, and next action.
 
 Keep the response content-first. Mention Council files only briefly at the end.

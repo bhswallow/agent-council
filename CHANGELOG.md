@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.3.0
+
+- Added lightweight guardrails: canonical lowercase agent ids, side effects summaries, and `council-status --doctor`.
+- Added short consensus templates with must-preserve nits and forbidden actions.
+- Added lightweight frontmatter guidance for turn records and consensus files.
+
+## 2.2.0
+
+- Defined stable Council status states and `status.md` schema.
+- Required `council-review` responses to end with a `Next action`.
+- Tightened `council-apply` so formal consensus is required unless the user explicitly applies latest.
+- Added validation for invocation policies, version consistency, status docs, and deprecated aliases.
+
 ## 2.1.0
 
 - Added `council-upgrade` to update standalone installs from the latest repository version.
