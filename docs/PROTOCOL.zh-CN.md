@@ -2,6 +2,17 @@
 
 Agent Council v2 使用“最新一轮交接”模型。
 
+## 手动唤入边界
+
+Council 必须由用户显式唤醒。它不能自动叫停任务、自动创建 topic，
+也不能插入普通 task flow。
+
+如果出现人机交互节点，外围工作流应先停在 human gate。
+用户可以手动选择是否运行 Council，但 Council 不能自行判断“必须介入”。
+
+当一个 topic 结束后，Council 不会自动串联到下一个任务。
+控制权回到普通用户/工具工作流。
+
 ## 工作区
 
 运行时状态统一放在：
@@ -149,9 +160,14 @@ consensus:
 
 每次 `council-review` 面向用户的回复都必须以 `Next action` 结束。
 
+`Next action` 只是当前 Council topic 内的建议。它不是停止、恢复、
+串联任务、commit、push、merge、deploy 或进入新阶段的授权。
+
 如果状态是 `NEEDS_DISCUSSION`，给出对方工具应执行的精确命令。
 
-如果状态是 `CONSENSUS` 或 `CONSENSUS_WITH_NITS`，说明不建议继续互审，并把 `council-apply` 作为可选下一步。
+如果状态是 `CONSENSUS` 或 `CONSENSUS_WITH_NITS`，说明不建议继续互审，
+说明控制权回到普通工作流；只有正式项目文件需要修改时，才把
+`council-apply` 作为可选下一步。
 
 如果状态是 `USER_DECISION_NEEDED`，列出需要用户拍板的问题，不要继续交给另一个 agent。
 
@@ -181,3 +197,6 @@ consensus:
 - review 轮次是否有修改正式项目文件的迹象。
 
 doctor 应输出简短 `OK` 和 `Warnings` 列表，不应强制实现重型状态机。
+
+doctor 不能因为任务在没有 Council 的情况下继续执行，就建议 Council 介入。
+Council 是 opt-in 工具。

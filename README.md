@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.5.2
+Current version: 2.6.0
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -8,6 +8,9 @@ and preserves consensus without polluting project files.
 
 It does not automatically call another tool. It is a small shared notepad with
 guardrails, not a workflow engine.
+
+It is human-invoked by design. Council must not automatically stop tasks,
+create topics, or insert itself between normal task steps.
 
 ## Commands
 
@@ -47,6 +50,31 @@ The peer tool reads that latest handoff, reviews the actual topic, and writes
 its reply back to the same topic.
 
 Formal project files stay clean until `council-apply`.
+
+## Manual Invocation Boundary
+
+Council is opt-in. Agents and workflows should not open Council automatically,
+even when they notice risk. If a human-gated point appears, pause for the human
+gate first; the user may then choose to involve Council.
+
+Council may:
+
+- record a handoff when the user runs `council-open`;
+- review a topic when the user runs `council-review`;
+- preserve consensus for that topic;
+- apply agreed changes only when the user runs `council-apply`.
+
+Council must not:
+
+- act as an automatic task gate;
+- stop or block unrelated task execution by itself;
+- create a Council topic for every task;
+- decide that a human gate requires Council;
+- chain from one finished topic into the next task automatically.
+
+After a topic reaches consensus, blocked, closed, abandoned, or applied state,
+control returns to the normal user/tool workflow. Any next task starts only from
+the user's ordinary task instructions, not from Council.
 
 ## Choosing A Bridge
 
@@ -251,6 +279,10 @@ explicitly overrides the risk.
 `disable-model-invocation: true` only means Claude Code will not auto-trigger a
 skill. It does not affect whether the skill tells the user what command to run
 next. Next-step guidance is controlled by `council-review` output rules.
+
+Council next-step guidance is advisory and topic-scoped. It must not be treated
+as permission to stop, resume, chain, commit, push, merge, deploy, or enter the
+next task. Those decisions remain normal user/tool workflow decisions.
 
 Consensus files should stay short and stable:
 

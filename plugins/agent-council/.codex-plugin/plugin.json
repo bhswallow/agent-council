@@ -1,6 +1,6 @@
 {
   "name": "agent-council",
-  "version": "2.5.2",
+  "version": "2.6.0",
   "description": "A lightweight latest-turn bridge for manual Claude Code and Codex review loops.",
   "license": "MIT",
   "skills": "./skills/",

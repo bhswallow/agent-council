@@ -21,6 +21,11 @@ This is the only Council action that should modify project files. If the target 
 
 Do not review Agent Council protocol, file structure, skill behavior, or workflow mechanics unless the topic itself is Agent Council.
 
+Manual invocation boundary: only apply because the user explicitly invoked
+`council-apply` with an apply request. Applying one topic must not automatically
+start another task, open another Council topic, commit, push, merge, deploy, or
+claim permission to enter the next workflow stage.
+
 ## Current agent
 
 If running in Claude Code, write this turn as `claude`.
@@ -95,3 +100,6 @@ Report:
 - whether a final peer review is recommended;
 - the exact next command if useful.
 - `Side effects` with Council files modified, formal project files modified, and code changes.
+
+If useful, say control returns to the normal user/tool workflow after apply.
+Do not chain into the next task automatically.

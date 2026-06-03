@@ -8,6 +8,9 @@ Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
 and preserves consensus without polluting project files.
 
+Council is invoked by the user. It must not automatically stop tasks, create
+topics, or chain into another task after a topic finishes.
+
 Keep reviews focused on the topic. Unless the topic itself is Agent Council, do
 not turn the exchange into a review of Council protocol or workflow mechanics.
 
@@ -90,6 +93,9 @@ changes.
 `Next action` and `Side effects`.
 Do not add long explanations of the Council workflow unless the topic is Agent
 Council itself.
+
+`Next action` is advisory for the current topic only. It is not permission to
+stop, resume, commit, push, merge, deploy, or enter the next task.
 
 ## Notes
 

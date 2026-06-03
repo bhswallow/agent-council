@@ -7,6 +7,9 @@ Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
 让另一个工具可以接住。
 
+Council 只能由用户显式唤醒。它不能自动叫停任务、创建 topic，
+也不能在 topic 结束后自动串联到下一个 task。
+
 评审必须聚焦 topic 本身。
 除非 topic 本身就是 Agent Council，否则不要把讨论变成对 Council 协议或流程机制的评审。
 
@@ -83,6 +86,9 @@ latest handoff 应控制在 500 words 或 20 bullets 以内。原始内容较长
 `council-review` 应先输出 verdict，再给简短 topic 判断，
 最后输出 `Next action` 和 `Side effects`。
 除非 topic 本身就是 Agent Council，否则不要长篇解释 Council 工作流。
+
+`Next action` 只是当前 topic 内建议，不是停止、恢复、commit、push、
+merge、deploy 或进入下一 task 的授权。
 
 ## 说明
 

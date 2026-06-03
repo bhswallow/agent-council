@@ -70,6 +70,7 @@ for readme in README.md README.zh-CN.md; do
   grep -q 'council-version' "$file" || fail "$readme missing council-version guidance"
   grep -q '500 words' "$file" || fail "$readme missing handoff size budget"
   grep -q '2026-06-03-1' "$file" || fail "$readme missing automatic topic id example"
+  grep -qi 'human-invoked\|显式唤醒' "$file" || fail "$readme missing manual invocation boundary"
 done
 
 grep -q 'lightweight, manual latest-turn bridge' "$ROOT/README.md" || \
@@ -132,6 +133,14 @@ grep -q 'canonical lowercase' "$ROOT/plugins/agent-council/skills/council-review
 grep -q 'Never write paths with' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing mixed-case path guard"
 grep -q 'Never write paths with' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing mixed-case path guard"
 grep -q 'case-conflict' "$ROOT/plugins/agent-council/skills/council-status/SKILL.md" || fail "council-status doctor missing case-conflict check"
+grep -q 'Manual invocation boundary' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing manual invocation boundary"
+grep -q 'Manual invocation boundary' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing manual invocation boundary"
+grep -q 'Manual invocation boundary' "$ROOT/plugins/agent-council/skills/council-status/SKILL.md" || fail "council-status missing manual invocation boundary"
+grep -q 'Manual invocation boundary' "$ROOT/plugins/agent-council/skills/council-apply/SKILL.md" || fail "council-apply missing manual invocation boundary"
+grep -q 'automatically stop tasks' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review must not auto-stop tasks"
+grep -q 'do not run standalone installation commands' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade plugin guard missing"
+grep -q 'chain.*next task' "$ROOT/README.md" || fail "README.md missing no-chaining boundary"
+grep -q '自动串联' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing no-chaining boundary"
 grep -q 'Default behavior is read-only' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must be check-only by default"
 grep -q 'only when the user includes `--apply`' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must require --apply for install changes"
 grep -q 'Do not treat `--ref` by itself as permission to upgrade' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must not let --ref imply apply"

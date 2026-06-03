@@ -1,12 +1,13 @@
 # Agent Council
 
-当前版本：2.5.2
+当前版本：2.6.0
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
 让另一个工具可以接住。
 
 它不是流程引擎，而是一个带少量防错护栏的共享记事板。
+它必须由用户显式唤醒，不应自动叫停任务、自动创建 topic，或插入普通 task 步骤之间。
 
 ## 命令
 
@@ -42,6 +43,31 @@ Agent Council 会把最新交接内容写入：
 另一个工具读取这个 topic 下的最新内容，继续评审和回应实际话题。
 
 正式项目文件保持干净，直到你显式执行 `council-apply`。
+
+## 手动唤入边界
+
+Council 是 opt-in 工具。agent 和工作流不应该自动打开 Council，
+即使它们发现了风险。出现需要人机交互的节点时，应先停在 human gate；
+用户可以再手动决定是否让 Council 介入。
+
+Council 可以：
+
+- 在用户执行 `council-open` 时记录交接；
+- 在用户执行 `council-review` 时评审当前 topic；
+- 保存该 topic 的共识；
+- 仅在用户执行 `council-apply` 时应用已同意的修改。
+
+Council 禁止：
+
+- 作为自动 task gate；
+- 自行叫停或阻塞无关任务执行；
+- 为每个 task 自动创建 Council topic；
+- 断定某个人机交互点必须使用 Council；
+- 在一个 topic 结束后自动串联到下一个任务。
+
+当 topic 进入 consensus、blocked、closed、abandoned 或 applied 状态后，
+控制权回到普通用户/工具工作流。后续 task 只能来自用户的普通任务指令，
+不能由 Council 自动连接。
 
 ## 如何选择工具
 
@@ -232,6 +258,10 @@ $council-apply {topic_id} -- Apply the consensus.
 `disable-model-invocation: true` 只表示 Claude Code 不会自动触发该 skill。
 它不影响 skill 执行后是否告诉用户下一步命令。
 下一步命令由 `council-review` 的输出规则决定。
+
+Council 的 next-step guidance 只是当前 topic 内的建议。
+它不是停止、恢复、串联、commit、push、merge、deploy 或进入下一 task 的授权。
+这些决定仍属于普通用户/工具工作流。
 
 共识文件应该短而稳定：
 

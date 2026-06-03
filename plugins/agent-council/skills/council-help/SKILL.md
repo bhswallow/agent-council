@@ -24,9 +24,10 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.5.2 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.6.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
+它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
 
 常用命令：
 - `council-open [topic-id] [-- 交接说明]`
@@ -57,13 +58,15 @@ Agent Council v2.5.2 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - latest handoff 控制在 500 words 或 20 bullets 以内。
 - 讨论重点是 topic 对应的实际内容，不是 Council 流程本身。
 - `council-review` 先给 verdict，再给 topic 判断，最后给 `Next action` 和简短 `Side effects`。
+- `Next action` 只是当前 topic 内建议，不是停止、恢复、commit、push 或进入下一 task 的授权。
 - 只有 `council-apply` 应该修改项目正式文件。
 
 ## English help
 
-Agent Council v2.5.2 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
+Agent Council v2.6.0 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
+It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
 
 Commands:
 - `council-open [topic-id] [-- handoff note]`
@@ -94,4 +97,5 @@ Rule of thumb:
 - Keep latest handoffs under 500 words or 20 bullets.
 - Keep the discussion focused on the topic, not on the Council workflow.
 - `council-review` starts with a verdict, then a topic judgment, then `Next action` and a short `Side effects` summary.
+- `Next action` is advisory for the current topic, not permission to stop, resume, commit, push, or enter the next task.
 - Only `council-apply` should modify formal project files.

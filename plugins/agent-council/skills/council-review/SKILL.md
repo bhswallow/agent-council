@@ -22,6 +22,11 @@ This command covers review, response, rebuttal, confirmation, and convergence. U
 
 `council-review` is the merged review/respond command. `council-respond` is not part of the v2 flow.
 
+Manual invocation boundary: only run this skill because the user explicitly
+invoked `council-review`. Council is advisory and topic-scoped. It must not
+automatically stop tasks, create follow-up topics, route into another task, or
+claim authority over the surrounding workflow.
+
 ## Current agent
 
 If running in Claude Code, use `claude` as the current agent and read Codex's latest message first.
@@ -107,6 +112,10 @@ If the user includes `CONSENSUS`:
 Do not write `USER_FORCED_CONSENSUS` as if both tools naturally agreed.
 
 If the state is `USER_DECISION_NEEDED`, list the exact user decision needed and do not route to another peer-review round.
+
+If a human interaction is needed, list the decision or authorization needed.
+Do not say Council itself requires that interaction, and do not automatically
+open another Council topic.
 
 When writing `consensus.md`, use this short template:
 
@@ -196,6 +205,10 @@ List only material blockers and must-preserve nits. Skip protocol commentary.
 
 Every response must end with `Next action`.
 
+`Next action` is advisory and limited to this Council topic. It is not
+authorization to stop, resume, chain, commit, push, merge, deploy, or enter the
+next task.
+
 If state is `NEEDS_DISCUSSION`, provide the exact command for the other tool. Use the correct tool label:
 
 ```text
@@ -217,7 +230,7 @@ If state is `CONSENSUS` or `CONSENSUS_WITH_NITS`, say:
 ```text
 Next action:
 No further peer-review round is recommended.
-Optional: run `$council-apply {topic_id} -- Apply the consensus.`
+Return to the normal task flow. Optional: run `$council-apply {topic_id} -- Apply the consensus.`
 ```
 
 If state is `USER_FORCED_CONSENSUS`, say the stop was user-forced and list any accepted risks. Offer apply only if the user has explicitly accepted those risks.
@@ -227,6 +240,11 @@ If state is `USER_DECISION_NEEDED`, list the user decisions needed. Do not ask a
 If state is `BLOCKED`, say apply is not allowed unless the user explicitly overrides the risk.
 
 If state is `CLOSED` or `ABANDONED`, say review should not continue unless the user explicitly reopens the topic.
+
+When a topic reaches `CONSENSUS`, `CONSENSUS_WITH_NITS`,
+`USER_FORCED_CONSENSUS`, `BLOCKED`, `CLOSED`, `ABANDONED`, or `APPLIED`, do
+not suggest opening a new topic or continuing into the next implementation
+task. Say that control returns to the normal user/tool workflow.
 
 Then add a short `Side effects` summary:
 

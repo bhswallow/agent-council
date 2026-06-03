@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.6.0
+
+- Reframed Council as a human-invoked bridge, not an automatic risk gate.
+- Added manual invocation boundaries: no auto-open, no task-stopping authority,
+  and no automatic chaining after a topic finishes.
+- Updated `council-open`, `council-review`, `council-status`, and
+  `council-apply` guidance to keep Council advisory and topic-scoped.
+- Documented that human gates happen outside Council; users may manually choose
+  whether Council should participate.
+
 ## 2.5.2
 
 - Made `council-upgrade` check-only by default.

@@ -2,6 +2,18 @@
 
 Agent Council v2 uses a latest-turn bridge model.
 
+## Manual invocation boundary
+
+Council is human-invoked. It must not automatically stop tasks, create topics,
+or insert itself into normal task flow.
+
+If a human interaction point appears, the surrounding workflow should pause for
+that human gate first. The user may manually choose to run Council, but Council
+must not decide that it is required.
+
+When a topic finishes, Council does not chain into the next task. Control
+returns to the normal user/tool workflow.
+
 ## Workspace
 
 All runtime state lives under:
@@ -151,9 +163,13 @@ Use a short consensus template:
 
 Every `council-review` user-facing response must end with `Next action`.
 
+`Next action` is advisory and scoped to the current Council topic. It is not
+permission to stop, resume, chain tasks, commit, push, merge, deploy, or enter a
+new workflow stage.
+
 If the state is `NEEDS_DISCUSSION`, provide the exact command the other tool should run.
 
-If the state is `CONSENSUS` or `CONSENSUS_WITH_NITS`, say no further peer-review round is recommended and offer `council-apply` as optional.
+If the state is `CONSENSUS` or `CONSENSUS_WITH_NITS`, say no further peer-review round is recommended, say control returns to the normal workflow, and offer `council-apply` as optional when formal project files should change.
 
 If the state is `USER_DECISION_NEEDED`, list the user decision needed instead of sending the topic to another peer.
 
@@ -183,3 +199,6 @@ For `council-open` and `council-review`, formal project files and code changes s
 - signs that a review turn modified formal project files.
 
 Doctor should report short `OK` and `Warnings` lists. It should not enforce a heavy state machine.
+
+Doctor must not recommend Council intervention merely because tasks are
+continuing without Council. Council is opt-in.

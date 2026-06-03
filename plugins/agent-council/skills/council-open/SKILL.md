@@ -23,6 +23,11 @@ Keep this action simple. Do not require artifact paths, stages, or special modes
 
 `council-open` is only a latest-turn bridge. It captures the current tool's latest key content for the peer; it does not summarize full history.
 
+Manual invocation boundary: only run this skill because the user explicitly
+invoked `council-open`. Do not open Council automatically because a task looks
+risky, because a workflow reached a checkpoint, or because another task just
+finished. Council does not stop or gate tasks by itself.
+
 ## Topic id
 
 The topic id is optional.
@@ -89,6 +94,11 @@ The handoff should focus on the actual topic. Do not explain or analyze Agent Co
 
 Hard rule: unless the topic itself is Agent Council, do not review Agent Council protocol, file structure, skill behavior, or workflow mechanics.
 
+If the user provides a gate reason, record it as context. Do not treat the gate
+reason as proof that Council was required. If the user did not provide a gate
+reason, do not ask for one and do not warn that Council should or should not
+have been used.
+
 Write a concise handoff with this shape:
 
 - Topic
@@ -142,3 +152,6 @@ Reply with:
 - `Side effects` with Council files modified, formal project files modified, code changes, and next action.
 
 Keep the response content-first. Mention Council files only briefly at the end.
+
+Do not say that a task is stopped, blocked, paused, or gated by Council. The
+next command is only a manual option for the user or peer tool.

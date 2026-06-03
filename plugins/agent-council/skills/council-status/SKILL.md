@@ -24,6 +24,11 @@ Optionally close, abandon, or archive a topic when the user explicitly asks.
 
 Do not review Agent Council protocol, file structure, skill behavior, or workflow mechanics unless the topic itself is Agent Council.
 
+Manual invocation boundary: this skill only reports or updates Council topic
+state because the user explicitly invoked it. It must not decide that Council
+should intervene in unrelated tasks, and `--doctor` must not turn normal task
+flow into a Council gate.
+
 ## Read policy
 
 For `all`, read only `.agent-council/index.md` and the `status.md` file for each active topic.
@@ -56,6 +61,10 @@ For `--doctor`, check consistency without modifying files unless the user explic
 - `status.md` state disagreeing with `consensus.md` verdict/state;
 - `consensus.md` older than the newest turn;
 - any indication that a review/open turn modified formal project files.
+
+Do not warn that too few Council topics exist. Do not recommend creating more
+Council topics merely because tasks continue. Council is manually invoked by
+the user, not automatically triggered by doctor.
 
 Doctor output should be:
 
@@ -94,3 +103,6 @@ Keep the response short:
 - latest owner / next recommended command;
 - whether another peer review is useful.
 - `Side effects` if files were modified; for read-only status or doctor, say `none`.
+
+Any next recommended command is advisory for the current Council topic only. Do
+not say that Council stops or resumes the surrounding task workflow.
