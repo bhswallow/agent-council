@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.5.1
+
+- Replaced raw angle-bracket placeholders with `{safe_placeholder}` syntax so
+  GitHub/raw readers do not collapse path examples.
+- Added validation for malformed placeholder output, SKILL.md frontmatter, and
+  broken `.agent-council` paths.
+- Tightened `council-review CONSENSUS` to read both latest handoffs before
+  natural consensus.
+- Added `council-open --overwrite` protection for active topics.
+- Added `council-apply` guards for `USER_DECISION_NEEDED` and
+  `USER_FORCED_CONSENSUS`.
+
 ## 2.5.0
 
 - Made `council-open` topic ids optional, with automatic date-based ids such as `2026-06-03-1`.

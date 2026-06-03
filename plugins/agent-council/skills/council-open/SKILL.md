@@ -7,7 +7,7 @@ disable-model-invocation: true
 # Council Open
 
 Arguments:
-`[topic-id] [-- handoff note]`
+`[topic-id] [--overwrite] [-- handoff note]`
 
 Examples:
 - `/council-open`
@@ -17,7 +17,7 @@ Examples:
 
 ## Purpose
 
-Open one isolated topic under `.agent-council/active/<topic-id>/` and write the current handoff for the peer tool.
+Open one isolated topic under `.agent-council/active/{topic_id}/` and write the current handoff for the peer tool.
 
 Keep this action simple. Do not require artifact paths, stages, or special modes. If the user includes a file path in the note, record it. If not, do not invent one.
 
@@ -31,12 +31,27 @@ If the user provides a topic id, use it after normalizing to lowercase kebab-cas
 
 If the user omits the topic id, generate one without asking:
 
-- Default format: `<YYYY-MM-DD>-<n>`, for example `2026-06-03-1`.
+- Default format: `{YYYY-MM-DD}-{n}`, for example `2026-06-03-1`.
 - Use the current local date if available.
 - Pick the first positive integer that does not already exist under `.agent-council/active/` or `.agent-council/archive/`.
 - If the user's handoff note contains an obvious short subject, a concise slug such as `review-l1-spike` is also acceptable.
 
 Do not make naming a blocking question. If unsure, use the date-based id.
+
+## Existing topic protection
+
+If the chosen topic already exists and `status.md` is not `CLOSED`,
+`ABANDONED`, or `APPLIED`, do not overwrite `latest/{current_agent}.md` by
+default.
+
+If the same agent is opening the same active topic again, stop and say:
+
+- this would overwrite that agent's latest handoff;
+- use `council-review {topic_id}` if this is a reply to the peer;
+- rerun `council-open {topic_id} --overwrite -- ...` only when the user really
+  wants to replace the handoff.
+
+Only overwrite an active topic when the user explicitly includes `--overwrite`.
 
 ## Current agent
 
@@ -57,12 +72,12 @@ If the useful content is not visible or is represented only by a placeholder, as
 Create or update:
 
 - `.agent-council/index.md`
-- `.agent-council/active/<topic-id>/topic.md`
-- `.agent-council/active/<topic-id>/status.md`
-- `.agent-council/active/<topic-id>/latest/<current-agent>.md`
-- `.agent-council/active/<topic-id>/latest/for-peer.md`
-- `.agent-council/active/<topic-id>/latest/user-request.md`
-- `.agent-council/active/<topic-id>/turns/<next-number>-<current-agent>-open.md`
+- `.agent-council/active/{topic_id}/topic.md`
+- `.agent-council/active/{topic_id}/status.md`
+- `.agent-council/active/{topic_id}/latest/{current_agent}.md`
+- `.agent-council/active/{topic_id}/latest/for-peer.md`
+- `.agent-council/active/{topic_id}/latest/user-request.md`
+- `.agent-council/active/{topic_id}/turns/{turn_number}-{current_agent}-open.md`
 
 Do not modify formal project files.
 
@@ -83,7 +98,7 @@ Write a concise handoff with this shape:
 
 Do not summarize the entire chat history. Capture only the latest meaningful answer or the user's explicit note.
 
-Apply the default handoff size budget when writing `latest/<current-agent>.md` and `latest/for-peer.md`:
+Apply the default handoff size budget when writing `latest/{current_agent}.md` and `latest/for-peer.md`:
 
 - maximum 500 words;
 - maximum 20 bullets;
@@ -96,9 +111,9 @@ Add short YAML frontmatter to the turn record:
 
 ```yaml
 ---
-topic: <topic-id>
-agent: <current-agent>
-turn: <number>
+topic: {topic_id}
+agent: {current_agent}
+turn: {turn_number}
 state: REVIEW_REQUESTED
 formal_files_modified: false
 ---
@@ -107,12 +122,12 @@ formal_files_modified: false
 Write `status.md` with this schema:
 
 ```yaml
-topic: <topic-id>
+topic: {topic_id}
 state: REVIEW_REQUESTED
-turn: <number>
-last_agent: <current-agent>
-next_agent: <peer-agent>
-updated_at: <ISO-8601 UTC timestamp>
+turn: {turn_number}
+last_agent: {current_agent}
+next_agent: {peer_agent}
+updated_at: {iso8601_utc_timestamp}
 latest_handoff: latest/for-peer.md
 consensus:
 ```

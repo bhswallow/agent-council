@@ -30,9 +30,9 @@ For `all`, read only `.agent-council/index.md` and the `status.md` file for each
 
 For one topic, read only:
 
-- `.agent-council/active/<topic-id>/topic.md`
-- `.agent-council/active/<topic-id>/status.md`
-- `.agent-council/active/<topic-id>/consensus.md` if present
+- `.agent-council/active/{topic_id}/topic.md`
+- `.agent-council/active/{topic_id}/status.md`
+- `.agent-council/active/{topic_id}/consensus.md` if present
 - latest timestamps or latest file names if useful
 
 Do not load full turns by default.
@@ -45,7 +45,7 @@ For `close`, mark the topic closed.
 
 For `abandon`, mark it abandoned and preserve files.
 
-For `archive`, move it from `.agent-council/active/<topic-id>/` to `.agent-council/archive/<topic-id>/` if tools allow. If not, explain the move needed.
+For `archive`, move it from `.agent-council/active/{topic_id}/` to `.agent-council/archive/{topic_id}/` if tools allow. If not, explain the move needed.
 
 For `--doctor`, check consistency without modifying files unless the user explicitly asks for a repair. Keep checks short and high-value:
 
@@ -60,7 +60,7 @@ For `--doctor`, check consistency without modifying files unless the user explic
 Doctor output should be:
 
 ```text
-Doctor: <topic-id>
+Doctor: {topic_id}
 
 OK:
 - ...
@@ -74,14 +74,14 @@ Do not enforce a strict state machine. Report warnings and suggested fixes.
 Use the stable `status.md` schema:
 
 ```yaml
-topic: <topic-id>
-state: <REVIEW_REQUESTED|DISCUSSION|NEEDS_DISCUSSION|CONSENSUS|CONSENSUS_WITH_NITS|USER_FORCED_CONSENSUS|USER_DECISION_NEEDED|BLOCKED|APPLIED|CLOSED|ABANDONED>
-turn: <number>
-last_agent: <agent>
-next_agent: <agent or user or none>
-updated_at: <ISO-8601 UTC timestamp>
+topic: {topic_id}
+state: {REVIEW_REQUESTED|DISCUSSION|NEEDS_DISCUSSION|CONSENSUS|CONSENSUS_WITH_NITS|USER_FORCED_CONSENSUS|USER_DECISION_NEEDED|BLOCKED|APPLIED|CLOSED|ABANDONED}
+turn: {turn_number}
+last_agent: {agent}
+next_agent: {agent_or_user_or_none}
+updated_at: {iso8601_utc_timestamp}
 latest_handoff: latest/for-peer.md
-consensus: <consensus.md or empty>
+consensus: {consensus_md_or_empty}
 ```
 
 For `close`, set state to `CLOSED`. For `abandon`, set state to `ABANDONED`. Closed or abandoned topics should not continue review unless the user explicitly reopens them.

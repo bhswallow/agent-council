@@ -6,7 +6,7 @@ Agent Council v2 使用“最新一轮交接”模型。
 
 运行时状态统一放在：
 
-    .agent-council/active/<topic-id>/
+    .agent-council/active/{topic_id}/
 
 推荐文件：
 
@@ -29,7 +29,7 @@ agent id 统一使用小写。内置合法值是 `claude` 和 `codex`。路径�
 
 用户省略时，直接自动生成，不要追问：
 
-- 默认格式：`<YYYY-MM-DD>-<n>`，例如 `2026-06-03-1`；
+- 默认格式：`{YYYY-MM-DD}-{n}`，例如 `2026-06-03-1`；
 - 选择 active 或 archive 中尚未使用的第一个正整数；
 - 如果用户说明里有明显短主题，也可以使用类似 `review-l1-spike` 的简短 slug。
 
@@ -49,7 +49,7 @@ agent id 统一使用小写。内置合法值是 `claude` 和 `codex`。路径�
 
 ## Handoff 大小预算
 
-写入 `latest/<agent>.md` 或 `latest/for-peer.md` 时，控制在：
+写入 `latest/{agent}.md` 或 `latest/for-peer.md` 时，控制在：
 
 - 500 words 以内；或
 - 20 bullets 以内。
@@ -170,7 +170,7 @@ consensus:
 
 ## doctor 检查
 
-`council-status <topic-id> --doctor` 检查：
+`council-status {topic_id} --doctor` 检查：
 
 - `latest/CLAUDE.md` 这类大小写冲突路径；
 - 是否缺少 `latest/for-peer.md`；

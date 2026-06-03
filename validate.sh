@@ -36,6 +36,11 @@ for skill in "${skills[@]}"; do
   [ -f "$skill_file" ] || fail "Missing skill: $skill"
   [ -f "$codex_file" ] || fail "Missing Codex metadata for skill: $skill"
 
+  first_line="$(sed -n '1p' "$skill_file")"
+  [ "$first_line" = "---" ] || fail "SKILL.md frontmatter must start with ---: $skill_file"
+  sed -n '2,10p' "$skill_file" | grep -qx -- '---' || \
+    fail "SKILL.md frontmatter must close with standalone --- in first 10 lines: $skill_file"
+
   grep -q '^disable-model-invocation: true$' "$skill_file" || \
     fail "Missing disable-model-invocation: true in $skill_file"
 
@@ -110,11 +115,16 @@ grep -q "Agent Council v$VERSION" "$ROOT/plugins/agent-council/skills/council-ve
 
 grep -q -- '--doctor' "$ROOT/plugins/agent-council/skills/council-status/SKILL.md" || fail "council-status missing --doctor"
 grep -q 'Side effects' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing Side effects"
-grep -q 'Verdict: <state>' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing compact verdict-first output"
+grep -q 'Verdict: {state}' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing compact verdict-first output"
 grep -q 'maximum 500 words' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing handoff size budget"
 grep -q 'maximum 500 words' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing handoff size budget"
 grep -q 'topic id is optional' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing optional topic-id rule"
-grep -q '<YYYY-MM-DD>-<n>' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing generated topic-id format"
+grep -q '{YYYY-MM-DD}-{n}' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing generated topic-id format"
+grep -q 'latest/claude.md' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review CONSENSUS must read claude latest"
+grep -q 'latest/codex.md' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review CONSENSUS must read codex latest"
+grep -q -- '--overwrite' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing overwrite guard"
+grep -q 'USER_DECISION_NEEDED' "$ROOT/plugins/agent-council/skills/council-apply/SKILL.md" || fail "council-apply missing user decision guard"
+grep -q 'USER_FORCED_CONSENSUS' "$ROOT/plugins/agent-council/skills/council-apply/SKILL.md" || fail "council-apply missing forced consensus guard"
 grep -q 'Must-Preserve Nits' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing consensus nits template"
 grep -q 'formal_files_modified' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing lightweight frontmatter"
 grep -q 'canonical lowercase' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing lowercase agent id rule"
@@ -125,6 +135,16 @@ grep -q 'case-conflict' "$ROOT/plugins/agent-council/skills/council-status/SKILL
 
 if grep -Rqi 'IPTV' "$ROOT/README.md" "$ROOT/README.zh-CN.md" "$ROOT/plugins/agent-council/skills" "$ROOT/docs"; then
   fail "Docs or skills must not contain IPTV"
+fi
+
+if grep -R '<\(topic-id\|current-agent\|peer-agent\|peer\|next-number\|number\|agent\|state\|turn\)>' \
+  "$ROOT/README.md" "$ROOT/README.zh-CN.md" "$ROOT/plugins/agent-council/skills" "$ROOT/docs"; then
+  fail "Use safe placeholders like {topic_id}; do not use raw angle-bracket placeholders"
+fi
+
+if grep -R -E '\.agent-council/active//|latest/\.md|turns/--' \
+  "$ROOT/README.md" "$ROOT/README.zh-CN.md" "$ROOT/plugins/agent-council/skills" "$ROOT/docs"; then
+  fail "Detected collapsed placeholder path such as active//, latest/.md, or turns/--"
 fi
 
 echo "Validation passed."

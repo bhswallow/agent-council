@@ -16,8 +16,8 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
 ## Commands
 
     council-open [topic-id] [-- handoff note]
-    council-review <topic-id> [CONSENSUS] [-- review instruction]
-    council-apply <topic-id> [-- apply instruction]
+    council-review {topic_id} [CONSENSUS] [-- review instruction]
+    council-apply {topic_id} [-- apply instruction]
     council-status [topic-id|all] [--doctor]
     council-help [zh|en]
     council-version [--check]
@@ -33,7 +33,7 @@ If `council-upgrade` completes but `council-help` still shows an old version,
 the active command is usually from another standalone location or from a plugin
 cache.
 
-Use `council-status <topic-id> --doctor` to check lowercase path conflicts,
+Use `council-status {topic_id} --doctor` to check lowercase path conflicts,
 turn continuity, stale consensus, and status/consensus drift.
 
 `council-open` can omit the topic id. If omitted, it generates a date-based id
@@ -74,7 +74,7 @@ Serious unresolved risks should become `BLOCKED` or
 
 ## Apply
 
-    $council-apply retry-design -- Apply the consensus to docs/design.md.
+    $council-apply retry-design -- Apply the consensus to docs/plan.md.
 
 Only `council-apply` should modify formal project files.
 

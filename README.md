@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.5.0
+Current version: 2.5.1
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -39,13 +39,94 @@ lose.
 Agent Council writes the latest handoff into:
 
 ```text
-.agent-council/active/<topic-id>/
+.agent-council/active/{topic_id}/
 ```
 
 The peer tool reads that latest handoff, reviews the actual topic, and writes
 its reply back to the same topic.
 
 Formal project files stay clean until `council-apply`.
+
+## Choosing A Bridge
+
+Agent Council is not a replacement for direct model invocation. It solves a
+different problem.
+
+Use this comparison when deciding how Claude Code and Codex should cooperate.
+
+### Agent Council
+
+Solves:
+
+- Manual latest-turn handoff between Claude Code and Codex.
+- Peer review, disagreement tracking, and consensus capture.
+
+Strengths:
+
+- Low setup.
+- Explicit files that are easy to audit.
+- No hidden cross-agent call.
+- Keeps formal project files clean until `council-apply`.
+
+Tradeoffs:
+
+- The user still runs the next command in the other tool.
+- It is not instant.
+- It does not automatically fetch another model's answer.
+
+### Codex-In-Claude Plugin
+
+Solves:
+
+- Calling Codex directly from inside Claude Code.
+- Fast one-off review, alternative patches, or "ask Codex now" workflows.
+
+Strengths:
+
+- No need to leave Claude Code for a quick second opinion.
+- Useful when speed matters more than preserving a durable handoff trail.
+
+Tradeoffs:
+
+- More setup: CLI, auth, permissions, and plugin behavior.
+- May add token or API cost.
+- Less durable unless the plugin writes a review record.
+
+### Claude-In-Codex Plugin With `claude -p`
+
+Solves:
+
+- Calling Claude Code non-interactively from Codex.
+- Scripted Claude checks, structured one-shot review, or CI-like automation.
+
+Strengths:
+
+- Good fit for prompts like "review this diff and return JSON".
+- Easy to wrap in a Codex skill or local command when Claude Code is installed.
+
+Tradeoffs:
+
+- Non-interactive calls need careful prompt and context packaging.
+- Claude setup, permissions, billing, and limits are separate from Codex.
+- It is a direct invocation path, not a consensus log by itself.
+
+Choose Agent Council when you want an explicit handoff trail and a clear
+consensus boundary.
+
+Choose a direct invocation plugin when speed matters more than keeping an
+auditable cross-tool record.
+
+Choose `claude -p` from Codex when the task is naturally a one-shot scripted
+Claude call, such as "review this diff and return JSON".
+
+You can combine them: use a direct invocation plugin for quick checks, then use
+Agent Council only when the result should become a shared decision.
+
+References:
+
+- Codex `/plugins` and Codex plugin documentation in your installed Codex app.
+- [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage)
+- [Run Claude Code programmatically](https://code.claude.com/docs/en/headless)
 
 ## Topic Files
 
@@ -83,7 +164,7 @@ Agent Council stays lightweight, but it uses a few high-value guardrails:
 - `council-open` and `council-review` may write only `.agent-council/`.
 - `council-apply` is the only command that may modify formal project files.
 - Command responses include a short `Side effects` summary.
-- `council-status <topic-id> --doctor` checks common consistency problems.
+- `council-status {topic_id} --doctor` checks common consistency problems.
 
 The goal is a low-friction bridge with guardrails, not a strict state machine.
 
@@ -116,7 +197,7 @@ If the handoff note contains an obvious short subject, a concise slug such as
 
 The bridge reads latest turns by default, so latest files must stay short.
 
-When writing `latest/<agent>.md` and `latest/for-peer.md`, keep the handoff
+When writing `latest/{agent}.md` and `latest/for-peer.md`, keep the handoff
 within:
 
 - 500 words; or
@@ -219,7 +300,7 @@ No further peer-review round is recommended.
 It may then suggest:
 
 ```text
-$council-apply <topic-id> -- Apply the consensus.
+$council-apply {topic_id} -- Apply the consensus.
 ```
 
 If the state is `USER_DECISION_NEEDED`, it lists the decisions the user must
@@ -468,7 +549,7 @@ When the discussion is ready to stop:
 Then choose one tool to apply the result:
 
 ```text
-$council-apply retry-plan -- Apply the consensus to docs/design.md.
+$council-apply retry-plan -- Apply the consensus to docs/plan.md.
 ```
 
 ## Topic Ids

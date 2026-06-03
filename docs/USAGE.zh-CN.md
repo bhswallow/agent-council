@@ -15,8 +15,8 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
 ## 命令
 
     council-open [topic-id] [-- 交接说明]
-    council-review <topic-id> [CONSENSUS] [-- 评审要求]
-    council-apply <topic-id> [-- 应用要求]
+    council-review {topic_id} [CONSENSUS] [-- 评审要求]
+    council-apply {topic_id} [-- 应用要求]
     council-status [topic-id|all] [--doctor]
     council-help [zh|en]
     council-version [--check]
@@ -31,7 +31,7 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
 如果 `council-upgrade` 完成后 `council-help` 仍显示旧版本，
 通常说明当前命令来自另一个 standalone 位置或 plugin 缓存。
 
-使用 `council-status <topic-id> --doctor` 可以检查大小写路径冲突、
+使用 `council-status {topic_id} --doctor` 可以检查大小写路径冲突、
 turn 连续性、过期 consensus、status/consensus 漂移。
 
 `council-open` 可以省略 topic-id。省略时会自动生成类似 `2026-06-03-1`
@@ -69,7 +69,7 @@ latest handoff 应控制在 500 words 或 20 bullets 以内。原始内容较长
 
 ## 应用
 
-    $council-apply retry-design -- 根据共识修改 docs/design.md。
+    $council-apply retry-design -- 根据共识修改 docs/plan.md。
 
 只有 `council-apply` 应该修改正式项目文件。
 

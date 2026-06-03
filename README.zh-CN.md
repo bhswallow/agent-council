@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.5.0
+当前版本：2.5.1
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
@@ -36,12 +36,88 @@ Claude Code 和 Codex 不共享同一个聊天窗口。
 Agent Council 会把最新交接内容写入：
 
 ```text
-.agent-council/active/<topic-id>/
+.agent-council/active/{topic_id}/
 ```
 
 另一个工具读取这个 topic 下的最新内容，继续评审和回应实际话题。
 
 正式项目文件保持干净，直到你显式执行 `council-apply`。
+
+## 如何选择工具
+
+Agent Council 不是直接调用另一个模型的替代品。它解决的是另一个问题。
+
+当你需要让 Claude Code 和 Codex 协作时，可以这样选择。
+
+### Agent Council
+
+解决：
+
+- Claude Code 和 Codex 之间的手动 latest-turn 交接。
+- 互评、分歧记录和共识保存。
+
+优点：
+
+- 设置轻。
+- 文件显式，容易审查。
+- 不隐藏调用另一个 agent。
+- 正式项目文件在 `council-apply` 前保持干净。
+
+取舍：
+
+- 用户仍需要切到另一个工具执行下一条命令。
+- 不是即时互调。
+- 不会自动拿到另一个模型的回答。
+
+### Claude Code 中的 Codex 插件
+
+解决：
+
+- 在 Claude Code 里直接调用 Codex。
+- 快速获得一次性 review、替代方案或“现在问 Codex”的结果。
+
+优点：
+
+- 不离开 Claude Code 就能快速获得第二意见。
+- 适合速度比可追溯交接记录更重要的场景。
+
+取舍：
+
+- 需要额外 CLI、auth、权限和插件行为配置。
+- 可能产生额外 token 或 API 成本。
+- 如果插件不写记录，结论不如 Council 容易追溯。
+
+### Codex 中通过 `claude -p` 调 Claude
+
+解决：
+
+- 在 Codex 中非交互地调用 Claude Code。
+- 脚本化 Claude 检查、结构化单轮 review 或类似 CI 的自动检查。
+
+优点：
+
+- 适合 “review this diff and return JSON” 这类一次性任务。
+- 当本地已安装 Claude Code 时，容易包装成 Codex skill 或本地命令。
+
+取舍：
+
+- 非交互调用需要认真打包 prompt 和 context。
+- Claude 的本地配置、权限、计费和限制与 Codex 分开。
+- 它是直接调用路径，本身不是共识日志。
+
+想要明确交接记录和共识边界，选 Agent Council。
+
+想要最快拿到另一个模型的即时意见，选直接调用插件。
+
+任务天然是一次性脚本调用时，例如“review this diff and return JSON”，可以在 Codex 里用 `claude -p`。
+
+也可以组合使用：先用直接调用插件快速探路，只有当结果需要成为共享决策时，再用 Agent Council 落盘。
+
+参考：
+
+- Codex 内置 `/plugins` 和已安装 Codex app 中的 plugin 文档。
+- [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage)
+- [Run Claude Code programmatically](https://code.claude.com/docs/en/headless)
 
 ## Topic 文件
 
@@ -77,7 +153,7 @@ Agent Council 保持轻量，但使用少量高收益护栏：
 - `council-open` 和 `council-review` 只能写 `.agent-council/`。
 - 只有 `council-apply` 可以修改正式项目文件。
 - 命令回复包含简短 `Side effects` 摘要。
-- `council-status <topic-id> --doctor` 检查常见一致性问题。
+- `council-status {topic_id} --doctor` 检查常见一致性问题。
 
 目标是低摩擦交接桥梁加少量防错，而不是严格状态机。
 
@@ -110,7 +186,7 @@ $council-open -- 请评审最新方案。
 
 bridge 默认读取 latest，因此 latest 文件必须保持短。
 
-写入 `latest/<agent>.md` 和 `latest/for-peer.md` 时，控制在：
+写入 `latest/{agent}.md` 和 `latest/for-peer.md` 时，控制在：
 
 - 500 words 以内；或
 - 20 bullets 以内。
@@ -203,7 +279,7 @@ No further peer-review round is recommended.
 并可以给出可选下一步：
 
 ```text
-$council-apply <topic-id> -- Apply the consensus.
+$council-apply {topic_id} -- Apply the consensus.
 ```
 
 如果状态是 `USER_DECISION_NEEDED`，必须列出用户需要拍板的问题。
@@ -446,7 +522,7 @@ $council-review retry-plan -- 只回应对方提出的阻塞问题。
 然后选择一个工具应用共识：
 
 ```text
-$council-apply retry-plan -- 根据共识修改 docs/design.md。
+$council-apply retry-plan -- 根据共识修改 docs/plan.md。
 ```
 
 ## Topic Id

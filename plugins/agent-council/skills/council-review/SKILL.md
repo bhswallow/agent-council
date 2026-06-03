@@ -7,7 +7,7 @@ disable-model-invocation: true
 # Council Review
 
 Arguments:
-`<topic-id> [CONSENSUS] [-- review instruction]`
+`{topic_id} [CONSENSUS] [-- review instruction]`
 
 Examples:
 - `/council-review retry-design -- Check whether the proposed next step is reasonable.`
@@ -34,14 +34,24 @@ Agent ids are canonical lowercase. Never write paths with `Claude`, `CLAUDE`, `C
 
 Read only:
 
-- `.agent-council/active/<topic-id>/topic.md`
-- `.agent-council/active/<topic-id>/status.md`
-- `.agent-council/active/<topic-id>/latest/<peer>.md`
-- `.agent-council/active/<topic-id>/latest/for-peer.md`
-- `.agent-council/active/<topic-id>/latest/user-request.md`
-- `.agent-council/active/<topic-id>/consensus.md` if present
+- `.agent-council/active/{topic_id}/topic.md`
+- `.agent-council/active/{topic_id}/status.md`
+- `.agent-council/active/{topic_id}/latest/{peer_agent}.md`
+- `.agent-council/active/{topic_id}/latest/for-peer.md`
+- `.agent-council/active/{topic_id}/latest/user-request.md`
+- `.agent-council/active/{topic_id}/consensus.md` if present
 
 Do not read all turns, other topics, archive directories, or unrelated project files unless explicitly asked.
+
+If the arguments include `CONSENSUS`, also read both latest files:
+
+- `.agent-council/active/{topic_id}/latest/claude.md`
+- `.agent-council/active/{topic_id}/latest/codex.md`
+
+If either latest file is missing, do not write natural `CONSENSUS` or
+`CONSENSUS_WITH_NITS`. Either ask for the missing peer review, or write
+`USER_FORCED_CONSENSUS` only when the user explicitly accepts stopping without
+both latest files.
 
 If `status.md` state is `CLOSED` or `ABANDONED`, stop and tell the user review should not continue unless they explicitly reopen the topic.
 
@@ -67,7 +77,7 @@ Evaluate the peer's latest content directly.
 
 Use this compact structure:
 
-- `Verdict: <state>`
+- `Verdict: {state}`
 - Topic judgment: one short paragraph about the actual topic.
 - Blockers: only if present.
 - Non-blocking nits or constraints: only if useful.
@@ -78,7 +88,7 @@ Do not include long explanations of the Council protocol, file structure,
 status model, or why the bridge exists. The user asked for a topic review, not
 an essay about the tool.
 
-Apply the default handoff size budget when writing `latest/<current-agent>.md`
+Apply the default handoff size budget when writing `latest/{current_agent}.md`
 and `latest/for-peer.md`:
 
 - maximum 500 words;
@@ -102,24 +112,24 @@ When writing `consensus.md`, use this short template:
 
 ```markdown
 ---
-topic: <topic-id>
-state: <CONSENSUS|CONSENSUS_WITH_NITS|USER_FORCED_CONSENSUS>
-agent: <current-agent>
-turn: <number>
+topic: {topic_id}
+state: {CONSENSUS|CONSENSUS_WITH_NITS|USER_FORCED_CONSENSUS}
+agent: {current_agent}
+turn: {turn_number}
 formal_files_modified: false
 ---
 
 # Consensus
 
-Verdict: <state>
+Verdict: {state}
 
 ## Decision
 
 Ready for:
-- <next phase or action>
+- {next_phase_or_action}
 
 Not authorized:
-- <forbidden action, if any>
+- {forbidden_action_if_any}
 
 ## Blockers
 
@@ -127,7 +137,7 @@ None. OR list blockers / accepted risks.
 
 ## Must-Preserve Nits
 
-1. <nit or constraint>
+1. {nit_or_constraint}
 
 ## Side Effects
 
@@ -141,12 +151,12 @@ Use `Must-Preserve Nits` for constraints that are not blockers but must carry in
 
 Create or update:
 
-- `.agent-council/active/<topic-id>/latest/<current-agent>.md`
-- `.agent-council/active/<topic-id>/latest/for-peer.md`
-- `.agent-council/active/<topic-id>/latest/user-request.md`
-- `.agent-council/active/<topic-id>/status.md`
-- `.agent-council/active/<topic-id>/turns/<next-number>-<current-agent>-review.md`
-- `.agent-council/active/<topic-id>/consensus.md` if consensus is reached or forced
+- `.agent-council/active/{topic_id}/latest/{current_agent}.md`
+- `.agent-council/active/{topic_id}/latest/for-peer.md`
+- `.agent-council/active/{topic_id}/latest/user-request.md`
+- `.agent-council/active/{topic_id}/status.md`
+- `.agent-council/active/{topic_id}/turns/{turn_number}-{current_agent}-review.md`
+- `.agent-council/active/{topic_id}/consensus.md` if consensus is reached or forced
 
 Do not modify formal project files.
 
@@ -154,10 +164,10 @@ Add short YAML frontmatter to the turn record:
 
 ```yaml
 ---
-topic: <topic-id>
-agent: <current-agent>
-turn: <number>
-state: <state>
+topic: {topic_id}
+agent: {current_agent}
+turn: {turn_number}
+state: {state}
 formal_files_modified: false
 ---
 ```
@@ -165,14 +175,14 @@ formal_files_modified: false
 Write `status.md` with this schema:
 
 ```yaml
-topic: <topic-id>
-state: <REVIEW_REQUESTED|DISCUSSION|NEEDS_DISCUSSION|CONSENSUS|CONSENSUS_WITH_NITS|USER_FORCED_CONSENSUS|USER_DECISION_NEEDED|BLOCKED|APPLIED|CLOSED|ABANDONED>
-turn: <number>
-last_agent: <current-agent>
-next_agent: <peer-agent or user or none>
-updated_at: <ISO-8601 UTC timestamp>
+topic: {topic_id}
+state: {REVIEW_REQUESTED|DISCUSSION|NEEDS_DISCUSSION|CONSENSUS|CONSENSUS_WITH_NITS|USER_FORCED_CONSENSUS|USER_DECISION_NEEDED|BLOCKED|APPLIED|CLOSED|ABANDONED}
+turn: {turn_number}
+last_agent: {current_agent}
+next_agent: {peer_agent_or_user_or_none}
+updated_at: {iso8601_utc_timestamp}
 latest_handoff: latest/for-peer.md
-consensus: <consensus.md or empty>
+consensus: {consensus_md_or_empty}
 ```
 
 ## User-facing response
@@ -207,7 +217,7 @@ If state is `CONSENSUS` or `CONSENSUS_WITH_NITS`, say:
 ```text
 Next action:
 No further peer-review round is recommended.
-Optional: run `$council-apply <topic-id> -- Apply the consensus.`
+Optional: run `$council-apply {topic_id} -- Apply the consensus.`
 ```
 
 If state is `USER_FORCED_CONSENSUS`, say the stop was user-forced and list any accepted risks. Offer apply only if the user has explicitly accepted those risks.
@@ -222,7 +232,7 @@ Then add a short `Side effects` summary:
 
 ```text
 Side effects:
-- Council files modified: status.md, latest/<agent>.md, latest/for-peer.md, turns/<turn>-<agent>-review.md
+- Council files modified: status.md, latest/{agent}.md, latest/for-peer.md, turns/{turn_number}-{agent}-review.md
 - Formal project files modified: none
 - Code changes: none
 ```

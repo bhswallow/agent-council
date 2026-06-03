@@ -6,7 +6,7 @@ Agent Council v2 uses a latest-turn bridge model.
 
 All runtime state lives under:
 
-    .agent-council/active/<topic-id>/
+    .agent-council/active/{topic_id}/
 
 Recommended files:
 
@@ -29,7 +29,7 @@ Agent ids are canonical lowercase. Valid built-in ids are `claude` and `codex`. 
 
 When the user omits it, generate an id without asking:
 
-- default: `<YYYY-MM-DD>-<n>`, for example `2026-06-03-1`;
+- default: `{YYYY-MM-DD}-{n}`, for example `2026-06-03-1`;
 - choose the first positive integer not already used in active or archive;
 - a short obvious slug such as `review-l1-spike` is acceptable when the user
   note makes the subject clear.
@@ -50,7 +50,7 @@ Do not read other topics or archive/history by default.
 
 ## Handoff size budget
 
-When writing `latest/<agent>.md` or `latest/for-peer.md`, keep the handoff under:
+When writing `latest/{agent}.md` or `latest/for-peer.md`, keep the handoff under:
 
 - 500 words; or
 - 20 bullets.
@@ -172,7 +172,7 @@ For `council-open` and `council-review`, formal project files and code changes s
 
 ## Doctor checks
 
-`council-status <topic-id> --doctor` checks:
+`council-status {topic_id} --doctor` checks:
 
 - lowercase agent path conflicts such as `latest/CLAUDE.md`;
 - missing `latest/for-peer.md`;

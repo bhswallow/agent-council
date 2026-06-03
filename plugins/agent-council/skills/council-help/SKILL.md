@@ -24,14 +24,14 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.5.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.5.1 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 
 常用命令：
 - `council-open [topic-id] [-- 交接说明]`
-- `council-review <topic-id> [CONSENSUS] [-- 评审要求]`
-- `council-apply <topic-id> [-- 应用要求]`
+- `council-review {topic_id} [CONSENSUS] [-- 评审要求]`
+- `council-apply {topic_id} [-- 应用要求]`
 - `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
@@ -45,7 +45,7 @@ Agent Council v2.5.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - `/council-review retry-design -- 重点看阻塞问题和是否可以继续推进。`
 - `$council-review retry-design -- 只回应对方提出的阻塞问题。`
 - `/council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛。`
-- `$council-apply retry-design -- 根据共识修改 docs/design.md。`
+- `$council-apply retry-design -- 根据共识修改 docs/plan.md。`
 - `$council-status product-l1-gate --doctor`
 - `$council-version --check`
 - `/council-upgrade --check`
@@ -60,14 +60,14 @@ Agent Council v2.5.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 ## English help
 
-Agent Council v2.5.0 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
+Agent Council v2.5.1 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 
 Commands:
 - `council-open [topic-id] [-- handoff note]`
-- `council-review <topic-id> [CONSENSUS] [-- review instruction]`
-- `council-apply <topic-id> [-- apply instruction]`
+- `council-review {topic_id} [CONSENSUS] [-- review instruction]`
+- `council-apply {topic_id} [-- apply instruction]`
 - `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
@@ -81,7 +81,7 @@ Examples:
 - `/council-review retry-design -- Focus on blockers and whether we should proceed.`
 - `$council-review retry-design -- Reply only to the peer's blockers.`
 - `/council-review retry-design CONSENSUS -- Converge if only non-blocking issues remain.`
-- `$council-apply retry-design -- Apply the consensus to docs/design.md.`
+- `$council-apply retry-design -- Apply the consensus to docs/plan.md.`
 - `$council-status product-l1-gate --doctor`
 - `$council-version --check`
 - `/council-upgrade --check`

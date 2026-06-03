@@ -7,10 +7,10 @@ disable-model-invocation: true
 # Council Apply
 
 Arguments:
-`<topic-id> [-- apply instruction]`
+`{topic_id} [-- apply instruction]`
 
 Examples:
-- `$council-apply retry-design -- Apply the consensus to docs/design.md.`
+- `$council-apply retry-design -- Apply the consensus to docs/plan.md.`
 - `/council-apply checkout-plan -- Update the plan only; do not change source code.`
 
 ## Purpose
@@ -33,15 +33,15 @@ Agent ids are canonical lowercase. Never write paths with `Claude`, `CLAUDE`, `C
 
 Read:
 
-- `.agent-council/active/<topic-id>/topic.md`
-- `.agent-council/active/<topic-id>/status.md`
-- `.agent-council/active/<topic-id>/latest/claude.md` if present
-- `.agent-council/active/<topic-id>/latest/codex.md` if present
-- `.agent-council/active/<topic-id>/consensus.md` if present
+- `.agent-council/active/{topic_id}/topic.md`
+- `.agent-council/active/{topic_id}/status.md`
+- `.agent-council/active/{topic_id}/latest/claude.md` if present
+- `.agent-council/active/{topic_id}/latest/codex.md` if present
+- `.agent-council/active/{topic_id}/consensus.md` if present
 
 Prefer `consensus.md` when it exists.
 
-Default rule: if no `consensus.md` exists, stop and tell the user to run `council-review <topic-id> CONSENSUS`, or explicitly request apply latest.
+Default rule: if no `consensus.md` exists, stop and tell the user to run `council-review {topic_id} CONSENSUS`, or explicitly request apply latest.
 
 Only apply without `consensus.md` when the user explicitly says to apply latest or apply the latest result.
 
@@ -59,11 +59,19 @@ If applying without `consensus.md` by explicit user instruction, the user-facing
 
 Do not apply when `status.md` state is `BLOCKED`, unless the user explicitly overrides the blocker.
 
+Do not apply when `status.md` state is `USER_DECISION_NEEDED`, unless the user
+explicitly states the decision, for example: "I choose option A; continue
+apply."
+
+If `consensus.md` exists but its state or verdict is
+`USER_FORCED_CONSENSUS`, restate the accepted risks before applying. If the
+user has not explicitly accepted those risks, stop and ask for confirmation.
+
 After applying, write:
 
-- `.agent-council/active/<topic-id>/status.md`
-- `.agent-council/active/<topic-id>/applied/<next-number>-<current-agent>-apply.md`
-- `.agent-council/active/<topic-id>/latest/<current-agent>.md`
+- `.agent-council/active/{topic_id}/status.md`
+- `.agent-council/active/{topic_id}/applied/{turn_number}-{current_agent}-apply.md`
+- `.agent-council/active/{topic_id}/latest/{current_agent}.md`
 
 Set `status.md` state to `APPLIED` after a successful apply.
 
@@ -71,8 +79,8 @@ Write an apply report with short YAML frontmatter:
 
 ```yaml
 ---
-topic: <topic-id>
-agent: <current-agent>
+topic: {topic_id}
+agent: {current_agent}
 state: APPLIED
 formal_files_modified: true
 ---
