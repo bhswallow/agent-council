@@ -19,7 +19,7 @@ for f in "${required[@]}"; do
   fi
 done
 
-for skill in council-open council-review council-apply council-status council-help; do
+for skill in council-open council-review council-apply council-status council-help council-upgrade; do
   if [ ! -f "$ROOT/plugins/agent-council/skills/$skill/SKILL.md" ]; then
     echo "Missing skill: $skill" >&2
     exit 1

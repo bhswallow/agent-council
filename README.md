@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.0.3
+Current version: 2.1.0
 
 Agent Council is a small workflow package for people who use Claude Code and Codex in the same repository.
 
@@ -13,8 +13,9 @@ Agent Council is intentionally simple:
 - `council-apply` is the only action that should change project files.
 - `council-status` shows the current state.
 - `council-help` explains usage.
+- `council-upgrade` updates standalone installs.
 
-`council-respond` was removed in v2.0.2. Use `council-review` for review, response, rebuttal, confirmation, and consensus. The v2.0.3 installer also cleans stale standalone `council-respond` installs from older versions.
+`council-respond` was removed in v2.0.2. Use `council-review` for review, response, rebuttal, confirmation, and consensus. The installer also cleans stale standalone `council-respond` installs from older versions.
 
 ## What problem it solves
 
@@ -67,6 +68,11 @@ The installer copies skills into:
 
 When upgrading from v1, run the installer again. It overwrites the active skills and removes stale standalone `council-respond` directories from both `.claude/skills/` and `.agents/skills/`.
 
+After v2.1.0 is installed, standalone users can upgrade later with:
+
+    /council-upgrade
+    $council-upgrade
+
 Add this to the target project's `.gitignore` unless your team wants to keep local discussion state:
 
     .agent-council/
@@ -83,6 +89,7 @@ Use the local installer above. Then run the skills in Claude Code with short nam
     /council-review retry-design CONSENSUS -- Converge if only non-blocking issues remain.
     /council-apply retry-design -- Apply the agreed result to the relevant files.
     /council-status retry-design
+    /council-upgrade --check
 
 ### Option B: install as a Claude Code plugin
 
@@ -101,6 +108,7 @@ When installed as a plugin, Claude Code namespaces skills with the plugin name:
     /agent-council:council-review retry-design
     /agent-council:council-apply retry-design
     /agent-council:council-status retry-design
+    /agent-council:council-upgrade --check
 
 ## Codex installation
 
@@ -114,6 +122,7 @@ Use the local installer above. Then run the skills in Codex with explicit skill 
     $council-review retry-design CONSENSUS -- Converge if only non-blocking issues remain.
     $council-apply retry-design -- Apply the agreed result to the relevant files.
     $council-status retry-design
+    $council-upgrade --check
 
 ### Option B: install as a Codex plugin
 
@@ -132,6 +141,7 @@ After installation, use the bundled skills explicitly:
     $council-review retry-design
     $council-apply retry-design
     $council-status retry-design
+    $council-upgrade --check
 
 ## Basic workflow
 

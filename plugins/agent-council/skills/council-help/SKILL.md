@@ -19,7 +19,7 @@ If the user asks in Chinese or passes `zh`, answer in Chinese. If the user passe
 
 ## Chinese help
 
-Agent Council v2.0.3 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
+Agent Council v2.1.0 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
 
 常用命令：
 - `council-open <topic-id> [-- 交接说明]`
@@ -27,8 +27,9 @@ Agent Council v2.0.3 是 Claude Code 和 Codex 之间的“最新一轮交接”
 - `council-apply <topic-id> [-- 应用要求]`
 - `council-status [topic-id|all]`
 - `council-help [zh|en] [command]`
+- `council-upgrade [--check] [--claude-only|--codex-only]`
 
-`council-respond` 已在 v2.0.2 移除。请改用 `council-review`。v2.0.3 的安装脚本会清理 standalone 旧版残留。
+`council-respond` 已在 v2.0.2 移除。请改用 `council-review`。安装脚本会清理 standalone 旧版残留。
 
 示例：
 - `$council-open retry-design -- 使用我最近一次回复作为交接内容，请对方判断下一步是否合理。`
@@ -36,12 +37,13 @@ Agent Council v2.0.3 是 Claude Code 和 Codex 之间的“最新一轮交接”
 - `$council-review retry-design -- 只回应对方提出的阻塞问题。`
 - `/council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛。`
 - `$council-apply retry-design -- 根据共识修改 docs/design.md。`
+- `/council-upgrade --check`
 
 原则：默认只读取对方最新交接内容，不读完整历史。讨论重点是 topic 对应的实际内容，不是 Council 流程本身。只有 `council-apply` 应该修改项目正式文件。
 
 ## English help
 
-Agent Council v2.0.3 is a latest-turn bridge between Claude Code and Codex.
+Agent Council v2.1.0 is a latest-turn bridge between Claude Code and Codex.
 
 Commands:
 - `council-open <topic-id> [-- handoff note]`
@@ -49,8 +51,9 @@ Commands:
 - `council-apply <topic-id> [-- apply instruction]`
 - `council-status [topic-id|all]`
 - `council-help [zh|en] [command]`
+- `council-upgrade [--check] [--claude-only|--codex-only]`
 
-`council-respond` was removed in v2.0.2. Use `council-review` instead. The v2.0.3 installer cleans stale standalone installs.
+`council-respond` was removed in v2.0.2. Use `council-review` instead. The installer cleans stale standalone installs.
 
 Examples:
 - `$council-open retry-design -- Use my latest answer as the handoff. Ask the peer to check whether the next step is reasonable.`
@@ -58,5 +61,6 @@ Examples:
 - `$council-review retry-design -- Reply only to the peer's blockers.`
 - `/council-review retry-design CONSENSUS -- Converge if only non-blocking issues remain.`
 - `$council-apply retry-design -- Apply the consensus to docs/design.md.`
+- `/council-upgrade --check`
 
 Rule of thumb: read the peer's latest handoff, not the full history. Keep the discussion focused on the topic, not on the Council workflow. Only `council-apply` should modify formal project files.

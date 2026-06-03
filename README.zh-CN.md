@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.0.3
+当前版本：2.1.0
 
 Agent Council 是一个小型工作流包，适合在同一个仓库中同时使用 Claude Code 和 Codex 的场景。
 
@@ -13,8 +13,9 @@ Agent Council 的目标是保持简单：
 - `council-apply` 是唯一应该修改项目正式文件的动作。
 - `council-status` 查看当前状态。
 - `council-help` 查看帮助。
+- `council-upgrade` 更新 standalone 安装。
 
-`council-respond` 已在 v2.0.2 移除。请统一使用 `council-review` 完成评审、回应、反驳、确认和收敛。v2.0.3 安装脚本会清理旧版残留的 standalone `council-respond`。
+`council-respond` 已在 v2.0.2 移除。请统一使用 `council-review` 完成评审、回应、反驳、确认和收敛。安装脚本会清理旧版残留的 standalone `council-respond`。
 
 ## 解决什么问题
 
@@ -67,6 +68,11 @@ Agent Council 会把最新交接内容写入 `.agent-council/active/<topic-id>/`
 
 从 v1 升级时，直接重新运行安装脚本即可。它会覆盖当前 skills，并清理 `.claude/skills/` 和 `.agents/skills/` 下旧版残留的 standalone `council-respond` 目录。
 
+安装到 v2.1.0 之后，standalone 用户后续可以用升级命令：
+
+    /council-upgrade
+    $council-upgrade
+
 除非团队明确想保留本地讨论状态，否则建议在目标项目的 `.gitignore` 中加入：
 
     .agent-council/
@@ -83,6 +89,7 @@ Agent Council 会把最新交接内容写入 `.agent-council/active/<topic-id>/`
     /council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛成共识。
     /council-apply retry-design -- 将共识应用到相关文件。
     /council-status retry-design
+    /council-upgrade --check
 
 ### 方式 B：作为 Claude Code plugin 安装
 
@@ -101,6 +108,7 @@ Agent Council 会把最新交接内容写入 `.agent-council/active/<topic-id>/`
     /agent-council:council-review retry-design
     /agent-council:council-apply retry-design
     /agent-council:council-status retry-design
+    /agent-council:council-upgrade --check
 
 ## Codex 安装
 
@@ -114,6 +122,7 @@ Agent Council 会把最新交接内容写入 `.agent-council/active/<topic-id>/`
     $council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛成共识。
     $council-apply retry-design -- 将共识应用到相关文件。
     $council-status retry-design
+    $council-upgrade --check
 
 ### 方式 B：作为 Codex plugin 安装
 
@@ -132,6 +141,7 @@ Agent Council 会把最新交接内容写入 `.agent-council/active/<topic-id>/`
     $council-review retry-design
     $council-apply retry-design
     $council-status retry-design
+    $council-upgrade --check
 
 ## 基本流程
 

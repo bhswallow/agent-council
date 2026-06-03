@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0
+
+- Added `council-upgrade` to update standalone installs from the latest repository version.
+- Documented plugin upgrade guidance in the upgrade skill.
+
 ## 2.0.3
 
 - Added explicit v1 upgrade cleanup for stale `council-respond` standalone installs.

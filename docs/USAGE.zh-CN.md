@@ -9,8 +9,11 @@ Agent Council v2 是一个“最新一轮交接”桥梁。它适合 Claude Code
     council-apply <topic-id> [-- 应用要求]
     council-status [topic-id|all]
     council-help [zh|en]
+    council-upgrade [--check] [--claude-only|--codex-only]
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。
+
+使用 `council-upgrade` 可以从最新仓库版本更新 standalone 安装。
 
 ## 开启话题
 

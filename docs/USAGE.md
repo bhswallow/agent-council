@@ -9,8 +9,11 @@ Agent Council v2 is a latest-turn bridge. Use it when Claude Code and Codex need
     council-apply <topic-id> [-- apply instruction]
     council-status [topic-id|all]
     council-help [zh|en]
+    council-upgrade [--check] [--claude-only|--codex-only]
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead.
+
+Use `council-upgrade` to update standalone installs from the latest repository version.
 
 ## Open a topic
 

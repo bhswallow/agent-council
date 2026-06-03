@@ -16,6 +16,7 @@
     plugins/agent-council/skills/council-apply/SKILL.md
     plugins/agent-council/skills/council-status/SKILL.md
     plugins/agent-council/skills/council-help/SKILL.md
+    plugins/agent-council/skills/council-upgrade/SKILL.md
     docs/USAGE.md
     docs/USAGE.zh-CN.md
     docs/PROTOCOL.md
