@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.5.2
+
+- Made `council-upgrade` check-only by default.
+- Required explicit `--apply` before modifying standalone skill installs.
+- Added `--ref {git_ref}` guidance for users who need a specific branch, tag, or commit.
+- Updated help, usage docs, and validation for the safer upgrade flow.
+
 ## 2.5.1
 
 - Replaced raw angle-bracket placeholders with `{safe_placeholder}` syntax so

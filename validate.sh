@@ -132,6 +132,15 @@ grep -q 'canonical lowercase' "$ROOT/plugins/agent-council/skills/council-review
 grep -q 'Never write paths with' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing mixed-case path guard"
 grep -q 'Never write paths with' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing mixed-case path guard"
 grep -q 'case-conflict' "$ROOT/plugins/agent-council/skills/council-status/SKILL.md" || fail "council-status doctor missing case-conflict check"
+grep -q 'Default behavior is read-only' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must be check-only by default"
+grep -q 'only when the user includes `--apply`' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must require --apply for install changes"
+grep -q 'Do not treat `--ref` by itself as permission to upgrade' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must not let --ref imply apply"
+grep -q -- '--ref {git_ref}' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade missing --ref guidance"
+grep -q -- 'council-upgrade --apply' "$ROOT/plugins/agent-council/skills/council-version/SKILL.md" || fail "council-version must recommend explicit apply upgrade"
+grep -q -- 'council-upgrade --apply' "$ROOT/README.md" || fail "README.md missing explicit apply upgrade example"
+grep -q -- 'council-upgrade --apply' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing explicit apply upgrade example"
+grep -q -- '--ref {git_ref}' "$ROOT/README.md" || fail "README.md missing optional ref guidance"
+grep -q -- '--ref {git_ref}' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing optional ref guidance"
 
 if grep -Rqi 'IPTV' "$ROOT/README.md" "$ROOT/README.zh-CN.md" "$ROOT/plugins/agent-council/skills" "$ROOT/docs"; then
   fail "Docs or skills must not contain IPTV"

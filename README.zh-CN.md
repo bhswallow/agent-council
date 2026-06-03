@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.5.1
+当前版本：2.5.2
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
@@ -19,7 +19,7 @@ Agent Council 的主流程刻意保持简单：
 - `council-status` 查看 topic 状态，也可以执行 `--doctor` 检查。
 - `council-help` 查看简短帮助。
 - `council-version` 输出当前安装版本。
-- `council-upgrade` 更新 standalone 安装。
+- `council-upgrade` 检查更新；只有显式使用 `--apply` 时才更新 standalone 安装。
 
 `council-respond` 已在 v2.0.2 移除。
 请统一使用 `council-review` 完成评审、回应、反驳、确认和收敛。
@@ -45,73 +45,15 @@ Agent Council 会把最新交接内容写入：
 
 ## 如何选择工具
 
-Agent Council 不是直接调用另一个模型的替代品。它解决的是另一个问题。
+Agent Council 是直接调用工具的补充，不是替代品。
 
-当你需要让 Claude Code 和 Codex 协作时，可以这样选择。
+| 工具 | 解决什么 | 优点 | 取舍 | 适合场景 |
+| --- | --- | --- | --- | --- |
+| Agent Council | 手动 latest-turn 交接、互评、共识保存 | 文件显式、设置轻、不隐藏调用、`council-apply` 前不污染项目文件 | 需要用户手动切到另一个工具；不是即时互调；不自动获取对方回答 | 需要可追溯决策记录和明确 apply 边界 |
+| Claude Code 中的 Codex 插件 | 在 Claude Code 里直接问 Codex，做一次性 review 或替代方案 | 快速获得第二意见，不必离开 Claude Code | 需要额外配置；可能有 token/API 成本；除非写记录，否则不如 Council 可追溯 | 速度比可审计交接更重要 |
+| Codex 中通过 `claude -p` 调 Claude | 在 Codex 中非交互调用 Claude Code | 适合脚本化检查、JSON review、类似 CI 的单轮任务 | 需要打包 prompt/context；Claude 的权限、计费和限制独立 | 任务天然是一次性脚本调用 |
 
-### Agent Council
-
-解决：
-
-- Claude Code 和 Codex 之间的手动 latest-turn 交接。
-- 互评、分歧记录和共识保存。
-
-优点：
-
-- 设置轻。
-- 文件显式，容易审查。
-- 不隐藏调用另一个 agent。
-- 正式项目文件在 `council-apply` 前保持干净。
-
-取舍：
-
-- 用户仍需要切到另一个工具执行下一条命令。
-- 不是即时互调。
-- 不会自动拿到另一个模型的回答。
-
-### Claude Code 中的 Codex 插件
-
-解决：
-
-- 在 Claude Code 里直接调用 Codex。
-- 快速获得一次性 review、替代方案或“现在问 Codex”的结果。
-
-优点：
-
-- 不离开 Claude Code 就能快速获得第二意见。
-- 适合速度比可追溯交接记录更重要的场景。
-
-取舍：
-
-- 需要额外 CLI、auth、权限和插件行为配置。
-- 可能产生额外 token 或 API 成本。
-- 如果插件不写记录，结论不如 Council 容易追溯。
-
-### Codex 中通过 `claude -p` 调 Claude
-
-解决：
-
-- 在 Codex 中非交互地调用 Claude Code。
-- 脚本化 Claude 检查、结构化单轮 review 或类似 CI 的自动检查。
-
-优点：
-
-- 适合 “review this diff and return JSON” 这类一次性任务。
-- 当本地已安装 Claude Code 时，容易包装成 Codex skill 或本地命令。
-
-取舍：
-
-- 非交互调用需要认真打包 prompt 和 context。
-- Claude 的本地配置、权限、计费和限制与 Codex 分开。
-- 它是直接调用路径，本身不是共识日志。
-
-想要明确交接记录和共识边界，选 Agent Council。
-
-想要最快拿到另一个模型的即时意见，选直接调用插件。
-
-任务天然是一次性脚本调用时，例如“review this diff and return JSON”，可以在 Codex 里用 `claude -p`。
-
-也可以组合使用：先用直接调用插件快速探路，只有当结果需要成为共享决策时，再用 Agent Council 落盘。
+可以组合使用：先用直接调用快速探路，只有当结果需要成为共享决策时，再用 Agent Council 落盘。
 
 参考：
 
@@ -393,7 +335,9 @@ $council-version --check
 通常说明当前命令来自另一个安装位置或 plugin 缓存。
 请在同一个工具里运行 `council-version` 确认当前实际生效的版本。
 
-standalone 安装可以从当前项目或 home 安装位置再次执行 `council-upgrade`。
+standalone 安装中，`council-upgrade` 默认只检查不修改。
+需要更新时，请从当前项目或 home 安装位置再次执行 `council-upgrade --apply`。
+只有当你明确想使用某个 branch、tag 或 commit 时，才需要加 `--ref {git_ref}`。
 
 plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 reload plugins 或重启工具。
 
@@ -414,6 +358,7 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 /council-status retry-design
 /council-status retry-design --doctor
 /council-upgrade --check
+/council-upgrade --apply
 ```
 
 ### Claude Code Plugin
@@ -459,6 +404,7 @@ $council-apply retry-design -- 将共识应用到相关文件。
 $council-status retry-design
 $council-status retry-design --doctor
 $council-upgrade --check
+$council-upgrade --apply
 ```
 
 ### Codex Plugin

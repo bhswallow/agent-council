@@ -20,11 +20,13 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
     council-status [topic-id|all] [--doctor]
     council-help [zh|en]
     council-version [--check]
-    council-upgrade [--check] [--claude-only|--codex-only]
+    council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。
 
-使用 `council-upgrade` 可以从最新仓库版本更新 standalone 安装。
+使用 `council-upgrade` 可以检查 standalone 安装版本。
+它默认只检查不修改。使用 `council-upgrade --apply` 才会更新；
+只有需要指定 branch、tag 或 commit 时才加 `--ref {git_ref}`。
 
 使用 `council-version` 确认当前实际生效的安装版本。
 

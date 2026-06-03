@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.5.1 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.5.2 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 
@@ -35,7 +35,7 @@ Agent Council v2.5.1 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
-- `council-upgrade [--check] [--claude-only|--codex-only]`
+- `council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]`
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。安装脚本会清理 standalone 旧版残留。
 
@@ -49,6 +49,7 @@ Agent Council v2.5.1 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - `$council-status product-l1-gate --doctor`
 - `$council-version --check`
 - `/council-upgrade --check`
+- `/council-upgrade --apply`
 
 原则：
 - `council-open` 可以省略 topic-id，并自动生成类似 `2026-06-03-1` 的名称。
@@ -60,7 +61,7 @@ Agent Council v2.5.1 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 ## English help
 
-Agent Council v2.5.1 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
+Agent Council v2.5.2 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 
@@ -71,7 +72,7 @@ Commands:
 - `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
-- `council-upgrade [--check] [--claude-only|--codex-only]`
+- `council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]`
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead. The installer cleans stale standalone installs.
 
@@ -85,6 +86,7 @@ Examples:
 - `$council-status product-l1-gate --doctor`
 - `$council-version --check`
 - `/council-upgrade --check`
+- `/council-upgrade --apply`
 
 Rule of thumb:
 - `council-open` can omit the topic id and generate one such as `2026-06-03-1`.

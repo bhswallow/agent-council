@@ -27,7 +27,7 @@ workflow mechanics. This skill only reports the active installed version.
 
 Report:
 
-- installed version: `2.5.1`
+- installed version: `2.5.2`
 - whether this appears to be standalone or plugin usage, if the path is visible
 - if `--check` is present, compare against:
 
@@ -38,7 +38,7 @@ curl -fsSL https://raw.githubusercontent.com/bhswallow/agent-council/main/VERSIO
 If the installed version is older than the latest version, tell standalone users to run:
 
 ```text
-/council-upgrade
+/council-upgrade --apply
 ```
 
 For plugin installs, tell the user to reinstall the `agent-council` plugin from the marketplace and reload plugins.
@@ -48,7 +48,7 @@ For plugin installs, tell the user to reinstall the `agent-council` plugin from 
 Keep it short:
 
 ```text
-Agent Council v2.5.1
+Agent Council v2.5.2
 ```
 
 If `--check` is used, add latest-version status and one upgrade hint.

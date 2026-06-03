@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.5.1
+Current version: 2.5.2
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -20,7 +20,8 @@ Agent Council keeps the main flow intentionally small:
 - `council-status` shows topic state, with an optional `--doctor` check.
 - `council-help` shows concise usage help.
 - `council-version` prints the installed version.
-- `council-upgrade` updates standalone installs.
+- `council-upgrade` checks for updates and can update standalone installs when
+  explicitly run with `--apply`.
 
 `council-respond` was removed in v2.0.2. Use `council-review` for review,
 response, rebuttal, confirmation, and consensus. The installer also removes
@@ -49,78 +50,16 @@ Formal project files stay clean until `council-apply`.
 
 ## Choosing A Bridge
 
-Agent Council is not a replacement for direct model invocation. It solves a
-different problem.
+Agent Council complements direct invocation tools; it does not replace them.
 
-Use this comparison when deciding how Claude Code and Codex should cooperate.
+| Tool | Solves | Strengths | Tradeoffs | Choose When |
+| --- | --- | --- | --- | --- |
+| Agent Council | Manual latest-turn handoff, peer review, consensus capture | Auditable files, low setup, no hidden cross-agent call, project files stay clean until `council-apply` | User runs the next command manually; not instant; does not fetch the peer answer automatically | You need a durable decision trail and a clear apply boundary |
+| Codex-in-Claude plugin | Call Codex from Claude Code for one-off review or alternatives | Fast second opinion without leaving Claude Code | More setup, possible token/API cost, less durable unless recorded | Speed matters more than an auditable handoff |
+| Claude-in-Codex via `claude -p` | Call Claude Code non-interactively from Codex | Good for scripted checks, JSON review, CI-like one-shot tasks | Prompt/context packaging matters; Claude auth, billing, and limits are separate | The task is naturally a one-shot scripted Claude call |
 
-### Agent Council
-
-Solves:
-
-- Manual latest-turn handoff between Claude Code and Codex.
-- Peer review, disagreement tracking, and consensus capture.
-
-Strengths:
-
-- Low setup.
-- Explicit files that are easy to audit.
-- No hidden cross-agent call.
-- Keeps formal project files clean until `council-apply`.
-
-Tradeoffs:
-
-- The user still runs the next command in the other tool.
-- It is not instant.
-- It does not automatically fetch another model's answer.
-
-### Codex-In-Claude Plugin
-
-Solves:
-
-- Calling Codex directly from inside Claude Code.
-- Fast one-off review, alternative patches, or "ask Codex now" workflows.
-
-Strengths:
-
-- No need to leave Claude Code for a quick second opinion.
-- Useful when speed matters more than preserving a durable handoff trail.
-
-Tradeoffs:
-
-- More setup: CLI, auth, permissions, and plugin behavior.
-- May add token or API cost.
-- Less durable unless the plugin writes a review record.
-
-### Claude-In-Codex Plugin With `claude -p`
-
-Solves:
-
-- Calling Claude Code non-interactively from Codex.
-- Scripted Claude checks, structured one-shot review, or CI-like automation.
-
-Strengths:
-
-- Good fit for prompts like "review this diff and return JSON".
-- Easy to wrap in a Codex skill or local command when Claude Code is installed.
-
-Tradeoffs:
-
-- Non-interactive calls need careful prompt and context packaging.
-- Claude setup, permissions, billing, and limits are separate from Codex.
-- It is a direct invocation path, not a consensus log by itself.
-
-Choose Agent Council when you want an explicit handoff trail and a clear
-consensus boundary.
-
-Choose a direct invocation plugin when speed matters more than keeping an
-auditable cross-tool record.
-
-Choose `claude -p` from Codex when the task is naturally a one-shot scripted
-Claude call, such as "review this diff and return JSON".
-
-You can combine them: use a direct invocation plugin for quick checks, then use
-Agent Council only when the result should become a shared decision.
+You can combine them: use direct invocation for quick checks, then use Agent
+Council only when the result should become a shared decision.
 
 References:
 
@@ -417,8 +356,10 @@ If `council-upgrade` finishes but `council-help` still shows an old version, the
 active command is usually coming from another install location or from a plugin
 cache. Run `council-version` in the same tool to confirm the active copy.
 
-For standalone installs, run `council-upgrade` again from the active project or
-home install.
+For standalone installs, `council-upgrade` is check-only by default. To update,
+run it again from the active project or home install with `--apply`. Use
+`--ref {git_ref}` only when you intentionally want a specific branch, tag, or
+commit.
 
 For plugin installs, reinstall the `agent-council` plugin from the marketplace
 and reload plugins.
@@ -440,6 +381,7 @@ Use the installer above. Then run the skills in Claude Code with short names:
 /council-status retry-design
 /council-status retry-design --doctor
 /council-upgrade --check
+/council-upgrade --apply
 ```
 
 ### Claude Code Plugin
@@ -485,6 +427,7 @@ $council-apply retry-design -- Apply the agreed result to the relevant files.
 $council-status retry-design
 $council-status retry-design --doctor
 $council-upgrade --check
+$council-upgrade --apply
 ```
 
 ### Codex Plugin

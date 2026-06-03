@@ -21,11 +21,13 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
     council-status [topic-id|all] [--doctor]
     council-help [zh|en]
     council-version [--check]
-    council-upgrade [--check] [--claude-only|--codex-only]
+    council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead.
 
-Use `council-upgrade` to update standalone installs from the latest repository version.
+Use `council-upgrade` to check standalone install versions.
+It is check-only by default. Use `council-upgrade --apply` to update. Add
+`--ref {git_ref}` only when you want a specific branch, tag, or commit.
 
 Use `council-version` to confirm which installed copy is active.
 

@@ -1,24 +1,29 @@
 ---
 name: council-upgrade
-description: Upgrade Agent Council standalone installs and explain plugin upgrade steps.
+description: Check or explicitly upgrade Agent Council standalone installs and explain plugin upgrade steps.
 disable-model-invocation: true
 ---
 
 # Council Upgrade
 
 Arguments:
-`[--check] [--claude-only|--codex-only]`
+`[--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]`
 
 Examples:
-- `/council-upgrade`
+- `/council-upgrade --check`
+- `/council-upgrade --apply`
+- `/council-upgrade --apply --ref {git_ref}`
 - `$council-upgrade --check`
 - `/agent-council:council-upgrade`
 
 ## Purpose
 
-Upgrade Agent Council to the latest repository version.
+Check Agent Council installation versions and, only when explicitly requested,
+upgrade standalone installs from a chosen repository ref.
 
-This skill may modify local skill installation directories, but it must not modify project source files or `.agent-council/` discussion state.
+Default behavior is read-only. This skill may modify local skill installation
+directories only when the user includes `--apply`. It must not modify project
+source files or `.agent-council/` discussion state.
 
 Do not review Agent Council protocol or workflow mechanics. This skill only handles installation state and upgrade guidance.
 
@@ -46,9 +51,22 @@ Check the latest version:
 curl -fsSL https://raw.githubusercontent.com/bhswallow/agent-council/main/VERSION
 ```
 
-If `--check` is present, only report installed versions and the latest version. Do not upgrade.
+If neither `--check` nor `--apply` is present, behave exactly like `--check`.
+Report installed versions, the latest version on `main`, and the safe upgrade
+command. Do not clone, install, delete, or overwrite anything.
+
+If `--check` is present, only report installed versions and the latest version.
+Do not upgrade.
+
+If `--apply` is present, upgrade detected standalone installs. If `--ref
+{git_ref}` is present, use that git ref. Otherwise use `main`.
+
+Do not treat `--ref` by itself as permission to upgrade. `--apply` is required
+for any installation change.
 
 ## Standalone Upgrade
+
+Only perform this section when `--apply` is present.
 
 If any of these exists, treat it as a standalone install target:
 
@@ -57,12 +75,15 @@ If any of these exists, treat it as a standalone install target:
 - `$HOME/.claude/skills/council-help`
 - `$HOME/.agents/skills/council-help`
 
-Clone the latest repository to a temporary directory:
+Clone the repository to a temporary directory:
 
 ```sh
 tmpdir="$(mktemp -d)"
-git clone --depth 1 https://github.com/bhswallow/agent-council.git "$tmpdir/agent-council"
+git clone --depth 1 --branch "{git_ref}" https://github.com/bhswallow/agent-council.git "$tmpdir/agent-council"
 ```
+
+Use `main` when no `--ref` was supplied. `--ref` may be a branch, tag, or
+commit.
 
 Run the newest installer against each detected standalone root.
 
@@ -103,6 +124,9 @@ If no standalone install exists, or if the active command is namespaced as
 `/agent-council:council-upgrade`, explain that this appears to be a plugin
 install. A standalone installer cannot reliably update a plugin cache.
 
+For plugin installs, do not run standalone installation commands even when
+`--apply` is present. Give reinstall instructions instead.
+
 For Claude Code plugin installs:
 
 ```text
@@ -126,7 +150,17 @@ Then open `/plugins`, remove the old `agent-council` plugin if needed, and insta
 Keep the response concise:
 
 - installed version before upgrade;
-- latest version installed;
+- latest version or requested ref;
+- whether this was check-only or applied;
 - whether Claude Code and/or Codex standalone skills were updated;
 - whether stale `council-respond` was removed;
 - next verification command: `council-version`, then `council-help`.
+
+For check-only responses, include this command when an update is available:
+
+```text
+/council-upgrade --apply
+```
+
+Use `--ref {git_ref}` only when the user asks for a specific branch, tag, or
+commit.
