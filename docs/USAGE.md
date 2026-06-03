@@ -10,7 +10,7 @@ Agent Council v2 is a latest-turn bridge. Use it when Claude Code and Codex need
     council-status [topic-id|all]
     council-help [zh|en]
 
-`council-respond` is a compatibility alias for `council-review`.
+`council-respond` was removed in v2.0.2. Use `council-review` instead.
 
 ## Open a topic
 

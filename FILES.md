@@ -13,7 +13,6 @@
     plugins/agent-council/.codex-plugin/plugin.json
     plugins/agent-council/skills/council-open/SKILL.md
     plugins/agent-council/skills/council-review/SKILL.md
-    plugins/agent-council/skills/council-respond/SKILL.md
     plugins/agent-council/skills/council-apply/SKILL.md
     plugins/agent-council/skills/council-status/SKILL.md
     plugins/agent-council/skills/council-help/SKILL.md

@@ -10,7 +10,7 @@ Agent Council v2 是一个“最新一轮交接”桥梁。它适合 Claude Code
     council-status [topic-id|all]
     council-help [zh|en]
 
-`council-respond` 保留为兼容别名，行为等同于 `council-review`。
+`council-respond` 已在 v2.0.2 移除。请改用 `council-review`。
 
 ## 开启话题
 

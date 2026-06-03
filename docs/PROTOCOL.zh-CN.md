@@ -41,7 +41,7 @@ Agent Council v2 使用“最新一轮交接”模型。
 
 ## 写入策略
 
-`council-open`、`council-review`、`council-respond`、`council-status` 只写 Council 状态。
+`council-open`、`council-review`、`council-status` 只写 Council 状态。
 
 `council-apply` 可以修改正式项目文件，但必须有用户的 apply 要求，或目标文件非常明确。
 

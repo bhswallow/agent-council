@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.2
+
+- Removed the deprecated `council-respond` compatibility alias.
+- Use `council-review` for review, response, rebuttal, confirmation, and consensus.
+
 ## 2.0.1
 
 - Show the Agent Council version in `council-help` output.

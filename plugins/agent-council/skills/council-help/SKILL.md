@@ -19,7 +19,7 @@ If the user asks in Chinese or passes `zh`, answer in Chinese. If the user passe
 
 ## Chinese help
 
-Agent Council v2.0.1 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
+Agent Council v2.0.2 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
 
 常用命令：
 - `council-open <topic-id> [-- 交接说明]`
@@ -28,7 +28,7 @@ Agent Council v2.0.1 是 Claude Code 和 Codex 之间的“最新一轮交接”
 - `council-status [topic-id|all]`
 - `council-help [zh|en] [command]`
 
-`council-respond` 是兼容别名，等同于 `council-review`。
+`council-respond` 已在 v2.0.2 移除。请改用 `council-review`。
 
 示例：
 - `$council-open retry-design -- 使用我最近一次回复作为交接内容，请对方判断下一步是否合理。`
@@ -41,7 +41,7 @@ Agent Council v2.0.1 是 Claude Code 和 Codex 之间的“最新一轮交接”
 
 ## English help
 
-Agent Council v2.0.1 is a latest-turn bridge between Claude Code and Codex.
+Agent Council v2.0.2 is a latest-turn bridge between Claude Code and Codex.
 
 Commands:
 - `council-open <topic-id> [-- handoff note]`
@@ -50,7 +50,7 @@ Commands:
 - `council-status [topic-id|all]`
 - `council-help [zh|en] [command]`
 
-`council-respond` is a compatibility alias for `council-review`.
+`council-respond` was removed in v2.0.2. Use `council-review` instead.
 
 Examples:
 - `$council-open retry-design -- Use my latest answer as the handoff. Ask the peer to check whether the next step is reasonable.`

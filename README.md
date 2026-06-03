@@ -12,7 +12,7 @@ Agent Council is intentionally simple:
 - `council-status` shows the current state.
 - `council-help` explains usage.
 
-`council-respond` is still included as a compatibility alias, but the recommended command for both review and response is `council-review`.
+`council-respond` was removed in v2.0.2. Use `council-review` for review, response, rebuttal, confirmation, and consensus.
 
 ## What problem it solves
 

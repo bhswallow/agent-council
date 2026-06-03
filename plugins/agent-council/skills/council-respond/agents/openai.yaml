@@ -1,5 +1,0 @@
-interface:
-  display_name: "Council Respond"
-  short_description: "Compatibility alias for council-review."
-policy:
-  allow_implicit_invocation: false

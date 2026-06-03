@@ -41,7 +41,7 @@ Ignore workflow boilerplate in peer messages. Extract and review the actual tech
 
 ## Write policy
 
-`council-open`, `council-review`, `council-respond`, and `council-status` write only Council state.
+`council-open`, `council-review`, and `council-status` write only Council state.
 
 `council-apply` may modify formal project files, but only when the user gives an apply instruction or the target is explicit.
 

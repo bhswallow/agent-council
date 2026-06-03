@@ -27,7 +27,8 @@ fi
 
 install_claude() {
   mkdir -p "$ROOT/.claude/skills"
-  for skill in council-open council-review council-respond council-apply council-status council-help; do
+  rm -rf "$ROOT/.claude/skills/council-respond"
+  for skill in council-open council-review council-apply council-status council-help; do
     rm -rf "$ROOT/.claude/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.claude/skills/$skill"
   done
@@ -36,7 +37,8 @@ install_claude() {
 
 install_codex() {
   mkdir -p "$ROOT/.agents/skills"
-  for skill in council-open council-review council-respond council-apply council-status council-help; do
+  rm -rf "$ROOT/.agents/skills/council-respond"
+  for skill in council-open council-review council-apply council-status council-help; do
     rm -rf "$ROOT/.agents/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.agents/skills/$skill"
   done

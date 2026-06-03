@@ -12,7 +12,7 @@ Agent Council 的目标是保持简单：
 - `council-status` 查看当前状态。
 - `council-help` 查看帮助。
 
-`council-respond` 仍然保留为兼容别名，但推荐统一使用 `council-review` 来完成评审、回应、反驳和确认。
+`council-respond` 已在 v2.0.2 移除。请统一使用 `council-review` 完成评审、回应、反驳、确认和收敛。
 
 ## 解决什么问题
 
