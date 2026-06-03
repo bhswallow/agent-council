@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+- Show the Agent Council version in `council-help` output.
+
 ## 2.0.0
 
 - Simplified Agent Council into a latest-turn bridge.

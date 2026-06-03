@@ -19,7 +19,7 @@ If the user asks in Chinese or passes `zh`, answer in Chinese. If the user passe
 
 ## Chinese help
 
-Agent Council 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
+Agent Council v2.0.1 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
 
 常用命令：
 - `council-open <topic-id> [-- 交接说明]`
@@ -41,7 +41,7 @@ Agent Council 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁�
 
 ## English help
 
-Agent Council is a latest-turn bridge between Claude Code and Codex.
+Agent Council v2.0.1 is a latest-turn bridge between Claude Code and Codex.
 
 Commands:
 - `council-open <topic-id> [-- handoff note]`
