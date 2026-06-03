@@ -63,6 +63,8 @@ for readme in README.md README.zh-CN.md; do
   grep -q 'latest/codex.md' "$file" || fail "$readme missing lowercase codex path guidance"
   grep -q -- '--doctor' "$file" || fail "$readme missing doctor guidance"
   grep -q 'council-version' "$file" || fail "$readme missing council-version guidance"
+  grep -q '500 words' "$file" || fail "$readme missing handoff size budget"
+  grep -q '2026-06-03-1' "$file" || fail "$readme missing automatic topic id example"
 done
 
 grep -q 'lightweight, manual latest-turn bridge' "$ROOT/README.md" || \
@@ -109,6 +111,10 @@ grep -q "Agent Council v$VERSION" "$ROOT/plugins/agent-council/skills/council-ve
 grep -q -- '--doctor' "$ROOT/plugins/agent-council/skills/council-status/SKILL.md" || fail "council-status missing --doctor"
 grep -q 'Side effects' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing Side effects"
 grep -q 'Verdict: <state>' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing compact verdict-first output"
+grep -q 'maximum 500 words' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing handoff size budget"
+grep -q 'maximum 500 words' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing handoff size budget"
+grep -q 'topic id is optional' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing optional topic-id rule"
+grep -q '<YYYY-MM-DD>-<n>' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing generated topic-id format"
 grep -q 'Must-Preserve Nits' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing consensus nits template"
 grep -q 'formal_files_modified' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing lightweight frontmatter"
 grep -q 'canonical lowercase' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing lowercase agent id rule"

@@ -14,7 +14,7 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
 
 ## 命令
 
-    council-open <topic-id> [-- 交接说明]
+    council-open [topic-id] [-- 交接说明]
     council-review <topic-id> [CONSENSUS] [-- 评审要求]
     council-apply <topic-id> [-- 应用要求]
     council-status [topic-id|all] [--doctor]
@@ -34,11 +34,21 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
 使用 `council-status <topic-id> --doctor` 可以检查大小写路径冲突、
 turn 连续性、过期 consensus、status/consensus 漂移。
 
+`council-open` 可以省略 topic-id。省略时会自动生成类似 `2026-06-03-1`
+的日期序号名称。
+
 ## 开启话题
 
     $council-open retry-design -- 使用我最近一次回复作为交接内容。
 
+也可以让 Council 自动选择 topic-id：
+
+    $council-open -- 使用我最近一次回复作为交接内容。
+
 skill 会把交接内容写入 `.agent-council/active/retry-design/`。
+
+latest handoff 应控制在 500 words 或 20 bullets 以内。原始内容较长时，
+只保留 decisions、evidence、blockers、open questions 和 requested peer focus。
 
 ## 评审对方最新内容
 

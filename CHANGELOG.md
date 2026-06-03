@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.0
+
+- Made `council-open` topic ids optional, with automatic date-based ids such as `2026-06-03-1`.
+- Added a default handoff size budget: 500 words or 20 bullets for latest handoffs.
+- Documented short descriptive topic ids as optional, not required.
+
 ## 2.4.0
 
 - Added `council-version` for direct installed-version checks.
@@ -42,7 +48,7 @@
 ## 2.0.0
 
 - Simplified Agent Council into a latest-turn bridge.
-- Simplified `council-open` to `council-open <topic-id> [-- handoff note]`.
+- Simplified `council-open` around a topic id and optional handoff note.
 - Unified review and response around `council-review`.
 - Kept `council-respond` as a compatibility alias.
 - Removed artifact, stage, and brief arguments from the primary flow.

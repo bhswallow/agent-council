@@ -47,6 +47,10 @@ If `status.md` state is `CLOSED` or `ABANDONED`, stop and tell the user review s
 
 Before writing, check for case-conflict paths such as `latest/CLAUDE.md` or `latest/Codex.md`. If found, warn briefly and continue only with canonical lowercase paths.
 
+If the peer latest handoff is long, do not mirror its length. Extract only the
+current decisions, evidence, blockers, open questions, and requested review
+focus.
+
 ## Focus rule
 
 The subject is the topic content, not Agent Council.
@@ -73,6 +77,16 @@ Use this compact structure:
 Do not include long explanations of the Council protocol, file structure,
 status model, or why the bridge exists. The user asked for a topic review, not
 an essay about the tool.
+
+Apply the default handoff size budget when writing `latest/<current-agent>.md`
+and `latest/for-peer.md`:
+
+- maximum 500 words;
+- maximum 20 bullets;
+- prefer fewer bullets when the next peer action is narrow;
+- preserve blockers, accepted risks, must-preserve nits, and exact next action;
+- drop stale detail from earlier turns unless it is still needed for the next
+  decision.
 
 If the user includes `CONSENSUS`:
 

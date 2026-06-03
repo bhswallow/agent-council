@@ -23,6 +23,19 @@ Recommended files:
 
 Agent ids are canonical lowercase. Valid built-in ids are `claude` and `codex`. Paths must use lowercase agent ids only.
 
+## Topic ids
+
+`council-open` may be called without a topic id.
+
+When the user omits it, generate an id without asking:
+
+- default: `<YYYY-MM-DD>-<n>`, for example `2026-06-03-1`;
+- choose the first positive integer not already used in active or archive;
+- a short obvious slug such as `review-l1-spike` is acceptable when the user
+  note makes the subject clear.
+
+Do not let naming become a blocking step.
+
 ## Read policy
 
 Default read set:
@@ -34,6 +47,19 @@ Default read set:
 - `consensus.md` if present
 
 Do not read other topics or archive/history by default.
+
+## Handoff size budget
+
+When writing `latest/<agent>.md` or `latest/for-peer.md`, keep the handoff under:
+
+- 500 words; or
+- 20 bullets.
+
+Compress longer source turns to decisions, evidence, blockers, open questions,
+and requested peer focus.
+
+Do not roll forward stale detail from previous latest files unless it is still
+needed for the next decision.
 
 ## Focus policy
 

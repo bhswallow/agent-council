@@ -7,9 +7,11 @@ disable-model-invocation: true
 # Council Open
 
 Arguments:
-`<topic-id> [-- handoff note]`
+`[topic-id] [-- handoff note]`
 
 Examples:
+- `/council-open`
+- `$council-open -- Use my latest answer as the handoff. Ask the peer to check whether the next step is reasonable.`
 - `$council-open retry-design -- Use my latest answer as the handoff. Ask the peer to check whether the next step is reasonable.`
 - `/council-open checkout-plan -- Record the current recommendation so Codex can review it.`
 
@@ -20,6 +22,21 @@ Open one isolated topic under `.agent-council/active/<topic-id>/` and write the 
 Keep this action simple. Do not require artifact paths, stages, or special modes. If the user includes a file path in the note, record it. If not, do not invent one.
 
 `council-open` is only a latest-turn bridge. It captures the current tool's latest key content for the peer; it does not summarize full history.
+
+## Topic id
+
+The topic id is optional.
+
+If the user provides a topic id, use it after normalizing to lowercase kebab-case.
+
+If the user omits the topic id, generate one without asking:
+
+- Default format: `<YYYY-MM-DD>-<n>`, for example `2026-06-03-1`.
+- Use the current local date if available.
+- Pick the first positive integer that does not already exist under `.agent-council/active/` or `.agent-council/archive/`.
+- If the user's handoff note contains an obvious short subject, a concise slug such as `review-l1-spike` is also acceptable.
+
+Do not make naming a blocking question. If unsure, use the date-based id.
 
 ## Current agent
 
@@ -66,6 +83,15 @@ Write a concise handoff with this shape:
 
 Do not summarize the entire chat history. Capture only the latest meaningful answer or the user's explicit note.
 
+Apply the default handoff size budget when writing `latest/<current-agent>.md` and `latest/for-peer.md`:
+
+- maximum 500 words;
+- maximum 20 bullets;
+- prefer fewer bullets when the peer only needs a narrow review;
+- if the source turn is longer, compress it to decisions, evidence, blockers, open questions, and the requested peer focus.
+
+Do not carry forward old detail just because it was present in a previous latest handoff.
+
 Add short YAML frontmatter to the turn record:
 
 ```yaml
@@ -96,6 +122,7 @@ consensus:
 Reply with:
 
 - one short summary of what was handed off;
+- the topic id used, especially if it was generated automatically;
 - the exact command the peer should run next.
 - `Side effects` with Council files modified, formal project files modified, code changes, and next action.
 

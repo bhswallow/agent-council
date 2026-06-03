@@ -15,7 +15,7 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
 
 ## Commands
 
-    council-open <topic-id> [-- handoff note]
+    council-open [topic-id] [-- handoff note]
     council-review <topic-id> [CONSENSUS] [-- review instruction]
     council-apply <topic-id> [-- apply instruction]
     council-status [topic-id|all] [--doctor]
@@ -36,11 +36,22 @@ cache.
 Use `council-status <topic-id> --doctor` to check lowercase path conflicts,
 turn continuity, stale consensus, and status/consensus drift.
 
+`council-open` can omit the topic id. If omitted, it generates a date-based id
+such as `2026-06-03-1`.
+
 ## Open a topic
 
     $council-open retry-design -- Use my latest answer as the handoff.
 
+Or let Council choose the topic id:
+
+    $council-open -- Use my latest answer as the handoff.
+
 The skill writes the handoff under `.agent-council/active/retry-design/`.
+
+Latest handoffs should stay under 500 words or 20 bullets. Compress long source
+turns to decisions, evidence, blockers, open questions, and requested peer
+focus.
 
 ## Review the peer's latest handoff
 

@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.4.0
+Current version: 2.5.0
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -14,6 +14,7 @@ guardrails, not a workflow engine.
 Agent Council keeps the main flow intentionally small:
 
 - `council-open` starts a topic and records the current handoff.
+  The topic id is optional.
 - `council-review` reads the peer's latest handoff and replies.
 - `council-apply` applies an agreed result to formal project files.
 - `council-status` shows topic state, with an optional `--doctor` check.
@@ -73,16 +74,64 @@ explicitly ask.
 
 Agent Council stays lightweight, but it uses a few high-value guardrails:
 
+- `council-open` can generate a topic id when the user omits one.
 - Agent ids are canonical lowercase: `claude` and `codex`.
 - Paths use lowercase agent ids:
   `latest/claude.md`, `latest/codex.md`, and
   `turns/0005-claude-review.md`.
+- Latest handoffs should stay under 500 words or 20 bullets.
 - `council-open` and `council-review` may write only `.agent-council/`.
 - `council-apply` is the only command that may modify formal project files.
 - Command responses include a short `Side effects` summary.
 - `council-status <topic-id> --doctor` checks common consistency problems.
 
 The goal is a low-friction bridge with guardrails, not a strict state machine.
+
+## Automatic Topic Ids
+
+You can name a topic yourself:
+
+```text
+$council-open product-l1-gate -- Please review the gate criteria.
+```
+
+You can also omit the topic id:
+
+```text
+$council-open -- Please review the latest plan.
+```
+
+When no topic id is provided, `council-open` generates one without asking.
+The default format is date-based:
+
+```text
+2026-06-03-1
+2026-06-03-2
+```
+
+If the handoff note contains an obvious short subject, a concise slug such as
+`review-l1-spike` is also fine. Naming should not become a blocking step.
+
+## Handoff Size Budget
+
+The bridge reads latest turns by default, so latest files must stay short.
+
+When writing `latest/<agent>.md` and `latest/for-peer.md`, keep the handoff
+within:
+
+- 500 words; or
+- 20 bullets.
+
+If the source turn is longer, compress it to:
+
+- decisions;
+- evidence;
+- blockers;
+- open questions;
+- requested peer focus.
+
+Do not carry old detail forward just because it was present in a previous latest
+handoff.
 
 ## Topic States
 
@@ -302,6 +351,7 @@ Use the installer above. Then run the skills in Claude Code with short names:
 ```text
 /council-help
 /council-version
+/council-open -- Use the latest answer as the handoff for peer review.
 /council-open retry-design -- Use the latest answer as the handoff for peer review.
 /council-review retry-design -- Check whether the proposed next step is safe.
 /council-review retry-design CONSENSUS -- Converge if only non-blocking issues remain.
@@ -326,6 +376,7 @@ When installed as a plugin, Claude Code namespaces skills with the plugin name:
 ```text
 /agent-council:council-help
 /agent-council:council-version
+/agent-council:council-open -- Use the latest answer as the handoff for peer review.
 /agent-council:council-open retry-design -- Use the latest answer as the handoff for peer review.
 /agent-council:council-review retry-design
 /agent-council:council-apply retry-design
@@ -345,6 +396,7 @@ Use the installer above. Then run the skills in Codex with explicit skill calls:
 ```text
 $council-help
 $council-version
+$council-open -- Use the latest answer as the handoff for peer review.
 $council-open retry-design -- Use the latest answer as the handoff for peer review.
 $council-review retry-design -- Check whether the proposed next step is safe.
 $council-review retry-design CONSENSUS -- Converge if only non-blocking issues remain.
@@ -370,6 +422,7 @@ After installation, use the bundled skills explicitly:
 ```text
 $council-help
 $council-version
+$council-open -- Use the latest answer as the handoff for peer review.
 $council-open retry-design -- Use the latest answer as the handoff for peer review.
 $council-review retry-design
 $council-apply retry-design
@@ -386,6 +439,12 @@ Tool A opens a topic:
 
 ```text
 $council-open retry-plan -- I changed the retry plan. Please ask the peer to review whether the next step is reasonable.
+```
+
+Or let Council choose the topic id:
+
+```text
+$council-open -- I changed the retry plan. Please ask the peer to review whether the next step is reasonable.
 ```
 
 Tool B reviews the latest handoff:
@@ -414,7 +473,10 @@ $council-apply retry-plan -- Apply the consensus to docs/design.md.
 
 ## Topic Ids
 
-A topic id is a short name for an isolated discussion. Use lowercase kebab-case.
+A topic id is a short name for an isolated discussion. It is optional for
+`council-open`.
+
+When provided, use lowercase kebab-case.
 
 Good examples:
 
@@ -423,6 +485,7 @@ Good examples:
 - `checkout-design`
 - `search-index-review`
 - `retry-plan`
+- `2026-06-03-1`
 
 Avoid reusing the same topic id for unrelated work.
 

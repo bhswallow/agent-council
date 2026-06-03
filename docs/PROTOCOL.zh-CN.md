@@ -23,6 +23,18 @@ Agent Council v2 使用“最新一轮交接”模型。
 
 agent id 统一使用小写。内置合法值是 `claude` 和 `codex`。路径只能使用小写 agent id。
 
+## Topic ids
+
+`council-open` 可以不传 topic-id。
+
+用户省略时，直接自动生成，不要追问：
+
+- 默认格式：`<YYYY-MM-DD>-<n>`，例如 `2026-06-03-1`；
+- 选择 active 或 archive 中尚未使用的第一个正整数；
+- 如果用户说明里有明显短主题，也可以使用类似 `review-l1-spike` 的简短 slug。
+
+不要让命名变成阻塞步骤。
+
 ## 读取策略
 
 默认只读取：
@@ -34,6 +46,18 @@ agent id 统一使用小写。内置合法值是 `claude` 和 `codex`。路径�
 - 如存在，则读取 `consensus.md`
 
 默认不读取其他 topic，也不读取 archive 或完整历史。
+
+## Handoff 大小预算
+
+写入 `latest/<agent>.md` 或 `latest/for-peer.md` 时，控制在：
+
+- 500 words 以内；或
+- 20 bullets 以内。
+
+原始内容较长时，压缩成 decisions、evidence、blockers、open questions
+和 requested peer focus。
+
+除非某个旧细节仍是下一步决策所必需，否则不要把它从上一轮 latest 继续滚动带入。
 
 ## 聚焦策略
 

@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.4.0
+当前版本：2.5.0
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
@@ -13,6 +13,7 @@ Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 Agent Council 的主流程刻意保持简单：
 
 - `council-open` 开启一个 topic，并记录当前交接内容。
+  topic-id 可以省略。
 - `council-review` 读取对方最新交接内容并给出评审或回应。
 - `council-apply` 把已经达成一致的结果应用到正式项目文件。
 - `council-status` 查看 topic 状态，也可以执行 `--doctor` 检查。
@@ -68,15 +69,61 @@ Agent Council 会把最新交接内容写入：
 
 Agent Council 保持轻量，但使用少量高收益护栏：
 
+- `council-open` 可以在用户省略 topic-id 时自动生成。
 - agent id 统一为小写：`claude` 和 `codex`。
 - 文件路径使用小写 agent id：
   `latest/claude.md`、`latest/codex.md`、`turns/0005-claude-review.md`。
+- latest handoff 应控制在 500 words 或 20 bullets 以内。
 - `council-open` 和 `council-review` 只能写 `.agent-council/`。
 - 只有 `council-apply` 可以修改正式项目文件。
 - 命令回复包含简短 `Side effects` 摘要。
 - `council-status <topic-id> --doctor` 检查常见一致性问题。
 
 目标是低摩擦交接桥梁加少量防错，而不是严格状态机。
+
+## 自动 Topic Id
+
+你可以自己给 topic 命名：
+
+```text
+$council-open product-l1-gate -- 请评审当前 gate 标准。
+```
+
+也可以省略 topic-id：
+
+```text
+$council-open -- 请评审最新方案。
+```
+
+没有提供 topic-id 时，`council-open` 会直接自动生成，不再追问。
+默认格式是日期加序号：
+
+```text
+2026-06-03-1
+2026-06-03-2
+```
+
+如果交接说明里有明显短主题，也可以使用类似 `review-l1-spike` 的简短 slug。
+起名不应该成为阻塞步骤。
+
+## Handoff 大小预算
+
+bridge 默认读取 latest，因此 latest 文件必须保持短。
+
+写入 `latest/<agent>.md` 和 `latest/for-peer.md` 时，控制在：
+
+- 500 words 以内；或
+- 20 bullets 以内。
+
+如果原始内容更长，只保留：
+
+- decisions；
+- evidence；
+- blockers；
+- open questions；
+- requested peer focus。
+
+不要因为旧 latest 里有很多细节，就把它们继续滚动带到下一轮。
 
 ## Topic 状态
 
@@ -283,6 +330,7 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 ```text
 /council-help
 /council-version
+/council-open -- 使用最近一次回复作为给对方评审的交接内容。
 /council-open retry-design -- 使用最近一次回复作为给对方评审的交接内容。
 /council-review retry-design -- 判断当前下一步是否合理。
 /council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛成共识。
@@ -307,6 +355,7 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 ```text
 /agent-council:council-help
 /agent-council:council-version
+/agent-council:council-open -- 使用最近一次回复作为给对方评审的交接内容。
 /agent-council:council-open retry-design -- 使用最近一次回复作为给对方评审的交接内容。
 /agent-council:council-review retry-design
 /agent-council:council-apply retry-design
@@ -326,6 +375,7 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 ```text
 $council-help
 $council-version
+$council-open -- 使用最近一次回复作为给对方评审的交接内容。
 $council-open retry-design -- 使用最近一次回复作为给对方评审的交接内容。
 $council-review retry-design -- 判断当前下一步是否合理。
 $council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛成共识。
@@ -350,6 +400,7 @@ codex plugin marketplace add bhswallow/agent-council
 ```text
 $council-help
 $council-version
+$council-open -- 使用最近一次回复作为给对方评审的交接内容。
 $council-open retry-design -- 使用最近一次回复作为给对方评审的交接内容。
 $council-review retry-design
 $council-apply retry-design
@@ -366,6 +417,12 @@ $council-upgrade --check
 
 ```text
 $council-open retry-plan -- 我调整了重试方案，请让对方判断下一步是否合理。
+```
+
+也可以让 Council 自动生成 topic-id：
+
+```text
+$council-open -- 我调整了重试方案，请让对方判断下一步是否合理。
 ```
 
 工具 B 读取最新交接内容并评审：
@@ -394,7 +451,9 @@ $council-apply retry-plan -- 根据共识修改 docs/design.md。
 
 ## Topic Id
 
-`topic-id` 是一次独立讨论的短名称。建议使用小写 kebab-case。
+`topic-id` 是一次独立讨论的短名称。对 `council-open` 来说它可以省略。
+
+手动提供时，建议使用小写 kebab-case。
 
 推荐示例：
 
@@ -403,6 +462,7 @@ $council-apply retry-plan -- 根据共识修改 docs/design.md。
 - `checkout-design`
 - `search-index-review`
 - `retry-plan`
+- `2026-06-03-1`
 
 不要把同一个 topic-id 用在不相关的事情上。
 
