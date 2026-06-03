@@ -71,6 +71,7 @@ for readme in README.md README.zh-CN.md; do
   grep -q '500 words' "$file" || fail "$readme missing handoff size budget"
   grep -q '2026-06-03-1' "$file" || fail "$readme missing automatic topic id example"
   grep -qi 'human-invoked\|显式唤醒' "$file" || fail "$readme missing manual invocation boundary"
+  grep -qi 'Optional Workflow Reminders\|可选工作流提醒' "$file" || fail "$readme missing optional workflow reminders"
 done
 
 grep -q 'lightweight, manual latest-turn bridge' "$ROOT/README.md" || \
@@ -141,6 +142,10 @@ grep -q 'automatically stop tasks' "$ROOT/plugins/agent-council/skills/council-r
 grep -q 'do not run standalone installation commands' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade plugin guard missing"
 grep -q 'chain.*next task' "$ROOT/README.md" || fail "README.md missing no-chaining boundary"
 grep -q '自动串联' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing no-chaining boundary"
+grep -q 'current language' "$ROOT/README.md" || fail "README.md missing reminder language matching"
+grep -q '当前语种' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing reminder language matching"
+grep -q 'must not invoke Council' "$ROOT/docs/PROTOCOL.md" || fail "PROTOCOL.md reminders must not invoke Council"
+grep -q '不能调用 Council' "$ROOT/docs/PROTOCOL.zh-CN.md" || fail "PROTOCOL.zh-CN.md reminders must not invoke Council"
 grep -q 'Default behavior is read-only' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must be check-only by default"
 grep -q 'only when the user includes `--apply`' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must require --apply for install changes"
 grep -q 'Do not treat `--ref` by itself as permission to upgrade' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must not let --ref imply apply"

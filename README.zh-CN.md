@@ -69,6 +69,34 @@ Council 禁止：
 控制权回到普通用户/工具工作流。后续 task 只能来自用户的普通任务指令，
 不能由 Council 自动连接。
 
+## 可选工作流提醒
+
+外层工作流，例如 `CLAUDE.md`、`AGENTS.md`、Superpowers 或项目 memory，
+可以在合适的阶段边界简短提醒用户可以选择 Council：
+
+- 头脑风暴结束后；
+- 写完 design 后；
+- 写完 plans 后；
+- 写完 specs 后；
+- 一个计划内 task batch 全部完成后；
+- 工作流卡住或需要用户决策时。
+
+这些提醒是可选的，并且必须匹配用户当前语种。用户正在用中文，就用中文提醒；
+用户正在用英文，就用英文提醒。
+
+提醒不能自动调用 Council，不能自行停止执行，也不能暗示 Council 是必需的。
+如果用户没有要求 Council 介入，就按已批准工作流继续。
+
+示例：
+
+```text
+Design 已完成。
+可选：如果你希望让另一个工具评审，可以手动运行 Council：
+$council-open checkout-design -- 请评审这个 design。
+
+如果你不要求 Council 介入，我会按已批准流程继续。
+```
+
 ## 如何选择工具
 
 Agent Council 是直接调用工具的补充，不是替代品。

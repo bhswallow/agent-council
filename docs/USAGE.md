@@ -11,6 +11,11 @@ and preserves consensus without polluting project files.
 Council is invoked by the user. It must not automatically stop tasks, create
 topics, or chain into another task after a topic finishes.
 
+Outer workflows may briefly remind the user that Council is available after
+brainstorming, design, plans, specs, a task batch, or a blocker. Match the
+user's current language. The reminder is optional and must not invoke Council
+or stop execution.
+
 Keep reviews focused on the topic. Unless the topic itself is Agent Council, do
 not turn the exchange into a review of Council protocol or workflow mechanics.
 

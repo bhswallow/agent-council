@@ -14,6 +14,16 @@ must not decide that it is required.
 When a topic finishes, Council does not chain into the next task. Control
 returns to the normal user/tool workflow.
 
+## Optional reminders outside Council
+
+Outer workflow instructions may remind the user that Council is available after
+brainstorming, design, plans, specs, a completed task batch, or a blocker.
+
+The reminder must be brief, optional, and written in the user's current
+language. It must not invoke Council, stop the workflow, or imply that Council
+is required. If the user does not ask for Council, continue under the approved
+workflow.
+
 ## Workspace
 
 All runtime state lives under:

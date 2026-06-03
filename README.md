@@ -76,6 +76,37 @@ After a topic reaches consensus, blocked, closed, abandoned, or applied state,
 control returns to the normal user/tool workflow. Any next task starts only from
 the user's ordinary task instructions, not from Council.
 
+## Optional Workflow Reminders
+
+Outer workflows such as `CLAUDE.md`, `AGENTS.md`, Superpowers, or project memory
+may briefly remind the user that Council is available at useful phase
+boundaries:
+
+- after brainstorming;
+- after writing design;
+- after writing plans;
+- after writing specs;
+- after a planned task batch completes;
+- when the workflow is blocked or needs a human decision.
+
+These reminders are optional and must match the user's current language. If the
+user is working in Chinese, remind in Chinese. If the user is working in
+English, remind in English.
+
+The reminder must not invoke Council, stop execution by itself, or imply that
+Council is required. If the user does not ask for Council, continue with the
+approved workflow.
+
+Example:
+
+```text
+Design complete.
+Optional: you can manually run Council for peer review:
+$council-open checkout-design -- Review the completed design.
+
+Continuing without Council unless you ask for it.
+```
+
 ## Choosing A Bridge
 
 Agent Council complements direct invocation tools; it does not replace them.

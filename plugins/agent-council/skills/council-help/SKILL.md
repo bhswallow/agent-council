@@ -59,6 +59,7 @@ Agent Council v2.6.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - 讨论重点是 topic 对应的实际内容，不是 Council 流程本身。
 - `council-review` 先给 verdict，再给 topic 判断，最后给 `Next action` 和简短 `Side effects`。
 - `Next action` 只是当前 topic 内建议，不是停止、恢复、commit、push 或进入下一 task 的授权。
+- 外层工作流可以按用户当前语种提醒 Council 可选，但不能自动调用 Council。
 - 只有 `council-apply` 应该修改项目正式文件。
 
 ## English help
@@ -98,4 +99,5 @@ Rule of thumb:
 - Keep the discussion focused on the topic, not on the Council workflow.
 - `council-review` starts with a verdict, then a topic judgment, then `Next action` and a short `Side effects` summary.
 - `Next action` is advisory for the current topic, not permission to stop, resume, commit, push, or enter the next task.
+- Outer workflows may remind in the user's current language that Council is optional, but must not invoke Council automatically.
 - Only `council-apply` should modify formal project files.

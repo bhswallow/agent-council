@@ -10,6 +10,10 @@ Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 Council 只能由用户显式唤醒。它不能自动叫停任务、创建 topic，
 也不能在 topic 结束后自动串联到下一个 task。
 
+外层工作流可以在头脑风暴、design、plans、specs、task batch 完成或卡点后，
+简短提醒用户可以选择 Council。提醒应匹配用户当前语种，是可选提示，
+不能调用 Council，也不能停止执行。
+
 评审必须聚焦 topic 本身。
 除非 topic 本身就是 Agent Council，否则不要把讨论变成对 Council 协议或流程机制的评审。
 
