@@ -1,5 +1,5 @@
 interface:
   display_name: "Council Status"
-  short_description: "Agent Council workflow action: status."
+  short_description: "Show topic status."
 policy:
   allow_implicit_invocation: false

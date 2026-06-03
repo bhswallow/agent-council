@@ -1,69 +1,62 @@
 ---
 name: council-help
-description: Show help for the Agent Council workflow in English or Chinese.
+description: Show concise help for Agent Council in English or Chinese.
 ---
 
 # Council Help
 
 Arguments:
-`[zh|en] [skill-name]`
+`[zh|en] [command]`
 
 Examples:
 - `/council-help`
 - `$council-help zh`
 - `/council-help en council-review`
 
-This skill is read-only. Do not write `.agent-council/` files and do not modify formal artifacts.
+This skill is read-only. Do not write `.agent-council/` files and do not modify project files.
 
-## Output policy
+If the user asks in Chinese or passes `zh`, answer in Chinese. If the user passes `en`, answer in English.
 
-If the user asks in Chinese or passes `zh`, answer in Chinese. If the user passes `en`, answer in English. Keep help concise and practical.
+## Chinese help
 
-## Chinese help content
+Agent Council 是 Claude Code 和 Codex 之间的“最新一轮交接”桥梁。
 
-Agent Council 用来让 Claude Code 和 Codex 围绕同一个产物进行手动、多轮、可追踪的评审和回应。
-
-解决的问题：
-- 不再复制粘贴长上下文。
-- 正式文档只保存最终结论。
-- 讨论记录放在 `.agent-council/`，按 topic 隔离。
-- 你决定是否继续下一轮、谁修改正式产物、何时进入下一阶段。
-
-命令：
-- `council-open <topic-id> <artifact> [-- 说明]`
-- `council-open <topic-id> brief <target-artifact> [stage] -- 从当前聊天总结 source brief`
-- `council-review <topic-id> [CONSENSUS] [-- 本轮要求]`
-- `council-respond <topic-id> [CONSENSUS] [-- 本轮要求]`
+常用命令：
+- `council-open <topic-id> [-- 交接说明]`
+- `council-review <topic-id> [CONSENSUS] [-- 评审要求]`
 - `council-apply <topic-id> [-- 应用要求]`
-- `council-status [topic-id|all] [compact|archive|abandon|close]`
-- `council-help [zh|en] [skill-name]`
+- `council-status [topic-id|all]`
+- `council-help [zh|en] [command]`
 
-常用示例：
-- `$council-open retry-design docs/design.md -- 这是结构化设计流程中的 design 阶段。`
-- `/council-review retry-design -- 请用架构师和高级开发工程师两个视角 review。`
-- `$council-respond retry-design -- 只回应 blocker 和 major concerns。`
-- `/council-respond retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛。`
-- `$council-apply retry-design -- 只应用 consensus 中已接受的结论。`
+`council-respond` 是兼容别名，等同于 `council-review`。
 
-规则：review 和 respond 不改正式文件。只有 apply 可以改正式 artifact。默认只读当前 topic，不读其他 topic，不递归读取 archive。
+示例：
+- `$council-open retry-design -- 使用我最近一次回复作为交接内容，请对方判断下一步是否合理。`
+- `/council-review retry-design -- 重点看阻塞问题和是否可以继续推进。`
+- `$council-review retry-design -- 只回应对方提出的阻塞问题。`
+- `/council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛。`
+- `$council-apply retry-design -- 根据共识修改 docs/design.md。`
 
-## English help content
+原则：默认只读取对方最新交接内容，不读完整历史。讨论重点是 topic 对应的实际内容，不是 Council 流程本身。只有 `council-apply` 应该修改项目正式文件。
 
-Agent Council lets Claude Code and Codex manually review, respond, converge, and apply decisions around the same artifact.
+## English help
 
-It solves:
-- less context copying between tools;
-- cleaner design and plan documents;
-- isolated topic state under `.agent-council/`;
-- user-controlled review rounds and apply ownership.
+Agent Council is a latest-turn bridge between Claude Code and Codex.
 
 Commands:
-- `council-open <topic-id> <artifact> [-- note]`
-- `council-open <topic-id> brief <target-artifact> [stage] -- summarize current chat into a source brief`
-- `council-review <topic-id> [CONSENSUS] [-- turn instruction]`
-- `council-respond <topic-id> [CONSENSUS] [-- turn instruction]`
+- `council-open <topic-id> [-- handoff note]`
+- `council-review <topic-id> [CONSENSUS] [-- review instruction]`
 - `council-apply <topic-id> [-- apply instruction]`
-- `council-status [topic-id|all] [compact|archive|abandon|close]`
-- `council-help [zh|en] [skill-name]`
+- `council-status [topic-id|all]`
+- `council-help [zh|en] [command]`
 
-Rule of thumb: review and respond write only Council files. Apply is the only Council action that may change the formal artifact.
+`council-respond` is a compatibility alias for `council-review`.
+
+Examples:
+- `$council-open retry-design -- Use my latest answer as the handoff. Ask the peer to check whether the next step is reasonable.`
+- `/council-review retry-design -- Focus on blockers and whether we should proceed.`
+- `$council-review retry-design -- Reply only to the peer's blockers.`
+- `/council-review retry-design CONSENSUS -- Converge if only non-blocking issues remain.`
+- `$council-apply retry-design -- Apply the consensus to docs/design.md.`
+
+Rule of thumb: read the peer's latest handoff, not the full history. Keep the discussion focused on the topic, not on the Council workflow. Only `council-apply` should modify formal project files.

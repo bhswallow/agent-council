@@ -1,5 +1,5 @@
 interface:
   display_name: "Council Apply"
-  short_description: "Agent Council workflow action: apply."
+  short_description: "Apply agreed Council results."
 policy:
   allow_implicit_invocation: false

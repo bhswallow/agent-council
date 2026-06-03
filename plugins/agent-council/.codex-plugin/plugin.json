@@ -1,12 +1,12 @@
 {
   "name": "agent-council",
-  "version": "1.2.0",
-  "description": "A manual cross-review workflow for Claude Code and Codex using isolated topic state.",
+  "version": "2.0.0",
+  "description": "A lightweight latest-turn bridge for manual Claude Code and Codex review loops.",
   "license": "MIT",
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent Council",
-    "shortDescription": "Manual cross-review workflow for design docs, plans, and diffs",
+    "shortDescription": "Latest-turn bridge for Claude Code and Codex reviews",
     "category": "Development",
     "capabilities": [
       "Read",

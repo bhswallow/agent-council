@@ -1,5 +1,5 @@
 interface:
   display_name: "Council Help"
-  short_description: "Agent Council workflow action: help."
+  short_description: "Show Agent Council help."
 policy:
   allow_implicit_invocation: false

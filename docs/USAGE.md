@@ -1,36 +1,43 @@
 # Usage
 
-Agent Council uses topic ids to keep discussions separate. A topic should be short and stable, for example `retry-design` or `checkout-plan`.
+Agent Council v2 is a latest-turn bridge. Use it when Claude Code and Codex need to comment on each other's latest message without sharing the same chat window.
 
 ## Commands
 
-- `council-open`: start a topic and bind it to an artifact or source brief.
-- `council-review`: review the topic without changing the formal artifact.
-- `council-respond`: answer the peer review and update the current position.
-- `council-apply`: apply accepted decisions to the formal artifact.
-- `council-status`: inspect, compact, archive, close, or abandon a topic.
-- `council-help`: show help.
+    council-open <topic-id> [-- handoff note]
+    council-review <topic-id> [CONSENSUS] [-- review instruction]
+    council-apply <topic-id> [-- apply instruction]
+    council-status [topic-id|all]
+    council-help [zh|en]
 
-## Extra instructions
+`council-respond` is a compatibility alias for `council-review`.
 
-Use `--` for per-turn instructions:
+## Open a topic
 
-```text
-/council-review retry-design -- Use architect and senior engineer perspectives.
-```
+    $council-open retry-design -- Use my latest answer as the handoff. Ask the peer to check whether the next step is sound.
 
-Use `sticky:` when an instruction should remain part of the topic focus:
+The skill writes the handoff under `.agent-council/active/retry-design/`.
 
-```text
-/council-open retry-design docs/design.md -- sticky: Review this as a design-stage artifact before planning.
-```
+## Review the peer's latest handoff
 
-## Consensus
+    /council-review retry-design -- Focus on blockers and whether we should proceed.
 
-Add `CONSENSUS` when you want the current agent to stop expanding the discussion and converge based on the current information:
+The reviewing tool reads the peer's latest message and writes its own reply back to the same topic.
 
-```text
-/council-respond retry-design CONSENSUS -- Converge if no blockers remain.
-```
+## Continue the loop
 
-If both agents already agree, the topic is natural consensus. If disagreement remains and you force convergence, the topic records user-forced consensus.
+    $council-review retry-design -- Reply only to the peer's blockers.
+
+## Converge
+
+    /council-review retry-design CONSENSUS -- If only non-blocking issues remain, write the final agreed result.
+
+## Apply
+
+    $council-apply retry-design -- Apply the consensus to docs/design.md.
+
+Only `council-apply` should modify formal project files.
+
+## Notes
+
+Keep the topic focused. Do not ask the tools to analyze the Council workflow unless the topic is specifically about Agent Council.

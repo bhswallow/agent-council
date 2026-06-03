@@ -1,36 +1,43 @@
 # 使用说明
 
-Agent Council 使用 topic-id 隔离不同讨论。topic-id 应该简短稳定，例如 `retry-design` 或 `checkout-plan`。
+Agent Council v2 是一个“最新一轮交接”桥梁。它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 ## 命令
 
-- `council-open`：开启讨论，并绑定 artifact 或 source brief。
-- `council-review`：评审当前 topic，不修改正式 artifact。
-- `council-respond`：回应对方评审并更新当前立场。
-- `council-apply`：把已接受的决策写入正式 artifact。
-- `council-status`：查看、压缩、归档、关闭或放弃 topic。
-- `council-help`：查看帮助。
+    council-open <topic-id> [-- 交接说明]
+    council-review <topic-id> [CONSENSUS] [-- 评审要求]
+    council-apply <topic-id> [-- 应用要求]
+    council-status [topic-id|all]
+    council-help [zh|en]
 
-## 附加说明
+`council-respond` 保留为兼容别名，行为等同于 `council-review`。
 
-使用 `--` 添加当前轮要求：
+## 开启话题
 
-```text
-/council-review retry-design -- 请用架构师和高级开发工程师两个视角 review。
-```
+    $council-open retry-design -- 使用我最近一次回复作为交接内容，请对方判断下一步是否合理。
 
-如果某条说明需要成为 topic 长期规则，使用 `sticky:`：
+skill 会把交接内容写入 `.agent-council/active/retry-design/`。
 
-```text
-/council-open retry-design docs/design.md -- sticky: 这是进入计划阶段前的设计评审。
-```
+## 评审对方最新内容
+
+    /council-review retry-design -- 重点看是否存在阻塞问题，以及是否可以继续推进。
+
+评审方会读取对方最新内容，并把自己的意见写回同一个 topic。
+
+## 继续往返
+
+    $council-review retry-design -- 只回应对方提出的阻塞问题。
 
 ## 收敛
 
-如果你希望当前工具停止扩展讨论，并基于现有信息收敛，可以加入 `CONSENSUS`：
+    /council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请写出最终共识。
 
-```text
-/council-respond retry-design CONSENSUS -- 如果没有 blocker，请收敛。
-```
+## 应用
 
-如果双方已经同意，就是自然共识。如果仍有分歧但你要求停止讨论，会记录为用户强制收敛。
+    $council-apply retry-design -- 根据共识修改 docs/design.md。
+
+只有 `council-apply` 应该修改正式项目文件。
+
+## 说明
+
+保持话题聚焦。除非 topic 本身就是 Agent Council，否则不要让工具分析 Council 工作流本身。

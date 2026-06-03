@@ -1,5 +1,5 @@
 interface:
   display_name: "Council Review"
-  short_description: "Agent Council workflow action: review."
+  short_description: "Review or reply to a peer handoff."
 policy:
   allow_implicit_invocation: false

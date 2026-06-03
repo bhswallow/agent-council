@@ -1,5 +1,5 @@
 interface:
   display_name: "Council Open"
-  short_description: "Agent Council workflow action: open."
+  short_description: "Open a latest-turn bridge topic."
 policy:
   allow_implicit_invocation: false
