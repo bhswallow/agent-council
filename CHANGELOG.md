@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.7.5
+
+- Increased the default `council-claude-p` headless review timeout from 120
+  seconds to 600 seconds (10 minutes).
+- Kept `--diagnose` ping checks short so troubleshooting remains fast.
+
 ## 2.7.4
 
 - Added `council-claude-p --diagnose` for checking the local `claude` path,

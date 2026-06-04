@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.7.4 is a latest-turn bridge.
+Agent Council v2.7.5 is a latest-turn bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -66,8 +66,9 @@ prompt is provided, it uses the most recent substantive visible chat message as
 context and asks Claude for a focused one-shot review. Whitespace-only and
 punctuation-only input do not count as a prompt.
 
-It cannot read an unlimited Codex or Claude chat transcript by itself. Use a
-bounded timeout and report timeout/no output clearly.
+It cannot read an unlimited Codex or Claude chat transcript by itself. The
+default headless review timeout is 600 seconds (10 minutes). Report timeout/no
+output clearly.
 
 It should also show status updates while running, including starting, elapsed
 running time, completed, timed out, or no-output states.

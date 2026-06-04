@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.7.4 是一个“最新一轮交接”桥梁。
+Agent Council v2.7.5 是一个“最新一轮交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -61,8 +61,8 @@ headless 命令 `claude -p`。
 最近一条有实质内容的消息作为上下文，让 Claude 做一次聚焦 review。只有空白或标点不算
 prompt。
 
-它不能自己读取无限制的 Codex 或 Claude 聊天记录。执行时应使用有界 timeout，并在超时或
-无输出时明确说明没有拿到分析结果。
+它不能自己读取无限制的 Codex 或 Claude 聊天记录。普通 headless review 默认 timeout 是
+600 秒（10 分钟）。超时或无输出时要明确说明没有拿到分析结果。
 
 运行中也应输出状态，包括 starting、已等待时间、completed、timed out 或
 no-output 状态。

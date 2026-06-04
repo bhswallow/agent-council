@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.7.4
+Current version: 2.7.5
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -150,6 +150,7 @@ Requirements and boundaries:
 - It does not declare consensus or trigger `council-apply`.
 - It should use a bounded timeout and report a timeout rather than pretending a
   Claude analysis was produced.
+- The default headless review timeout is 600 seconds (10 minutes).
 - It supports `--diagnose` for a short CLI/auth/ping check when `claude -p`
   times out or returns no output.
 - It should show status updates while running: `starting`, `running`,

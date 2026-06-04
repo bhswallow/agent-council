@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.7.4
+当前版本：2.7.5
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
@@ -137,6 +137,7 @@ Council 主流程仍然是 `council-open`、`council-review`、`council-apply`�
 - 默认不修改项目文件。
 - 不会声明 consensus，也不会触发 `council-apply`。
 - 应使用有界 timeout；超时时要明确说明没有拿到 Claude 分析结果。
+- 普通 headless review 默认 timeout 是 600 秒（10 分钟）。
 - 当 `claude -p` 超时或没有输出时，可以用 `--diagnose` 做短诊断，检查 CLI、
   auth/ping 是否正常。
 - 运行时应输出状态：`starting`、`running`、`completed`、`timed out` 或

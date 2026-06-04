@@ -197,7 +197,7 @@ Default behavior:
 - do not modify project files;
 - return the Claude output to the user.
 
-Use a bounded timeout for the subprocess. Default timeout: 120 seconds.
+Use a bounded timeout for the subprocess. Default timeout: 600 seconds (10 minutes).
 If the user explicitly requests a longer run, use the requested limit and show
 it in the response.
 
@@ -211,7 +211,7 @@ Before starting the subprocess, send a short status message:
 Council Claude P status: starting
 - Skill command: council-claude-p "{short_prompt_summary}"
 - Underlying command: claude -p "{short_prompt_summary}"
-- Timeout: 120s
+- Timeout: 600s
 - Context: explicit prompt | fallback from recent visible chat
 - Output: chat only
 ```
@@ -352,7 +352,7 @@ Claude Code headless result:
 Side effects:
 - Skill command: council-claude-p "{short_prompt_summary}"
 - Underlying command: claude -p "{short_prompt_summary}"
-- Timeout: 120s default unless explicitly overridden
+- Timeout: 600s default unless explicitly overridden
 - Final status: completed | timed out | no output
 - Council files modified: none
 - Formal project files modified: none

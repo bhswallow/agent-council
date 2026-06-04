@@ -125,6 +125,8 @@ for readme in README.md README.zh-CN.md; do
     fail "$readme missing council-claude-p empty prompt fallback"
   grep -q -- '--diagnose' "$file" || \
     fail "$readme missing council-claude-p diagnose guidance"
+  grep -q '600 seconds\|600 秒' "$file" || \
+    fail "$readme missing council-claude-p 600 second timeout guidance"
 done
 
 assert_no_utility_in_range "$ROOT/README.md" '^## Commands$' '^## What It Solves$'
@@ -153,6 +155,9 @@ grep -q 'Council Claude P status: running' "$ROOT/plugins/agent-council/skills/c
 grep -q 'Council Claude P status: completed' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce completed status"
 grep -q 'Council Claude P status: timed out' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce timeout status"
 grep -q '15 to' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must define status update interval"
+grep -q 'Default timeout: 600 seconds (10 minutes)' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p default timeout must be 600 seconds"
+grep -q 'Timeout: 600s' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p status template must show 600s timeout"
+grep -q '30 seconds' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p diagnose ping should stay short"
 grep -q 'Whitespace-only input and punctuation-only input do not count as a prompt' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must ignore empty punctuation-only prompts"
 grep -q 'most recent substantive visible chat message' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must use recent visible chat fallback"
 grep -q 'Do not invent context' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not invent missing context"

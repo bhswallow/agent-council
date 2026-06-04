@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.7.4 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.7.5 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -70,6 +70,7 @@ Agent Council v2.7.4 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - 默认不写 Council topic，也不修改项目文件。
 - 有实质 prompt 时发送该 prompt；没有实质 prompt 时，使用当前可见聊天中最近一条实质消息生成聚焦 review 问题。
 - 不能读取无限制的聊天记录；超时或无输出时应明确说明。
+- 普通 headless review 默认 timeout 是 600 秒（10 分钟）。
 - 运行时应输出 starting/running/completed/timed out 状态，避免用户空等。
 - 超时或无输出时可运行 `$council-claude-p --diagnose`，检查本机 `claude`、版本和短 ping。
 - 示例：`$council-claude-p`
@@ -78,7 +79,7 @@ Agent Council v2.7.4 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 ## English help
 
-Agent Council v2.7.4 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
+Agent Council v2.7.5 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
@@ -124,6 +125,7 @@ Optional utilities:
 - It requires Claude Code CLI, does not require Codex CLI, and writes no Council topic or project files by default.
 - With a substantive prompt, it sends that prompt; with no substantive prompt, it builds a focused review prompt from the most recent substantive visible chat message.
 - It cannot read an unlimited chat transcript by itself and should report timeout/no-output clearly.
+- The default headless review timeout is 600 seconds (10 minutes).
 - It should report starting/running/completed/timed out status so the user is not left waiting silently.
 - On timeout or no output, run `$council-claude-p --diagnose` to check the local `claude` command, version, and a short ping.
 - Example: `$council-claude-p`
