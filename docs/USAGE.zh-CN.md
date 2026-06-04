@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.7.3 是一个“最新一轮交接”桥梁。
+Agent Council v2.7.4 是一个“最新一轮交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -67,9 +67,14 @@ prompt。
 运行中也应输出状态，包括 starting、已等待时间、completed、timed out 或
 no-output 状态。
 
+如果 `claude -p` 超时或没有有用输出，运行 `$council-claude-p --diagnose`。
+诊断模式会检查 `command -v claude`、`claude --version`，以及一个只读的短
+`claude -p` ping。它不会写文件。
+
 示例：
 
     $council-claude-p
+    $council-claude-p --diagnose
     $council-claude-p "Review docs/design.md for blockers."
     $council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 

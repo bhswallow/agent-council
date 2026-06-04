@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.7.3
+Current version: 2.7.4
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -150,6 +150,8 @@ Requirements and boundaries:
 - It does not declare consensus or trigger `council-apply`.
 - It should use a bounded timeout and report a timeout rather than pretending a
   Claude analysis was produced.
+- It supports `--diagnose` for a short CLI/auth/ping check when `claude -p`
+  times out or returns no output.
 - It should show status updates while running: `starting`, `running`,
   `completed`, or `timed out` / `no output`.
 
@@ -157,6 +159,7 @@ Examples:
 
 ```text
 $council-claude-p
+$council-claude-p --diagnose
 $council-claude-p "Review docs/design.md for blockers and missing tests."
 $council-claude-p --output-format json "Summarize the current repository risks."
 $council-claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
@@ -188,6 +191,15 @@ cannot read an unlimited surrounding Codex chat transcript by itself.
 `council-claude-p` should not leave you staring at a blank wait. It should announce when
 the headless process starts, report elapsed time while it is still running, and
 clearly say whether it completed, timed out, or returned no output.
+
+If it times out or returns no useful output, run:
+
+```text
+$council-claude-p --diagnose
+```
+
+Diagnose mode checks the local `claude` path, `claude --version`, and a short
+read-only `claude -p` ping. It does not write Council topics or project files.
 
 ## Topic Files
 

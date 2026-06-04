@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.7.3 is a latest-turn bridge.
+Agent Council v2.7.4 is a latest-turn bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -72,9 +72,14 @@ bounded timeout and report timeout/no output clearly.
 It should also show status updates while running, including starting, elapsed
 running time, completed, timed out, or no-output states.
 
+If `claude -p` times out or returns no useful output, run
+`$council-claude-p --diagnose`. Diagnose mode checks `command -v claude`,
+`claude --version`, and a short read-only `claude -p` ping. It writes no files.
+
 Examples:
 
     $council-claude-p
+    $council-claude-p --diagnose
     $council-claude-p "Review docs/design.md for blockers."
     $council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 

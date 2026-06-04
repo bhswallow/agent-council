@@ -123,6 +123,8 @@ for readme in README.md README.zh-CN.md; do
     fail "$readme must describe council-claude-p as an optional utility"
   grep -qi 'no substantive text\|没有实质文字' "$file" || \
     fail "$readme missing council-claude-p empty prompt fallback"
+  grep -q -- '--diagnose' "$file" || \
+    fail "$readme missing council-claude-p diagnose guidance"
 done
 
 assert_no_utility_in_range "$ROOT/README.md" '^## Commands$' '^## What It Solves$'
@@ -154,6 +156,10 @@ grep -q '15 to' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" |
 grep -q 'Whitespace-only input and punctuation-only input do not count as a prompt' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must ignore empty punctuation-only prompts"
 grep -q 'most recent substantive visible chat message' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must use recent visible chat fallback"
 grep -q 'Do not invent context' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not invent missing context"
+grep -q -- '--diagnose' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must support diagnose mode"
+grep -q 'Council Claude P diagnose' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must define diagnose output"
+grep -q 'Reply with exactly: council-claude-p-ok' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p diagnose must include ping prompt"
+grep -q 'non-zero exit code' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p timeout output must include exit/stderr guidance"
 grep -q 'do not declare `CONSENSUS`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not declare consensus"
 grep -q 'Do not automatically trigger `council-apply`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not trigger council-apply"
 

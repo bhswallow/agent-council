@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.7.4
+
+- Added `council-claude-p --diagnose` for checking the local `claude` path,
+  `claude --version`, and a short read-only `claude -p` ping.
+- Improved timeout/no-output guidance so users get actionable next steps when
+  Claude Code headless mode hangs or returns nothing.
+
 ## 2.7.3
 
 - Updated `council-claude-p` so an empty, whitespace-only, or

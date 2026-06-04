@@ -7,11 +7,12 @@ disable-model-invocation: true
 # Council Claude P
 
 Arguments:
-`[--help] [--topic {topic_id}] [--output {path}] [--output-format {format}] [--allowed-tools "{tools}"] "{prompt}"`
+`[--help] [--diagnose] [--topic {topic_id}] [--output {path}] [--output-format {format}] [--allowed-tools "{tools}"] "{prompt}"`
 
 Examples:
 - `$council-claude-p "Review docs/design.md for blockers."`
 - `$council-claude-p`
+- `$council-claude-p --diagnose`
 - `$council-claude-p --allowed-tools "Read,Grep,Glob,Bash(git diff *)" "Review current diff for rollback risk."`
 - `$council-claude-p --output-format json "Summarize the current repository risks."`
 - `$council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."`
@@ -59,7 +60,8 @@ Whitespace-only input and punctuation-only input do not count as a prompt.
 If the user passes `--help`, show short help and stop. Mention:
 
 - usage: `$council-claude-p "{prompt}"` or `$council-claude-p`;
-- optional flags: `--allowed-tools`, `--output-format`, `--output`, `--topic`;
+- optional flags: `--diagnose`, `--allowed-tools`, `--output-format`,
+  `--output`, `--topic`;
 - the local `claude` CLI must be installed and available in `PATH`;
 - if no prompt is provided, the skill uses the most recent substantive visible
   chat message as context and asks Claude for a focused one-shot review;
@@ -127,6 +129,50 @@ claude --version
 
 Do not treat a successful version check as proof that auth, network access, or
 model access is working for `claude -p`.
+
+## Diagnose Mode
+
+If the user passes `--diagnose`, do not run the normal review prompt. Run a
+short read-only diagnostic sequence and report each step:
+
+1. `command -v claude`
+2. `claude --version`
+3. a short ping prompt through `claude -p`, such as:
+
+```sh
+claude -p "Reply with exactly: council-claude-p-ok"
+```
+
+Use a shorter timeout for the ping prompt, such as 30 seconds.
+
+Do not add `--allowedTools` in diagnose mode. Do not write files. Do not write
+Council topics. Do not modify project files.
+
+Diagnose output should be concise:
+
+```text
+Council Claude P diagnose:
+- claude path: {path_or_missing}
+- claude version: {version_or_error}
+- ping: passed | timed out | failed | no output
+- likely issue: auth/login | network/model availability | CLI hang | unknown
+
+Next step:
+- ...
+```
+
+If the ping times out or returns no output, suggest running Claude Code
+interactively once to confirm login/auth, then retrying:
+
+```sh
+claude
+```
+
+Also suggest trying a direct shell ping outside the skill:
+
+```sh
+claude -p "Reply with exactly: council-claude-p-ok"
+```
 
 ## Execution
 
@@ -212,10 +258,15 @@ If `claude -p` times out or returns no output:
 - do not report a Claude analysis result;
 - say that the headless run timed out or returned no output;
 - include the elapsed timeout;
+- include whether the process exited, was killed by timeout, or returned a
+  non-zero exit code if that information is available;
+- include stderr or the last useful diagnostic line if available, but do not
+  paste huge logs;
 - suggest checking Claude Code login/auth, network access, model availability,
   or reducing the prompt;
 - remind the user that `council-claude-p` only sends the selected prompt/context,
   not an unlimited chat transcript;
+- suggest `$council-claude-p --diagnose` as the next check;
 - report that no Council files and no formal project files were modified.
 
 If the user explicitly passes `--allowed-tools "{tools}"`, pass the tools

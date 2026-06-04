@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.7.3
+当前版本：2.7.4
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
@@ -137,6 +137,8 @@ Council 主流程仍然是 `council-open`、`council-review`、`council-apply`�
 - 默认不修改项目文件。
 - 不会声明 consensus，也不会触发 `council-apply`。
 - 应使用有界 timeout；超时时要明确说明没有拿到 Claude 分析结果。
+- 当 `claude -p` 超时或没有输出时，可以用 `--diagnose` 做短诊断，检查 CLI、
+  auth/ping 是否正常。
 - 运行时应输出状态：`starting`、`running`、`completed`、`timed out` 或
   `no output`。
 
@@ -144,6 +146,7 @@ Council 主流程仍然是 `council-open`、`council-review`、`council-apply`�
 
 ```text
 $council-claude-p
+$council-claude-p --diagnose
 $council-claude-p "Review docs/design.md for blockers and missing tests."
 $council-claude-p --output-format json "Summarize the current repository risks."
 $council-claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
@@ -172,6 +175,15 @@ prompt 中引用该文件。headless `claude -p` 只会收到 skill 选中的 pr
 
 `council-claude-p` 不应该让用户盯着空白等待。它应该在 headless 进程启动时提示，
 运行中报告已等待时间，结束时明确说明是完成、超时，还是没有输出。
+
+如果它超时或没有有用输出，可以运行：
+
+```text
+$council-claude-p --diagnose
+```
+
+诊断模式会检查本机 `claude` 路径、`claude --version`，以及一个只读的短
+`claude -p` ping。它不会写 Council topic，也不会修改项目文件。
 
 ## Topic 文件
 
