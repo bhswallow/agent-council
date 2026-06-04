@@ -28,12 +28,17 @@ fi
 install_claude() {
   mkdir -p "$ROOT/.claude/skills"
   rm -rf "$ROOT/.claude/skills/council-respond"
-  for skill in council-open council-review council-apply council-status council-help council-upgrade council-version claude-p; do
+  rm -rf "$ROOT/.claude/skills/claude-p"
+  for skill in council-open council-review council-apply council-status council-help council-upgrade council-version council-claude-p; do
     rm -rf "$ROOT/.claude/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.claude/skills/$skill"
   done
   if [ -e "$ROOT/.claude/skills/council-respond" ]; then
     echo "Deprecated skill still exists after cleanup: $ROOT/.claude/skills/council-respond" >&2
+    exit 1
+  fi
+  if [ -e "$ROOT/.claude/skills/claude-p" ]; then
+    echo "Deprecated skill still exists after cleanup: $ROOT/.claude/skills/claude-p" >&2
     exit 1
   fi
   echo "Installed Claude Code skills into $ROOT/.claude/skills"
@@ -42,12 +47,17 @@ install_claude() {
 install_codex() {
   mkdir -p "$ROOT/.agents/skills"
   rm -rf "$ROOT/.agents/skills/council-respond"
-  for skill in council-open council-review council-apply council-status council-help council-upgrade council-version claude-p; do
+  rm -rf "$ROOT/.agents/skills/claude-p"
+  for skill in council-open council-review council-apply council-status council-help council-upgrade council-version council-claude-p; do
     rm -rf "$ROOT/.agents/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.agents/skills/$skill"
   done
   if [ -e "$ROOT/.agents/skills/council-respond" ]; then
     echo "Deprecated skill still exists after cleanup: $ROOT/.agents/skills/council-respond" >&2
+    exit 1
+  fi
+  if [ -e "$ROOT/.agents/skills/claude-p" ]; then
+    echo "Deprecated skill still exists after cleanup: $ROOT/.agents/skills/claude-p" >&2
     exit 1
   fi
   echo "Installed Codex skills into $ROOT/.agents/skills"

@@ -1,27 +1,29 @@
 ---
-name: claude-p
+name: council-claude-p
 description: Run Claude Code headless `claude -p` as an optional one-shot utility.
 disable-model-invocation: true
 ---
 
-# Claude P
+# Council Claude P
 
 Arguments:
 `[--help] [--topic {topic_id}] [--output {path}] [--output-format {format}] [--allowed-tools "{tools}"] "{prompt}"`
 
 Examples:
-- `$claude-p "Review docs/design.md for blockers."`
-- `$claude-p --allowed-tools "Read,Grep,Glob,Bash(git diff *)" "Review current diff for rollback risk."`
-- `$claude-p --output-format json "Summarize the current repository risks."`
-- `$claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."`
+- `$council-claude-p "Review docs/design.md for blockers."`
+- `$council-claude-p --allowed-tools "Read,Grep,Glob,Bash(git diff *)" "Review current diff for rollback risk."`
+- `$council-claude-p --output-format json "Summarize the current repository risks."`
+- `$council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."`
 
 ## Purpose
 
-`claude-p` is an optional utility skill. It wraps the native Claude Code
+`council-claude-p` is an optional utility skill. It wraps the native Claude Code
 headless command `claude -p`.
 
 Important boundary:
 
+- The user-facing skill command is `council-claude-p`.
+- The underlying subprocess is Claude Code's native `claude -p`.
 - `claude -p` comes from Claude Code / Anthropic, not Codex or OpenAI.
 - This skill does not require Codex CLI.
 - This skill requires Claude Code CLI to already be installed and `claude` to
@@ -36,7 +38,7 @@ Important boundary:
 
 ## Invocation Boundary
 
-Run this skill only when the user explicitly invokes `claude-p`.
+Run this skill only when the user explicitly invokes `council-claude-p`.
 
 Do not invoke it automatically from `council-open`, `council-review`,
 `council-apply`, `council-status`, or any other Council command.
@@ -53,7 +55,7 @@ Parse the user input as the prompt for `claude -p`.
 If the user passes `--help`, or does not provide a prompt, show short help and
 stop. Mention:
 
-- usage: `$claude-p "{prompt}"`;
+- usage: `$council-claude-p "{prompt}"`;
 - optional flags: `--allowed-tools`, `--output-format`, `--output`, `--topic`;
 - the local `claude` CLI must be installed and available in `PATH`;
 - no files or Council topics are written by default.
@@ -121,8 +123,9 @@ Do not leave the user waiting silently while `claude -p` runs.
 Before starting the subprocess, send a short status message:
 
 ```text
-Claude P status: starting
-- Command: claude -p "{short_prompt_summary}"
+Council Claude P status: starting
+- Skill command: council-claude-p "{short_prompt_summary}"
+- Underlying command: claude -p "{short_prompt_summary}"
 - Timeout: 120s
 - Context: explicit prompt only; current chat is not automatically included
 - Output: chat only
@@ -135,7 +138,7 @@ While the subprocess is running, provide progress updates at least every 15 to
 30 seconds:
 
 ```text
-Claude P status: running ({elapsed_seconds}s/{timeout_seconds}s)
+Council Claude P status: running ({elapsed_seconds}s/{timeout_seconds}s)
 - Claude has not returned output yet.
 - Still waiting for the headless process.
 ```
@@ -147,19 +150,19 @@ polling it so the user gets status updates.
 When the subprocess completes with output, send:
 
 ```text
-Claude P status: completed ({elapsed_seconds}s)
+Council Claude P status: completed ({elapsed_seconds}s)
 ```
 
 When the subprocess times out or exits with no useful output, send:
 
 ```text
-Claude P status: timed out ({elapsed_seconds}s/{timeout_seconds}s)
+Council Claude P status: timed out ({elapsed_seconds}s/{timeout_seconds}s)
 ```
 
 or:
 
 ```text
-Claude P status: no output ({elapsed_seconds}s)
+Council Claude P status: no output ({elapsed_seconds}s)
 ```
 
 Then explain that no Claude analysis result was produced.
@@ -172,7 +175,7 @@ If `claude -p` times out or returns no output:
 - include the elapsed timeout;
 - suggest checking Claude Code login/auth, network access, model availability,
   or reducing the prompt;
-- remind the user that `claude-p` only receives the explicit prompt, not the
+- remind the user that `council-claude-p` only receives the explicit prompt, not the
   surrounding chat transcript;
 - report that no Council files and no formal project files were modified.
 
@@ -211,13 +214,13 @@ If the user explicitly asks to save the result to a file:
   and confirms it.
 - do not write `.agent-council/` paths through `--output`;
 - if the user wants to save under a Council topic, require `--topic {topic_id}`
-  and write only `.agent-council/active/{topic_id}/latest/claude-p.md`.
+  and write only `.agent-council/active/{topic_id}/latest/council-claude-p.md`.
 
 If the user explicitly asks to save the result to a Council topic, require an
 explicit topic id:
 
 ```text
-$claude-p --topic product-l1-gate "Review the latest Codex handoff for blockers."
+$council-claude-p --topic product-l1-gate "Review the latest Codex handoff for blockers."
 ```
 
 Validate the topic id before writing:
@@ -233,16 +236,16 @@ Validate the topic id before writing:
 Save the result to:
 
 ```text
-.agent-council/active/{topic_id}/latest/claude-p.md
+.agent-council/active/{topic_id}/latest/council-claude-p.md
 ```
 
 When saving to a Council topic:
 
 - create parent directories if needed;
-- write only `latest/claude-p.md`;
+- write only `latest/council-claude-p.md`;
 - never update Council governance files such as `status.md`, `consensus.md`,
   `latest/for-peer.md`, `topic.md`, `index.md`, or `turns/` from this utility;
-- state that this is a `claude-p` external review result, not the same thing as
+- state that this is a `council-claude-p` external review result, not the same thing as
   Claude Code interactive Council review;
 - do not declare `CONSENSUS`;
 - do not trigger `council-apply`;
@@ -257,7 +260,8 @@ Claude Code headless result:
 {result}
 
 Side effects:
-- Ran: claude -p "{short_prompt_summary}"
+- Skill command: council-claude-p "{short_prompt_summary}"
+- Underlying command: claude -p "{short_prompt_summary}"
 - Timeout: 120s default unless explicitly overridden
 - Final status: completed | timed out | no output
 - Council files modified: none
@@ -269,8 +273,8 @@ If saved to a file, include the exact path under `Side effects`.
 If saved to a Council topic, include:
 
 ```text
-Saved external claude-p review:
-.agent-council/active/{topic_id}/latest/claude-p.md
+Saved external council-claude-p review:
+.agent-council/active/{topic_id}/latest/council-claude-p.md
 
 This is not a Council consensus and not an interactive Claude Code Council review.
 ```

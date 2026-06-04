@@ -21,20 +21,20 @@ skill_frontmatter() {
   ' "$1"
 }
 
-assert_no_claude_p_in_range() {
+assert_no_utility_in_range() {
   file="$1"
   start="$2"
   end="$3"
   awk -v start="$start" -v end="$end" '
     $0 ~ start { in_range = 1; saw_start = 1; next }
     in_range && $0 ~ end { saw_end = 1; in_range = 0; next }
-    in_range && /claude-p/ { found = 1 }
+    in_range && /council-claude-p/ { found = 1 }
     END {
       if (!saw_start || !saw_end || found) {
         exit 1
       }
     }
-  ' "$file" || fail "$(basename "$file") must not put claude-p in the Agent Council main flow"
+  ' "$file" || fail "$(basename "$file") must not put council-claude-p in the Agent Council main flow"
 }
 
 assert_codex_implicit_invocation_disabled() {
@@ -60,7 +60,7 @@ for f in "${required[@]}"; do
   require_file "$f"
 done
 
-skills=(council-open council-review council-apply council-status council-help council-version council-upgrade claude-p)
+skills=(council-open council-review council-apply council-status council-help council-version council-upgrade council-claude-p)
 
 for skill in "${skills[@]}"; do
   skill_file="$ROOT/plugins/agent-council/skills/$skill/SKILL.md"
@@ -81,16 +81,19 @@ for skill in "${skills[@]}"; do
   assert_codex_implicit_invocation_disabled "$codex_file"
 done
 
-[ -f "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" ] || \
-  fail "Missing claude-p utility skill"
-[ -f "$ROOT/plugins/agent-council/skills/claude-p/agents/openai.yaml" ] || \
-  fail "Missing claude-p Codex metadata"
+[ -f "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" ] || \
+  fail "Missing council-claude-p utility skill"
+[ -f "$ROOT/plugins/agent-council/skills/council-claude-p/agents/openai.yaml" ] || \
+  fail "Missing council-claude-p Codex metadata"
 
-for forbidden_target in claude codex; do
-  if [ -d "$ROOT/plugins/agent-council/skills/council-$forbidden_target" ]; then
-    fail "Do not add Council wrapper skills for Claude or Codex"
-  fi
-done
+if [ -d "$ROOT/plugins/agent-council/skills/claude-p" ]; then
+  fail "Deprecated claude-p skill directory must not remain; use council-claude-p"
+fi
+
+if [ -d "$ROOT/plugins/agent-council/skills/council-claude" ] || \
+   [ -d "$ROOT/plugins/agent-council/skills/council-codex" ]; then
+  fail "Do not add ambiguous council-claude or council-codex skills"
+fi
 
 if [ -d "$ROOT/plugins/agent-council/skills/council-respond" ]; then
   respond_file="$ROOT/plugins/agent-council/skills/council-respond/SKILL.md"
@@ -116,37 +119,38 @@ for readme in README.md README.zh-CN.md; do
   grep -q '2026-06-03-1' "$file" || fail "$readme missing automatic topic id example"
   grep -qi 'human-invoked\|显式唤醒' "$file" || fail "$readme missing manual invocation boundary"
   grep -qi 'Optional Workflow Reminders\|可选工作流提醒' "$file" || fail "$readme missing optional workflow reminders"
-  grep -qi 'claude-p.*optional utility\|optional utility.*claude-p\|claude-p.*可选工具\|可选工具.*claude-p\|claude-p.*可选 utility\|可选 utility.*claude-p' "$file" || \
-    fail "$readme must describe claude-p as an optional utility"
+  grep -qi 'council-claude-p.*optional utility\|optional utility.*council-claude-p\|council-claude-p.*可选工具\|可选工具.*council-claude-p\|council-claude-p.*可选 utility\|可选 utility.*council-claude-p' "$file" || \
+    fail "$readme must describe council-claude-p as an optional utility"
 done
 
-assert_no_claude_p_in_range "$ROOT/README.md" '^## Commands$' '^## What It Solves$'
-assert_no_claude_p_in_range "$ROOT/README.md" '^## Basic Workflow$' '^## Topic Ids$'
-assert_no_claude_p_in_range "$ROOT/README.md" '^## Claude Code$' '^## Codex$'
-assert_no_claude_p_in_range "$ROOT/README.md" '^## Codex$' '^## Basic Workflow$'
-assert_no_claude_p_in_range "$ROOT/README.zh-CN.md" '^## 命令$' '^## 解决什么问题$'
-assert_no_claude_p_in_range "$ROOT/README.zh-CN.md" '^## 基本流程$' '^## Topic Id$'
-assert_no_claude_p_in_range "$ROOT/README.zh-CN.md" '^## Claude Code$' '^## Codex$'
-assert_no_claude_p_in_range "$ROOT/README.zh-CN.md" '^## Codex$' '^## 基本流程$'
-assert_no_claude_p_in_range "$ROOT/docs/USAGE.md" '^## Commands$' '^## Optional utility: claude-p$'
-assert_no_claude_p_in_range "$ROOT/docs/USAGE.md" '^## Open a topic$' '^## Notes$'
-assert_no_claude_p_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 命令$' '^## 可选工具：claude-p$'
-assert_no_claude_p_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 开启话题$' '^## 说明$'
+assert_no_utility_in_range "$ROOT/README.md" '^## Commands$' '^## What It Solves$'
+assert_no_utility_in_range "$ROOT/README.md" '^## Basic Workflow$' '^## Topic Ids$'
+assert_no_utility_in_range "$ROOT/README.md" '^## Claude Code$' '^## Codex$'
+assert_no_utility_in_range "$ROOT/README.md" '^## Codex$' '^## Basic Workflow$'
+assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## 命令$' '^## 解决什么问题$'
+assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## 基本流程$' '^## Topic Id$'
+assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## Claude Code$' '^## Codex$'
+assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## Codex$' '^## 基本流程$'
+assert_no_utility_in_range "$ROOT/docs/USAGE.md" '^## Commands$' '^## Optional utility: council-claude-p$'
+assert_no_utility_in_range "$ROOT/docs/USAGE.md" '^## Open a topic$' '^## Notes$'
+assert_no_utility_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 命令$' '^## 可选工具：council-claude-p$'
+assert_no_utility_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 开启话题$' '^## 说明$'
 
-grep -q 'claude -p' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p skill must document claude -p"
-grep -q 'command -v claude' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p skill must check local claude CLI"
-grep -q 'not part of the Agent Council review loop' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must be outside Council loop"
-grep -q 'Agent Council does not install Claude Code' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must clarify Claude Code install boundary"
-grep -q 'latest/claude-p.md' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p missing topic save path"
-grep -q 'do not write `.agent-council/` paths through `--output`' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p --output must not write Council paths"
-grep -q 'any `Bash(...)` pattern' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must warn on Bash allowed-tools"
-grep -q 'Claude P status: starting' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must announce starting status"
-grep -q 'Claude P status: running' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must provide running status updates"
-grep -q 'Claude P status: completed' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must announce completed status"
-grep -q 'Claude P status: timed out' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must announce timeout status"
-grep -q '15 to' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must define status update interval"
-grep -q 'do not declare `CONSENSUS`' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must not declare consensus"
-grep -q 'Do not automatically trigger `council-apply`' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must not trigger council-apply"
+grep -q 'claude -p' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p skill must document claude -p"
+grep -q 'command -v claude' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p skill must check local claude CLI"
+grep -q 'not part of the Agent Council review loop' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must be outside Council loop"
+grep -q 'Agent Council does not install Claude Code' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must clarify Claude Code install boundary"
+grep -q 'The user-facing skill command is `council-claude-p`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must document user-facing command"
+grep -q 'latest/council-claude-p.md' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p missing topic save path"
+grep -q 'do not write `.agent-council/` paths through `--output`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p --output must not write Council paths"
+grep -q 'any `Bash(...)` pattern' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must warn on Bash allowed-tools"
+grep -q 'Council Claude P status: starting' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce starting status"
+grep -q 'Council Claude P status: running' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must provide running status updates"
+grep -q 'Council Claude P status: completed' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce completed status"
+grep -q 'Council Claude P status: timed out' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce timeout status"
+grep -q '15 to' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must define status update interval"
+grep -q 'do not declare `CONSENSUS`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not declare consensus"
+grep -q 'Do not automatically trigger `council-apply`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not trigger council-apply"
 
 grep -q 'lightweight, manual latest-turn bridge' "$ROOT/README.md" || \
   fail "README.md missing lightweight manual bridge positioning"
@@ -238,6 +242,7 @@ while IFS= read -r repo_file; do
       continue
       ;;
   esac
+  [ -f "$ROOT/$repo_file" ] || continue
   if grep -Eqi '[Ii][Pp][Tt][Vv]' "$ROOT/$repo_file"; then
     fail "Repository must not contain the forbidden project-specific acronym"
   fi

@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.7.1
+Current version: 2.7.2
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -126,17 +126,19 @@ References:
 - [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage)
 - [Run Claude Code programmatically](https://code.claude.com/docs/en/headless)
 
-## Optional Utility: claude-p
+## Optional Utility: council-claude-p
 
-`claude-p` is an optional utility skill, not part of the Agent Council main
+`council-claude-p` is an optional utility skill, not part of the Agent Council main
 flow. The Council flow remains `council-open`, `council-review`,
 `council-apply`, `council-status`, and `council-help`.
 
-`claude-p` wraps the Claude Code native headless command `claude -p`. That
+`council-claude-p` wraps the Claude Code native headless command `claude -p`. That
 command comes from Claude Code / Anthropic, not Codex or OpenAI.
 
 Requirements and boundaries:
 
+- The user-facing Agent Council skill command is `council-claude-p`.
+- The underlying subprocess is Claude Code's native `claude -p`.
 - Claude Code CLI must already be installed.
 - The local `claude` command must be available in `PATH`.
 - It does not require Codex CLI.
@@ -154,19 +156,19 @@ Requirements and boundaries:
 Examples:
 
 ```text
-$claude-p "Review docs/design.md for blockers and missing tests."
-$claude-p --output-format json "Summarize the current repository risks."
-$claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
-$claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
+$council-claude-p "Review docs/design.md for blockers and missing tests."
+$council-claude-p --output-format json "Summarize the current repository risks."
+$council-claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
+$council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 ```
 
 Use `--topic {topic_id}` only when you explicitly want to save the result under:
 
 ```text
-.agent-council/active/{topic_id}/latest/claude-p.md
+.agent-council/active/{topic_id}/latest/council-claude-p.md
 ```
 
-That saved file is an external `claude-p` attachment under the topic. It is not
+That saved file is an external `council-claude-p` attachment under the topic. It is not
 the same as an interactive Claude Code Council review. To enter the standard
 Council peer-review loop, manually run `council-open` / `council-review`.
 
@@ -174,7 +176,7 @@ If you want Claude to summarize previous chat content, paste that content into
 the prompt or save it to a file and reference the file. A headless `claude -p`
 call cannot read the surrounding Codex chat transcript by itself.
 
-`claude-p` should not leave you staring at a blank wait. It should announce when
+`council-claude-p` should not leave you staring at a blank wait. It should announce when
 the headless process starts, report elapsed time while it is still running, and
 clearly say whether it completed, timed out, or returned no output.
 

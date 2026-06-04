@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.7.2
+
+- Renamed the optional Claude Code headless utility from `claude-p` to
+  `council-claude-p` so its command prefix matches the other Agent Council
+  skills.
+- Updated standalone install and uninstall scripts to remove stale `claude-p`
+  skill directories from v2.7.0 and v2.7.1 installs.
+
 ## 2.7.1
 
 - Clarified `claude-p` context boundaries: `claude -p` only receives the
