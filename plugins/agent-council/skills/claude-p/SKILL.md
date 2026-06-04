@@ -29,6 +29,10 @@ Important boundary:
 - Agent Council does not install Claude Code.
 - This utility is not part of the Agent Council review loop.
 - Do not treat its result as a Council consensus.
+- `claude -p` only receives the explicit prompt passed to it. It does not
+  automatically see the current Codex chat, Claude Code chat, screenshots, or
+  prior conversation unless the user includes that context in the prompt or
+  grants tools that let Claude read files.
 
 ## Invocation Boundary
 
@@ -54,6 +58,11 @@ stop. Mention:
 - the local `claude` CLI must be installed and available in `PATH`;
 - no files or Council topics are written by default.
 
+If the user asks Claude to summarize "the above chat", "this conversation", or
+"the previous messages", explain that headless `claude -p` cannot see the
+current chat transcript automatically. Ask the user to paste the relevant text,
+save it to a file and reference that file, or use a Council handoff topic.
+
 ## CLI Availability Check
 
 Before running Claude, check whether the local command exists:
@@ -68,6 +77,15 @@ If it is not found, stop and tell the user:
 - install or configure Claude Code CLI first;
 - this command comes from Claude Code, not Codex;
 - Agent Council does not install Claude Code.
+
+If `claude` exists, optionally run a cheap smoke check when debugging a hang:
+
+```sh
+claude --version
+```
+
+Do not treat a successful version check as proof that auth, network access, or
+model access is working for `claude -p`.
 
 ## Execution
 
@@ -91,6 +109,72 @@ Default behavior:
 - do not write `.agent-council/`;
 - do not modify project files;
 - return the Claude output to the user.
+
+Use a bounded timeout for the subprocess. Default timeout: 120 seconds.
+If the user explicitly requests a longer run, use the requested limit and show
+it in the response.
+
+## Status Updates
+
+Do not leave the user waiting silently while `claude -p` runs.
+
+Before starting the subprocess, send a short status message:
+
+```text
+Claude P status: starting
+- Command: claude -p "{short_prompt_summary}"
+- Timeout: 120s
+- Context: explicit prompt only; current chat is not automatically included
+- Output: chat only
+```
+
+If the result will be saved to a file or Council topic, include the destination
+path in the starting status.
+
+While the subprocess is running, provide progress updates at least every 15 to
+30 seconds:
+
+```text
+Claude P status: running ({elapsed_seconds}s/{timeout_seconds}s)
+- Claude has not returned output yet.
+- Still waiting for the headless process.
+```
+
+Use an execution mode that can be polled or streamed. If the available tool call
+would block until completion, prefer starting an ongoing process/session and
+polling it so the user gets status updates.
+
+When the subprocess completes with output, send:
+
+```text
+Claude P status: completed ({elapsed_seconds}s)
+```
+
+When the subprocess times out or exits with no useful output, send:
+
+```text
+Claude P status: timed out ({elapsed_seconds}s/{timeout_seconds}s)
+```
+
+or:
+
+```text
+Claude P status: no output ({elapsed_seconds}s)
+```
+
+Then explain that no Claude analysis result was produced.
+
+If `claude -p` times out or returns no output:
+
+- stop the process;
+- do not report a Claude analysis result;
+- say that the headless run timed out or returned no output;
+- include the elapsed timeout;
+- suggest checking Claude Code login/auth, network access, model availability,
+  or reducing the prompt;
+- remind the user that `claude-p` only receives the explicit prompt, not the
+  surrounding chat transcript;
+- report that no Council files and no formal project files were modified.
 
 If the user explicitly passes `--allowed-tools "{tools}"`, pass the tools
 through to Claude Code using the installed CLI's allowed-tools flag. Do not add
@@ -174,6 +258,8 @@ Claude Code headless result:
 
 Side effects:
 - Ran: claude -p "{short_prompt_summary}"
+- Timeout: 120s default unless explicitly overridden
+- Final status: completed | timed out | no output
 - Council files modified: none
 - Formal project files modified: none
 ```

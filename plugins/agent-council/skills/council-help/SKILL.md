@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.7.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.7.1 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -68,11 +68,13 @@ Agent Council v2.7.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - 适合在 Codex 或脚本化环境中做一次性 Claude 检查。
 - 需要已安装 Claude Code CLI；不依赖 Codex CLI。
 - 默认不写 Council topic，也不修改项目文件。
+- 只会收到显式 prompt，不能自动读取当前聊天记录；超时或无输出时应明确说明。
+- 运行时应输出 starting/running/completed/timed out 状态，避免用户空等。
 - 示例：`$claude-p "Review docs/design.md for blockers and missing tests."`
 
 ## English help
 
-Agent Council v2.7.0 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
+Agent Council v2.7.1 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
@@ -115,4 +117,6 @@ Optional utilities:
 - It is not part of the Council review loop.
 - Use it when you need a one-shot Claude check from Codex or a script-like environment.
 - It requires Claude Code CLI, does not require Codex CLI, and writes no Council topic or project files by default.
+- It only receives the explicit prompt, cannot automatically read the current chat, and should report timeout/no-output clearly.
+- It should report starting/running/completed/timed out status so the user is not left waiting silently.
 - Example: `$claude-p "Review docs/design.md for blockers and missing tests."`

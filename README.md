@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.7.0
+Current version: 2.7.1
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -141,9 +141,15 @@ Requirements and boundaries:
 - The local `claude` command must be available in `PATH`.
 - It does not require Codex CLI.
 - It does not install or configure Claude Code.
+- It only receives the explicit prompt; it cannot automatically see the current
+  Codex or Claude Code chat.
 - It does not write Council topics by default.
 - It does not modify project files by default.
 - It does not declare consensus or trigger `council-apply`.
+- It should use a bounded timeout and report a timeout rather than pretending a
+  Claude analysis was produced.
+- It should show status updates while running: `starting`, `running`,
+  `completed`, or `timed out` / `no output`.
 
 Examples:
 
@@ -163,6 +169,14 @@ Use `--topic {topic_id}` only when you explicitly want to save the result under:
 That saved file is an external `claude-p` attachment under the topic. It is not
 the same as an interactive Claude Code Council review. To enter the standard
 Council peer-review loop, manually run `council-open` / `council-review`.
+
+If you want Claude to summarize previous chat content, paste that content into
+the prompt or save it to a file and reference the file. A headless `claude -p`
+call cannot read the surrounding Codex chat transcript by itself.
+
+`claude-p` should not leave you staring at a blank wait. It should announce when
+the headless process starts, report elapsed time while it is still running, and
+clearly say whether it completed, timed out, or returned no output.
 
 ## Topic Files
 

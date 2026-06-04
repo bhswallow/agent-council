@@ -140,6 +140,11 @@ grep -q 'Agent Council does not install Claude Code' "$ROOT/plugins/agent-counci
 grep -q 'latest/claude-p.md' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p missing topic save path"
 grep -q 'do not write `.agent-council/` paths through `--output`' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p --output must not write Council paths"
 grep -q 'any `Bash(...)` pattern' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must warn on Bash allowed-tools"
+grep -q 'Claude P status: starting' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must announce starting status"
+grep -q 'Claude P status: running' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must provide running status updates"
+grep -q 'Claude P status: completed' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must announce completed status"
+grep -q 'Claude P status: timed out' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must announce timeout status"
+grep -q '15 to' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must define status update interval"
 grep -q 'do not declare `CONSENSUS`' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must not declare consensus"
 grep -q 'Do not automatically trigger `council-apply`' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must not trigger council-apply"
 

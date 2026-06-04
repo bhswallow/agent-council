@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.7.0 is a latest-turn bridge.
+Agent Council v2.7.1 is a latest-turn bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -57,6 +57,13 @@ running the Claude Code native headless command `claude -p` when the local
 
 It does not require Codex CLI. It does not write Council topics or project
 files by default.
+
+It only receives the explicit prompt. It cannot automatically read the current
+Codex or Claude chat transcript. Use a bounded timeout and report timeout/no
+output clearly.
+
+It should also show status updates while running, including starting, elapsed
+running time, completed, timed out, or no-output states.
 
 Examples:
 

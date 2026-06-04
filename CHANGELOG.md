@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.7.1
+
+- Clarified `claude-p` context boundaries: `claude -p` only receives the
+  explicit prompt and cannot automatically see the current Codex or Claude chat.
+- Added timeout and hang-diagnostic guidance for `claude-p` so stalled headless
+  runs return a useful explanation instead of appearing to succeed.
+- Required visible `claude-p` status updates while headless runs are starting,
+  still running, completed, timed out, or returning no output.
+
 ## 2.7.0
 
 - Added optional `claude-p` utility skill for one-shot Claude Code headless
