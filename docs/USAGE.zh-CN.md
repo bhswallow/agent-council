@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2 是一个“最新一轮交接”桥梁。
+Agent Council v2.7.0 是一个“最新一轮交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -45,6 +45,19 @@ turn 连续性、过期 consensus、status/consensus 漂移。
 
 `council-open` 可以省略 topic-id。省略时会自动生成类似 `2026-06-03-1`
 的日期序号名称。
+
+## 可选工具：claude-p
+
+`claude-p` 不是 Council 主流程的一部分。它是一次性工具，用于在本机已经安装
+Claude Code CLI 且 `claude` 在 `PATH` 中可用时，运行 Claude Code 原生
+headless 命令 `claude -p`。
+
+它不依赖 Codex CLI。默认不写 Council topic，也不修改项目文件。
+
+示例：
+
+    $claude-p "Review docs/design.md for blockers."
+    $claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 
 ## 开启话题
 

@@ -18,6 +18,8 @@
     plugins/agent-council/skills/council-help/SKILL.md
     plugins/agent-council/skills/council-upgrade/SKILL.md
     plugins/agent-council/skills/council-version/SKILL.md
+    plugins/agent-council/skills/claude-p/SKILL.md
+    plugins/agent-council/skills/claude-p/agents/openai.yaml
     docs/USAGE.md
     docs/USAGE.zh-CN.md
     docs/PROTOCOL.md

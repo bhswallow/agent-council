@@ -13,6 +13,39 @@ require_file() {
   [ -f "$ROOT/$1" ] || fail "Missing required file: $1"
 }
 
+skill_frontmatter() {
+  awk '
+    NR == 1 && $0 == "---" { in_frontmatter = 1; next }
+    in_frontmatter && $0 == "---" { exit }
+    in_frontmatter { print }
+  ' "$1"
+}
+
+assert_no_claude_p_in_range() {
+  file="$1"
+  start="$2"
+  end="$3"
+  awk -v start="$start" -v end="$end" '
+    $0 ~ start { in_range = 1; saw_start = 1; next }
+    in_range && $0 ~ end { saw_end = 1; in_range = 0; next }
+    in_range && /claude-p/ { found = 1 }
+    END {
+      if (!saw_start || !saw_end || found) {
+        exit 1
+      }
+    }
+  ' "$file" || fail "$(basename "$file") must not put claude-p in the Agent Council main flow"
+}
+
+assert_codex_implicit_invocation_disabled() {
+  awk '
+    /^policy:$/ { in_policy = 1; next }
+    in_policy && /^[^[:space:]]/ { in_policy = 0 }
+    in_policy && /^  allow_implicit_invocation: false$/ { found = 1 }
+    END { exit found ? 0 : 1 }
+  ' "$1" || fail "Missing policy.allow_implicit_invocation: false in $1"
+}
+
 required=(
   ".claude-plugin/marketplace.json"
   ".agents/plugins/marketplace.json"
@@ -27,7 +60,7 @@ for f in "${required[@]}"; do
   require_file "$f"
 done
 
-skills=(council-open council-review council-apply council-status council-help council-version council-upgrade)
+skills=(council-open council-review council-apply council-status council-help council-version council-upgrade claude-p)
 
 for skill in "${skills[@]}"; do
   skill_file="$ROOT/plugins/agent-council/skills/$skill/SKILL.md"
@@ -41,11 +74,22 @@ for skill in "${skills[@]}"; do
   sed -n '2,10p' "$skill_file" | grep -qx -- '---' || \
     fail "SKILL.md frontmatter must close with standalone --- in first 10 lines: $skill_file"
 
-  grep -q '^disable-model-invocation: true$' "$skill_file" || \
-    fail "Missing disable-model-invocation: true in $skill_file"
+  frontmatter="$(skill_frontmatter "$skill_file")"
+  printf '%s\n' "$frontmatter" | grep -qx 'disable-model-invocation: true' || \
+    fail "Missing disable-model-invocation: true in SKILL.md frontmatter: $skill_file"
 
-  grep -q 'allow_implicit_invocation: false' "$codex_file" || \
-    fail "Missing allow_implicit_invocation: false in $codex_file"
+  assert_codex_implicit_invocation_disabled "$codex_file"
+done
+
+[ -f "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" ] || \
+  fail "Missing claude-p utility skill"
+[ -f "$ROOT/plugins/agent-council/skills/claude-p/agents/openai.yaml" ] || \
+  fail "Missing claude-p Codex metadata"
+
+for forbidden_target in claude codex; do
+  if [ -d "$ROOT/plugins/agent-council/skills/council-$forbidden_target" ]; then
+    fail "Do not add Council wrapper skills for Claude or Codex"
+  fi
 done
 
 if [ -d "$ROOT/plugins/agent-council/skills/council-respond" ]; then
@@ -72,7 +116,32 @@ for readme in README.md README.zh-CN.md; do
   grep -q '2026-06-03-1' "$file" || fail "$readme missing automatic topic id example"
   grep -qi 'human-invoked\|显式唤醒' "$file" || fail "$readme missing manual invocation boundary"
   grep -qi 'Optional Workflow Reminders\|可选工作流提醒' "$file" || fail "$readme missing optional workflow reminders"
+  grep -qi 'claude-p.*optional utility\|optional utility.*claude-p\|claude-p.*可选工具\|可选工具.*claude-p\|claude-p.*可选 utility\|可选 utility.*claude-p' "$file" || \
+    fail "$readme must describe claude-p as an optional utility"
 done
+
+assert_no_claude_p_in_range "$ROOT/README.md" '^## Commands$' '^## What It Solves$'
+assert_no_claude_p_in_range "$ROOT/README.md" '^## Basic Workflow$' '^## Topic Ids$'
+assert_no_claude_p_in_range "$ROOT/README.md" '^## Claude Code$' '^## Codex$'
+assert_no_claude_p_in_range "$ROOT/README.md" '^## Codex$' '^## Basic Workflow$'
+assert_no_claude_p_in_range "$ROOT/README.zh-CN.md" '^## 命令$' '^## 解决什么问题$'
+assert_no_claude_p_in_range "$ROOT/README.zh-CN.md" '^## 基本流程$' '^## Topic Id$'
+assert_no_claude_p_in_range "$ROOT/README.zh-CN.md" '^## Claude Code$' '^## Codex$'
+assert_no_claude_p_in_range "$ROOT/README.zh-CN.md" '^## Codex$' '^## 基本流程$'
+assert_no_claude_p_in_range "$ROOT/docs/USAGE.md" '^## Commands$' '^## Optional utility: claude-p$'
+assert_no_claude_p_in_range "$ROOT/docs/USAGE.md" '^## Open a topic$' '^## Notes$'
+assert_no_claude_p_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 命令$' '^## 可选工具：claude-p$'
+assert_no_claude_p_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 开启话题$' '^## 说明$'
+
+grep -q 'claude -p' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p skill must document claude -p"
+grep -q 'command -v claude' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p skill must check local claude CLI"
+grep -q 'not part of the Agent Council review loop' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must be outside Council loop"
+grep -q 'Agent Council does not install Claude Code' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must clarify Claude Code install boundary"
+grep -q 'latest/claude-p.md' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p missing topic save path"
+grep -q 'do not write `.agent-council/` paths through `--output`' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p --output must not write Council paths"
+grep -q 'any `Bash(...)` pattern' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must warn on Bash allowed-tools"
+grep -q 'do not declare `CONSENSUS`' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must not declare consensus"
+grep -q 'Do not automatically trigger `council-apply`' "$ROOT/plugins/agent-council/skills/claude-p/SKILL.md" || fail "claude-p must not trigger council-apply"
 
 grep -q 'lightweight, manual latest-turn bridge' "$ROOT/README.md" || \
   fail "README.md missing lightweight manual bridge positioning"
@@ -112,6 +181,8 @@ PY
 
 grep -q "Current version: $VERSION" "$ROOT/README.md" || fail "README.md version does not match VERSION"
 grep -q "当前版本：$VERSION" "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md version does not match VERSION"
+grep -q "Agent Council v$VERSION" "$ROOT/docs/USAGE.md" || fail "docs/USAGE.md version does not match VERSION"
+grep -q "Agent Council v$VERSION" "$ROOT/docs/USAGE.zh-CN.md" || fail "docs/USAGE.zh-CN.md version does not match VERSION"
 grep -q "Agent Council v$VERSION" "$ROOT/plugins/agent-council/skills/council-help/SKILL.md" || fail "council-help version does not match VERSION"
 grep -q "Agent Council v$VERSION" "$ROOT/plugins/agent-council/skills/council-version/SKILL.md" || fail "council-version version does not match VERSION"
 
@@ -156,9 +227,16 @@ grep -q -- 'council-upgrade --apply' "$ROOT/README.zh-CN.md" || fail "README.zh-
 grep -q -- '--ref {git_ref}' "$ROOT/README.md" || fail "README.md missing optional ref guidance"
 grep -q -- '--ref {git_ref}' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing optional ref guidance"
 
-if grep -Rqi 'IPTV' "$ROOT/README.md" "$ROOT/README.zh-CN.md" "$ROOT/plugins/agent-council/skills" "$ROOT/docs"; then
-  fail "Docs or skills must not contain IPTV"
-fi
+while IFS= read -r repo_file; do
+  case "$repo_file" in
+    .agent-council/*)
+      continue
+      ;;
+  esac
+  if grep -Eqi '[Ii][Pp][Tt][Vv]' "$ROOT/$repo_file"; then
+    fail "Repository must not contain the forbidden project-specific acronym"
+  fi
+done < <(git -C "$ROOT" ls-files -co --exclude-standard)
 
 if grep -R '<\(topic-id\|current-agent\|peer-agent\|peer\|next-number\|number\|agent\|state\|turn\)>' \
   "$ROOT/README.md" "$ROOT/README.zh-CN.md" "$ROOT/plugins/agent-council/skills" "$ROOT/docs"; then

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.7.0
+
+- Added optional `claude-p` utility skill for one-shot Claude Code headless
+  checks through the native `claude -p` command.
+- Kept `claude-p` outside the Agent Council main review loop: no default topic
+  writes, no default project file changes, and no automatic consensus or apply.
+- Updated installer, uninstaller, help, README files, and validation for the
+  optional utility boundary.
+
 ## 2.6.0
 
 - Reframed Council as a human-invoked bridge, not an automatic risk gate.

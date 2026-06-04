@@ -1,0 +1,5 @@
+interface:
+  display_name: "Claude P"
+  short_description: "Run Claude Code headless claude -p as an optional utility."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,190 @@
+---
+name: claude-p
+description: Run Claude Code headless `claude -p` as an optional one-shot utility.
+disable-model-invocation: true
+---
+
+# Claude P
+
+Arguments:
+`[--help] [--topic {topic_id}] [--output {path}] [--output-format {format}] [--allowed-tools "{tools}"] "{prompt}"`
+
+Examples:
+- `$claude-p "Review docs/design.md for blockers."`
+- `$claude-p --allowed-tools "Read,Grep,Glob,Bash(git diff *)" "Review current diff for rollback risk."`
+- `$claude-p --output-format json "Summarize the current repository risks."`
+- `$claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."`
+
+## Purpose
+
+`claude-p` is an optional utility skill. It wraps the native Claude Code
+headless command `claude -p`.
+
+Important boundary:
+
+- `claude -p` comes from Claude Code / Anthropic, not Codex or OpenAI.
+- This skill does not require Codex CLI.
+- This skill requires Claude Code CLI to already be installed and `claude` to
+  be available in `PATH`.
+- Agent Council does not install Claude Code.
+- This utility is not part of the Agent Council review loop.
+- Do not treat its result as a Council consensus.
+
+## Invocation Boundary
+
+Run this skill only when the user explicitly invokes `claude-p`.
+
+Do not invoke it automatically from `council-open`, `council-review`,
+`council-apply`, `council-status`, or any other Council command.
+
+Do not automatically write `.agent-council/`.
+Do not automatically modify formal project files.
+Do not automatically trigger another Council round.
+Do not automatically trigger `council-apply`.
+
+## Prompt Handling
+
+Parse the user input as the prompt for `claude -p`.
+
+If the user passes `--help`, or does not provide a prompt, show short help and
+stop. Mention:
+
+- usage: `$claude-p "{prompt}"`;
+- optional flags: `--allowed-tools`, `--output-format`, `--output`, `--topic`;
+- the local `claude` CLI must be installed and available in `PATH`;
+- no files or Council topics are written by default.
+
+## CLI Availability Check
+
+Before running Claude, check whether the local command exists:
+
+```sh
+command -v claude
+```
+
+If it is not found, stop and tell the user:
+
+- the current system did not find the `claude` command;
+- install or configure Claude Code CLI first;
+- this command comes from Claude Code, not Codex;
+- Agent Council does not install Claude Code.
+
+## Execution
+
+If `claude` is available, construct and execute one headless prompt:
+
+```sh
+claude -p "{prompt}"
+```
+
+Treat the command as an argv-style command, not a shell pipeline. Do not use
+`eval`. Pass every user-controlled value as a separate argv element. This
+includes the prompt, `--allowed-tools`, `--output-format`, `--output`, and
+`--topic` values. If a shell must be used, quote every user-controlled value
+safely.
+
+Default behavior:
+
+- do not add `--allowedTools`;
+- do not grant Bash, Write, Edit, or other tools automatically;
+- do not write files;
+- do not write `.agent-council/`;
+- do not modify project files;
+- return the Claude output to the user.
+
+If the user explicitly passes `--allowed-tools "{tools}"`, pass the tools
+through to Claude Code using the installed CLI's allowed-tools flag. Do not add
+extra tools beyond what the user requested.
+
+If the requested tools include file-mutating or shell-capable tools such as
+`Write`, `Edit`, `MultiEdit`, `Bash`, or any `Bash(...)` pattern, stop and warn
+that this exceeds the default one-shot review utility. Continue only if the user
+explicitly confirms that they want to grant those tools to Claude Code. Never
+add those tools automatically.
+
+If the user explicitly passes `--output-format {format}`, pass the output
+format through to Claude Code.
+
+Do not turn the user's prompt into a complex shell command, pipe, or redirect
+unless the user explicitly requested that shell behavior. If shell behavior is
+requested, show the exact command before running it.
+
+If the prompt asks Claude to write files or modify the project, warn that this
+is beyond the default one-shot review utility and recommend using the official
+interactive Claude Code environment for file-changing work.
+
+## Saving Results
+
+By default, do not save the result.
+
+If the user explicitly asks to save the result to a file:
+
+- save only to the requested path;
+- clearly report the save path;
+- do not write any other files.
+- reject paths that contain `..`, are empty, or would resolve outside the
+  current workspace unless the user explicitly gives an absolute external path
+  and confirms it.
+- do not write `.agent-council/` paths through `--output`;
+- if the user wants to save under a Council topic, require `--topic {topic_id}`
+  and write only `.agent-council/active/{topic_id}/latest/claude-p.md`.
+
+If the user explicitly asks to save the result to a Council topic, require an
+explicit topic id:
+
+```text
+$claude-p --topic product-l1-gate "Review the latest Codex handoff for blockers."
+```
+
+Validate the topic id before writing:
+
+- allowed characters: lowercase letters, numbers, and hyphens;
+- must match `{topic_id}` shape such as `product-l1-gate`, `checkout-review`,
+  or `retry-plan`;
+- reject empty values;
+- reject `/`, `\`, `.`, `..`, spaces, shell metacharacters, and absolute paths;
+- do not normalize a rejected value into a different topic id without telling
+  the user.
+
+Save the result to:
+
+```text
+.agent-council/active/{topic_id}/latest/claude-p.md
+```
+
+When saving to a Council topic:
+
+- create parent directories if needed;
+- write only `latest/claude-p.md`;
+- never update Council governance files such as `status.md`, `consensus.md`,
+  `latest/for-peer.md`, `topic.md`, `index.md`, or `turns/` from this utility;
+- state that this is a `claude-p` external review result, not the same thing as
+  Claude Code interactive Council review;
+- do not declare `CONSENSUS`;
+- do not trigger `council-apply`;
+- do not trigger another Council round.
+
+## Output Shape
+
+Keep the user-facing response short:
+
+```text
+Claude Code headless result:
+{result}
+
+Side effects:
+- Ran: claude -p "{short_prompt_summary}"
+- Council files modified: none
+- Formal project files modified: none
+```
+
+If saved to a file, include the exact path under `Side effects`.
+
+If saved to a Council topic, include:
+
+```text
+Saved external claude-p review:
+.agent-council/active/{topic_id}/latest/claude-p.md
+
+This is not a Council consensus and not an interactive Claude Code Council review.
+```

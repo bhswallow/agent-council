@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.6.0
+当前版本：2.7.0
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
@@ -114,6 +114,45 @@ Agent Council 是直接调用工具的补充，不是替代品。
 - Codex 内置 `/plugins` 和已安装 Codex app 中的 plugin 文档。
 - [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage)
 - [Run Claude Code programmatically](https://code.claude.com/docs/en/headless)
+
+## 可选工具：claude-p
+
+`claude-p` 是 optional utility（可选工具），不是 Agent Council 主流程的一部分。
+Council 主流程仍然是 `council-open`、`council-review`、`council-apply`、
+`council-status` 和 `council-help`。
+
+`claude-p` 封装的是 Claude Code 原生 headless 命令 `claude -p`。
+这个命令来自 Claude Code / Anthropic，不来自 Codex 或 OpenAI。
+
+使用前提和边界：
+
+- 用户本机必须已经安装 Claude Code CLI。
+- 本机 `claude` 命令必须在 `PATH` 中可用。
+- 它不依赖 Codex CLI。
+- 它不负责安装或配置 Claude Code。
+- 默认不写 Council topic。
+- 默认不修改项目文件。
+- 不会声明 consensus，也不会触发 `council-apply`。
+
+示例：
+
+```text
+$claude-p "Review docs/design.md for blockers and missing tests."
+$claude-p --output-format json "Summarize the current repository risks."
+$claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
+$claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
+```
+
+只有当你明确希望保存到 Council topic 时，才使用 `--topic {topic_id}`。
+保存路径是：
+
+```text
+.agent-council/active/{topic_id}/latest/claude-p.md
+```
+
+这个文件只是保存在 topic 下的外部 `claude-p` 附件，不等同于 Claude Code
+交互式 Council review。若要进入标准 Council 互审循环，仍需手动运行
+`council-open` / `council-review`。
 
 ## Topic 文件
 

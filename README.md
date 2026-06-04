@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.6.0
+Current version: 2.7.0
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -125,6 +125,44 @@ References:
 - Codex `/plugins` and Codex plugin documentation in your installed Codex app.
 - [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage)
 - [Run Claude Code programmatically](https://code.claude.com/docs/en/headless)
+
+## Optional Utility: claude-p
+
+`claude-p` is an optional utility skill, not part of the Agent Council main
+flow. The Council flow remains `council-open`, `council-review`,
+`council-apply`, `council-status`, and `council-help`.
+
+`claude-p` wraps the Claude Code native headless command `claude -p`. That
+command comes from Claude Code / Anthropic, not Codex or OpenAI.
+
+Requirements and boundaries:
+
+- Claude Code CLI must already be installed.
+- The local `claude` command must be available in `PATH`.
+- It does not require Codex CLI.
+- It does not install or configure Claude Code.
+- It does not write Council topics by default.
+- It does not modify project files by default.
+- It does not declare consensus or trigger `council-apply`.
+
+Examples:
+
+```text
+$claude-p "Review docs/design.md for blockers and missing tests."
+$claude-p --output-format json "Summarize the current repository risks."
+$claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
+$claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
+```
+
+Use `--topic {topic_id}` only when you explicitly want to save the result under:
+
+```text
+.agent-council/active/{topic_id}/latest/claude-p.md
+```
+
+That saved file is an external `claude-p` attachment under the topic. It is not
+the same as an interactive Claude Code Council review. To enter the standard
+Council peer-review loop, manually run `council-open` / `council-review`.
 
 ## Topic Files
 

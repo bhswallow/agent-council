@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2 is a latest-turn bridge.
+Agent Council v2.7.0 is a latest-turn bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -48,6 +48,20 @@ turn continuity, stale consensus, and status/consensus drift.
 
 `council-open` can omit the topic id. If omitted, it generates a date-based id
 such as `2026-06-03-1`.
+
+## Optional utility: claude-p
+
+`claude-p` is not part of the Council main flow. It is a one-shot utility for
+running the Claude Code native headless command `claude -p` when the local
+`claude` CLI is installed and available in `PATH`.
+
+It does not require Codex CLI. It does not write Council topics or project
+files by default.
+
+Examples:
+
+    $claude-p "Review docs/design.md for blockers."
+    $claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 
 ## Open a topic
 
