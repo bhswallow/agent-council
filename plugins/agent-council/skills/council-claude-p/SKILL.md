@@ -11,6 +11,7 @@ Arguments:
 
 Examples:
 - `$council-claude-p "Review docs/design.md for blockers."`
+- `$council-claude-p`
 - `$council-claude-p --allowed-tools "Read,Grep,Glob,Bash(git diff *)" "Review current diff for rollback risk."`
 - `$council-claude-p --output-format json "Summarize the current repository risks."`
 - `$council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."`
@@ -31,10 +32,11 @@ Important boundary:
 - Agent Council does not install Claude Code.
 - This utility is not part of the Agent Council review loop.
 - Do not treat its result as a Council consensus.
-- `claude -p` only receives the explicit prompt passed to it. It does not
-  automatically see the current Codex chat, Claude Code chat, screenshots, or
-  prior conversation unless the user includes that context in the prompt or
-  grants tools that let Claude read files.
+- `claude -p` receives only the prompt this skill sends to it. It does not
+  independently see the current Codex chat, Claude Code chat, screenshots, or
+  prior conversation unless this skill includes selected visible chat text in
+  the prompt, the user includes context explicitly, or the user grants tools
+  that let Claude read files.
 
 ## Invocation Boundary
 
@@ -52,18 +54,55 @@ Do not automatically trigger `council-apply`.
 
 Parse the user input as the prompt for `claude -p`.
 
-If the user passes `--help`, or does not provide a prompt, show short help and
-stop. Mention:
+Whitespace-only input and punctuation-only input do not count as a prompt.
 
-- usage: `$council-claude-p "{prompt}"`;
+If the user passes `--help`, show short help and stop. Mention:
+
+- usage: `$council-claude-p "{prompt}"` or `$council-claude-p`;
 - optional flags: `--allowed-tools`, `--output-format`, `--output`, `--topic`;
 - the local `claude` CLI must be installed and available in `PATH`;
+- if no prompt is provided, the skill uses the most recent substantive visible
+  chat message as context and asks Claude for a focused one-shot review;
 - no files or Council topics are written by default.
 
+If the user does not provide a substantive prompt, automatically build a prompt
+from the most recent substantive visible chat message available to the current
+agent. Ignore:
+
+- empty text;
+- whitespace;
+- punctuation-only text;
+- command-only text such as `council-claude-p` with no substantive content.
+
+Prefer the latest substantive user request. If the latest user request is only
+the `council-claude-p` invocation, use the previous substantive user request or
+the latest substantive assistant result that the user appears to be asking
+Claude to review. Do not scan files or Council state just to find context.
+
+When building the fallback prompt, use the current conversation language when
+it is clear. Keep the prompt compact and ask Claude for a useful review instead
+of merely saying "summarize." A good default shape is:
+
+```text
+Review the following latest conversation item for blockers, missing assumptions,
+risks, and whether it is reasonable to proceed. Be concise. Do not modify files.
+
+Context:
+{recent_substantive_chat_message}
+```
+
+Adapt the wording to the user's language and apparent intent. For example, if
+the recent message is about a POC training plan, ask Claude to review it for
+blockers before POC training. Do not treat that example as a fixed template.
+
+If there is no substantive visible chat message available, show short help and
+stop. Do not invent context.
+
 If the user asks Claude to summarize "the above chat", "this conversation", or
-"the previous messages", explain that headless `claude -p` cannot see the
-current chat transcript automatically. Ask the user to paste the relevant text,
-save it to a file and reference that file, or use a Council handoff topic.
+"the previous messages", include only the relevant visible chat text you can
+reliably select. If the needed transcript is not visible or is too large, ask
+the user to paste the relevant text, save it to a file and reference that file,
+or use a Council handoff topic.
 
 ## CLI Availability Check
 
@@ -127,7 +166,7 @@ Council Claude P status: starting
 - Skill command: council-claude-p "{short_prompt_summary}"
 - Underlying command: claude -p "{short_prompt_summary}"
 - Timeout: 120s
-- Context: explicit prompt only; current chat is not automatically included
+- Context: explicit prompt | fallback from recent visible chat
 - Output: chat only
 ```
 
@@ -175,8 +214,8 @@ If `claude -p` times out or returns no output:
 - include the elapsed timeout;
 - suggest checking Claude Code login/auth, network access, model availability,
   or reducing the prompt;
-- remind the user that `council-claude-p` only receives the explicit prompt, not the
-  surrounding chat transcript;
+- remind the user that `council-claude-p` only sends the selected prompt/context,
+  not an unlimited chat transcript;
 - report that no Council files and no formal project files were modified.
 
 If the user explicitly passes `--allowed-tools "{tools}"`, pass the tools

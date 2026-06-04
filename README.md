@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.7.2
+Current version: 2.7.3
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -143,8 +143,8 @@ Requirements and boundaries:
 - The local `claude` command must be available in `PATH`.
 - It does not require Codex CLI.
 - It does not install or configure Claude Code.
-- It only receives the explicit prompt; it cannot automatically see the current
-  Codex or Claude Code chat.
+- It receives only the prompt/context selected by the skill; it cannot read an
+  unlimited current Codex or Claude Code chat transcript by itself.
 - It does not write Council topics by default.
 - It does not modify project files by default.
 - It does not declare consensus or trigger `council-apply`.
@@ -156,11 +156,19 @@ Requirements and boundaries:
 Examples:
 
 ```text
+$council-claude-p
 $council-claude-p "Review docs/design.md for blockers and missing tests."
 $council-claude-p --output-format json "Summarize the current repository risks."
 $council-claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
 $council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 ```
+
+If you run `$council-claude-p` with no substantive text after the command,
+whitespace or punctuation-only input is ignored. The skill uses the most recent
+substantive visible chat message as context and asks Claude for a focused
+one-shot review, for example blockers, missing assumptions, risks, and whether
+it is reasonable to proceed. It should adapt the question to the current topic
+and language instead of using a fixed template.
 
 Use `--topic {topic_id}` only when you explicitly want to save the result under:
 
@@ -172,9 +180,10 @@ That saved file is an external `council-claude-p` attachment under the topic. It
 the same as an interactive Claude Code Council review. To enter the standard
 Council peer-review loop, manually run `council-open` / `council-review`.
 
-If you want Claude to summarize previous chat content, paste that content into
-the prompt or save it to a file and reference the file. A headless `claude -p`
-call cannot read the surrounding Codex chat transcript by itself.
+If you want Claude to summarize a longer previous chat, paste the relevant
+content into the prompt or save it to a file and reference the file. A headless
+`claude -p` call only receives the prompt/context selected by the skill; it
+cannot read an unlimited surrounding Codex chat transcript by itself.
 
 `council-claude-p` should not leave you staring at a blank wait. It should announce when
 the headless process starts, report elapsed time while it is still running, and

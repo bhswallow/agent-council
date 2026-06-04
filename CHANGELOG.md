@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.7.3
+
+- Updated `council-claude-p` so an empty, whitespace-only, or
+  punctuation-only invocation uses the most recent substantive visible chat
+  message as context for a focused Claude Code headless review.
+- Clarified that `claude -p` receives the selected prompt/context only, not an
+  unlimited chat transcript.
+
 ## 2.7.2
 
 - Renamed the optional Claude Code headless utility from `claude-p` to

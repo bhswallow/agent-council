@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.7.2 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.7.3 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -68,13 +68,15 @@ Agent Council v2.7.2 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - 适合在 Codex 或脚本化环境中做一次性 Claude 检查。
 - 需要已安装 Claude Code CLI；不依赖 Codex CLI。
 - 默认不写 Council topic，也不修改项目文件。
-- 只会收到显式 prompt，不能自动读取当前聊天记录；超时或无输出时应明确说明。
+- 有实质 prompt 时发送该 prompt；没有实质 prompt 时，使用当前可见聊天中最近一条实质消息生成聚焦 review 问题。
+- 不能读取无限制的聊天记录；超时或无输出时应明确说明。
 - 运行时应输出 starting/running/completed/timed out 状态，避免用户空等。
+- 示例：`$council-claude-p`
 - 示例：`$council-claude-p "Review docs/design.md for blockers and missing tests."`
 
 ## English help
 
-Agent Council v2.7.2 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
+Agent Council v2.7.3 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
@@ -118,6 +120,8 @@ Optional utilities:
 - Use it when you need a one-shot Claude check from Codex or a script-like environment.
 - Use `$council-claude-p ...` as the skill command; the underlying subprocess is Claude Code's native `claude -p`.
 - It requires Claude Code CLI, does not require Codex CLI, and writes no Council topic or project files by default.
-- It only receives the explicit prompt, cannot automatically read the current chat, and should report timeout/no-output clearly.
+- With a substantive prompt, it sends that prompt; with no substantive prompt, it builds a focused review prompt from the most recent substantive visible chat message.
+- It cannot read an unlimited chat transcript by itself and should report timeout/no-output clearly.
 - It should report starting/running/completed/timed out status so the user is not left waiting silently.
+- Example: `$council-claude-p`
 - Example: `$council-claude-p "Review docs/design.md for blockers and missing tests."`

@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.7.2
+当前版本：2.7.3
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
@@ -132,7 +132,7 @@ Council 主流程仍然是 `council-open`、`council-review`、`council-apply`�
 - 本机 `claude` 命令必须在 `PATH` 中可用。
 - 它不依赖 Codex CLI。
 - 它不负责安装或配置 Claude Code。
-- 它只会收到你显式传入的 prompt，不能自动看到当前 Codex 或 Claude Code 聊天上下文。
+- 它只会收到 skill 选中的 prompt/context，不能自己读取无限制的 Codex 或 Claude Code 聊天记录。
 - 默认不写 Council topic。
 - 默认不修改项目文件。
 - 不会声明 consensus，也不会触发 `council-apply`。
@@ -143,11 +143,17 @@ Council 主流程仍然是 `council-open`、`council-review`、`council-apply`�
 示例：
 
 ```text
+$council-claude-p
 $council-claude-p "Review docs/design.md for blockers and missing tests."
 $council-claude-p --output-format json "Summarize the current repository risks."
 $council-claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
 $council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 ```
+
+如果 `$council-claude-p` 后面没有实质文字，只有空白或标点也会被视为没有
+prompt。此时 skill 会取当前可见聊天中最近一条有实质内容的消息作为上下文，
+自动组织一个适合 Claude 的单轮 review 问题，例如检查 blocker、遗漏假设、风险，
+以及是否适合继续推进。它应根据当前 topic 和语种调整问题，而不是套固定模板。
 
 只有当你明确希望保存到 Council topic 时，才使用 `--topic {topic_id}`。
 保存路径是：
@@ -160,8 +166,9 @@ $council-claude-p --topic product-l1-gate "Review the latest Council handoff for
 交互式 Council review。若要进入标准 Council 互审循环，仍需手动运行
 `council-open` / `council-review`。
 
-如果你希望 Claude 总结之前的聊天内容，请把相关内容粘贴到 prompt，或保存成文件后在
-prompt 中引用该文件。headless `claude -p` 不能自己读取 Codex 当前聊天记录。
+如果你希望 Claude 总结更长的历史聊天，请把相关内容粘贴到 prompt，或保存成文件后在
+prompt 中引用该文件。headless `claude -p` 只会收到 skill 选中的 prompt/context，
+不能自己读取无限制的 Codex 当前聊天记录。
 
 `council-claude-p` 不应该让用户盯着空白等待。它应该在 headless 进程启动时提示，
 运行中报告已等待时间，结束时明确说明是完成、超时，还是没有输出。

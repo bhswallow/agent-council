@@ -121,6 +121,8 @@ for readme in README.md README.zh-CN.md; do
   grep -qi 'Optional Workflow Reminders\|可选工作流提醒' "$file" || fail "$readme missing optional workflow reminders"
   grep -qi 'council-claude-p.*optional utility\|optional utility.*council-claude-p\|council-claude-p.*可选工具\|可选工具.*council-claude-p\|council-claude-p.*可选 utility\|可选 utility.*council-claude-p' "$file" || \
     fail "$readme must describe council-claude-p as an optional utility"
+  grep -qi 'no substantive text\|没有实质文字' "$file" || \
+    fail "$readme missing council-claude-p empty prompt fallback"
 done
 
 assert_no_utility_in_range "$ROOT/README.md" '^## Commands$' '^## What It Solves$'
@@ -149,6 +151,9 @@ grep -q 'Council Claude P status: running' "$ROOT/plugins/agent-council/skills/c
 grep -q 'Council Claude P status: completed' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce completed status"
 grep -q 'Council Claude P status: timed out' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce timeout status"
 grep -q '15 to' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must define status update interval"
+grep -q 'Whitespace-only input and punctuation-only input do not count as a prompt' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must ignore empty punctuation-only prompts"
+grep -q 'most recent substantive visible chat message' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must use recent visible chat fallback"
+grep -q 'Do not invent context' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not invent missing context"
 grep -q 'do not declare `CONSENSUS`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not declare consensus"
 grep -q 'Do not automatically trigger `council-apply`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not trigger council-apply"
 
