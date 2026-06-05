@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.7.5 是一个“最新一轮交接”桥梁。
+Agent Council v2.8.0 是一个“最新一轮交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -28,6 +28,7 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
     council-help [zh|en]
     council-version [--check]
     council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]
+    council-longrun [--show|--reset]
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。
 
@@ -45,6 +46,13 @@ turn 连续性、过期 consensus、status/consensus 漂移。
 
 `council-open` 可以省略 topic-id。省略时会自动生成类似 `2026-06-03-1`
 的日期序号名称。
+
+使用 `council-longrun` 可以配置显式长跑自审规则。它会用几个简短选择题生成
+`.agent-council/longrun/rules.md`。这些规则决定后续已授权工作什么时候自己判断、
+什么时候使用已配置的 review helper，什么时候暂停交给人。
+
+    $council-longrun
+    $council-longrun --show
 
 ## 可选工具：council-claude-p
 

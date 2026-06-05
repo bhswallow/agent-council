@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.7.5
+Current version: 2.8.0
 
 Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
@@ -14,17 +14,22 @@ create topics, or insert itself between normal task steps.
 
 ## Commands
 
-Agent Council keeps the main flow intentionally small:
+Agent Council keeps the review loop intentionally small:
 
 - `council-open` starts a topic and records the current handoff.
   The topic id is optional.
 - `council-review` reads the peer's latest handoff and replies.
 - `council-apply` applies an agreed result to formal project files.
 - `council-status` shows topic state, with an optional `--doctor` check.
+
+Support commands are also explicit:
+
 - `council-help` shows concise usage help.
 - `council-version` prints the installed version.
 - `council-upgrade` checks for updates and can update standalone installs when
   explicitly run with `--apply`.
+- `council-longrun` configures explicit long-run self-review and human-pause
+  rules.
 
 `council-respond` was removed in v2.0.2. Use `council-review` for review,
 response, rebuttal, confirmation, and consensus. The installer also removes
@@ -72,6 +77,11 @@ Council must not:
 - decide that a human gate requires Council;
 - chain from one finished topic into the next task automatically.
 
+`council-longrun` is the exception only in this narrow sense: it can record
+user-approved long-run rules after the user explicitly runs it. It still does
+not start tasks, create Council topics, commit, push, merge, deploy, or override
+human gates by itself.
+
 After a topic reaches consensus, blocked, closed, abandoned, or applied state,
 control returns to the normal user/tool workflow. Any next task starts only from
 the user's ordinary task instructions, not from Council.
@@ -106,6 +116,44 @@ $council-open checkout-design -- Review the completed design.
 
 Continuing without Council unless you ask for it.
 ```
+
+## Longrun Rules
+
+Use `council-longrun` when you want to define how future authorized long-running
+work should self-review with less repeated human input:
+
+```text
+$council-longrun
+```
+
+The skill asks a few short multiple-choice questions, then saves the active
+rules to:
+
+```text
+.agent-council/longrun/rules.md
+```
+
+The rules decide which events should:
+
+- continue by self-judgment;
+- use subagents;
+- use `council-claude-p`;
+- use both subagents and `council-claude-p`;
+- pause for a human decision.
+
+Recommended defaults are:
+
+- mode: `balanced`;
+- `council-claude-p`: strategic or high-risk checks only;
+- human pause: irreversible gates such as commit, push, merge, deploy, deleting
+  data, permission/security changes, accepting blockers, or expanding scope.
+
+Run `council-longrun` again to redefine the rules. Run
+`council-longrun --show` to inspect the active rules.
+
+These rules apply only when the user has already authorized ongoing work. They
+do not authorize new scope, formal project changes outside the task, or
+irreversible operations.
 
 ## Choosing A Bridge
 

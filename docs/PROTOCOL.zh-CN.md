@@ -13,6 +13,31 @@ Council 必须由用户显式唤醒。它不能自动叫停任务、自动创建
 当一个 topic 结束后，Council 不会自动串联到下一个任务。
 控制权回到普通用户/工具工作流。
 
+`council-longrun` 只是一个很窄的例外，因为它必须由用户显式调用来记录长跑规则。
+它不会自行启动 task、创建普通 Council topic、commit、push、merge、deploy，
+也不会绕过 human gate。
+
+## 长跑规则
+
+`council-longrun` 为后续用户已授权的连续工作配置规则。
+
+它通过几个简短选择题写入：
+
+    .agent-council/longrun/rules.md
+    .agent-council/longrun/history.md
+
+这些规则可以告诉后续工作什么时候：
+
+- 自己判断并继续；
+- 使用 subagents；
+- 使用 `council-claude-p`；
+- 同时使用 subagents 和 `council-claude-p`；
+- 暂停并交给人类判断。
+
+这些规则只在用户已经授权连续工作的前提下生效。
+它们不授权新的 scope，不授权 task 外的正式项目修改，也不授权不可逆操作。
+再次运行 `council-longrun` 会重新定义规则。
+
 ## Council 外的可选提醒
 
 外层工作流说明可以在头脑风暴、design、plans、specs、一个 task batch 完成、
@@ -142,6 +167,9 @@ consensus:
 ## 写入策略
 
 `council-open`、`council-review`、`council-status` 只写 Council 状态。
+
+`council-longrun` 只写 `.agent-council/longrun/` 下的长跑规则。
+它不能创建普通 Council topic，也不能修改正式项目文件。
 
 `council-apply` 可以修改正式项目文件，但必须有用户的 apply 要求，或目标文件非常明确。
 

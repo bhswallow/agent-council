@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.7.5
+当前版本：2.8.0
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
@@ -11,16 +11,20 @@ Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 ## 命令
 
-Agent Council 的主流程刻意保持简单：
+Agent Council 的评审环路刻意保持简单：
 
 - `council-open` 开启一个 topic，并记录当前交接内容。
   topic-id 可以省略。
 - `council-review` 读取对方最新交接内容并给出评审或回应。
 - `council-apply` 把已经达成一致的结果应用到正式项目文件。
 - `council-status` 查看 topic 状态，也可以执行 `--doctor` 检查。
+
+支持命令也必须显式调用：
+
 - `council-help` 查看简短帮助。
 - `council-version` 输出当前安装版本。
 - `council-upgrade` 检查更新；只有显式使用 `--apply` 时才更新 standalone 安装。
+- `council-longrun` 配置显式长跑自审规则和 human-pause 规则。
 
 `council-respond` 已在 v2.0.2 移除。
 请统一使用 `council-review` 完成评审、回应、反驳、确认和收敛。
@@ -65,6 +69,10 @@ Council 禁止：
 - 断定某个人机交互点必须使用 Council；
 - 在一个 topic 结束后自动串联到下一个任务。
 
+`council-longrun` 只有一个很窄的例外：当用户显式运行它时，它可以记录用户批准的
+长跑规则。它仍然不会自行启动 task、创建 Council topic、commit、push、merge、
+deploy，或覆盖 human gate。
+
 当 topic 进入 consensus、blocked、closed、abandoned 或 applied 状态后，
 控制权回到普通用户/工具工作流。后续 task 只能来自用户的普通任务指令，
 不能由 Council 自动连接。
@@ -96,6 +104,41 @@ $council-open checkout-design -- 请评审这个 design。
 
 如果你不要求 Council 介入，我会按已批准流程继续。
 ```
+
+## 长跑规则
+
+当你希望后续已授权的长时间工作减少反复人工确认时，可以运行：
+
+```text
+$council-longrun
+```
+
+这个 skill 会用几个很短的选择题生成规则，并保存到：
+
+```text
+.agent-council/longrun/rules.md
+```
+
+规则会定义哪些事件应该：
+
+- 由当前 agent 自己判断并继续；
+- 使用 subagents；
+- 使用 `council-claude-p`；
+- 同时使用 subagents 和 `council-claude-p`；
+- 暂停并交给人类判断下一步。
+
+推荐默认值是：
+
+- mode: `balanced`；
+- `council-claude-p`: 只用于战略性或高风险检查；
+- human pause: commit、push、merge、deploy、删除数据、权限/安全变更、
+  接受 blocker、扩大 scope 等不可逆 gate。
+
+再次运行 `council-longrun` 可以重新定义规则。
+运行 `council-longrun --show` 可以查看当前规则。
+
+这些规则只适用于用户已经授权的连续工作，不授权新的 scope，也不授权越过人类确认去执行
+不可逆操作。
 
 ## 如何选择工具
 

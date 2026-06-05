@@ -20,6 +20,8 @@
     plugins/agent-council/skills/council-version/SKILL.md
     plugins/agent-council/skills/council-claude-p/SKILL.md
     plugins/agent-council/skills/council-claude-p/agents/openai.yaml
+    plugins/agent-council/skills/council-longrun/SKILL.md
+    plugins/agent-council/skills/council-longrun/agents/openai.yaml
     docs/USAGE.md
     docs/USAGE.zh-CN.md
     docs/PROTOCOL.md

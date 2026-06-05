@@ -60,7 +60,7 @@ for f in "${required[@]}"; do
   require_file "$f"
 done
 
-skills=(council-open council-review council-apply council-status council-help council-version council-upgrade council-claude-p)
+skills=(council-open council-review council-apply council-status council-help council-version council-upgrade council-claude-p council-longrun)
 
 for skill in "${skills[@]}"; do
   skill_file="$ROOT/plugins/agent-council/skills/$skill/SKILL.md"
@@ -85,6 +85,10 @@ done
   fail "Missing council-claude-p utility skill"
 [ -f "$ROOT/plugins/agent-council/skills/council-claude-p/agents/openai.yaml" ] || \
   fail "Missing council-claude-p Codex metadata"
+[ -f "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" ] || \
+  fail "Missing council-longrun skill"
+[ -f "$ROOT/plugins/agent-council/skills/council-longrun/agents/openai.yaml" ] || \
+  fail "Missing council-longrun Codex metadata"
 
 if [ -d "$ROOT/plugins/agent-council/skills/claude-p" ]; then
   fail "Deprecated claude-p skill directory must not remain; use council-claude-p"
@@ -127,6 +131,10 @@ for readme in README.md README.zh-CN.md; do
     fail "$readme missing council-claude-p diagnose guidance"
   grep -q '600 seconds\|600 秒' "$file" || \
     fail "$readme missing council-claude-p 600 second timeout guidance"
+  grep -q 'council-longrun' "$file" || \
+    fail "$readme missing council-longrun guidance"
+  grep -q '.agent-council/longrun/rules.md' "$file" || \
+    fail "$readme missing longrun rules path"
 done
 
 assert_no_utility_in_range "$ROOT/README.md" '^## Commands$' '^## What It Solves$'
@@ -167,6 +175,12 @@ grep -q 'Reply with exactly: council-claude-p-ok' "$ROOT/plugins/agent-council/s
 grep -q 'non-zero exit code' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p timeout output must include exit/stderr guidance"
 grep -q 'do not declare `CONSENSUS`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not declare consensus"
 grep -q 'Do not automatically trigger `council-apply`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not trigger council-apply"
+grep -q 'at most three short multiple-choice questions' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must use short choices"
+grep -q '.agent-council/longrun/rules.md' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must write rules.md"
+grep -q 'use subagents' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define subagent use"
+grep -q 'council-claude-p' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define claude-p use"
+grep -q 'pause_for_human' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define human pause rules"
+grep -q 'Do not start long-run mode automatically' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must preserve manual boundary"
 
 grep -q 'lightweight, manual latest-turn bridge' "$ROOT/README.md" || \
   fail "README.md missing lightweight manual bridge positioning"
@@ -242,6 +256,10 @@ grep -q 'current language' "$ROOT/README.md" || fail "README.md missing reminder
 grep -q '当前语种' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing reminder language matching"
 grep -q 'must not invoke Council' "$ROOT/docs/PROTOCOL.md" || fail "PROTOCOL.md reminders must not invoke Council"
 grep -q '不能调用 Council' "$ROOT/docs/PROTOCOL.zh-CN.md" || fail "PROTOCOL.zh-CN.md reminders must not invoke Council"
+grep -q 'council-longrun' "$ROOT/docs/PROTOCOL.md" || fail "PROTOCOL.md missing council-longrun boundary"
+grep -q '.agent-council/longrun/rules.md' "$ROOT/docs/PROTOCOL.md" || fail "PROTOCOL.md missing longrun rules path"
+grep -q 'council-longrun' "$ROOT/docs/PROTOCOL.zh-CN.md" || fail "PROTOCOL.zh-CN.md missing council-longrun boundary"
+grep -q '.agent-council/longrun/rules.md' "$ROOT/docs/PROTOCOL.zh-CN.md" || fail "PROTOCOL.zh-CN.md missing longrun rules path"
 grep -q 'Default behavior is read-only' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must be check-only by default"
 grep -q 'only when the user includes `--apply`' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must require --apply for install changes"
 grep -q 'Do not treat `--ref` by itself as permission to upgrade' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must not let --ref imply apply"

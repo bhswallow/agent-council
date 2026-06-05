@@ -1,0 +1,5 @@
+interface:
+  display_name: "Council Longrun"
+  short_description: "Configure explicit long-run self-review and pause rules."
+policy:
+  allow_implicit_invocation: false

@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.7.5 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.8.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -37,6 +37,7 @@ Agent Council v2.7.5 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
 - `council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]`
+- `council-longrun [--show|--reset]`
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。安装脚本会清理 standalone 旧版残留。
 
@@ -51,6 +52,8 @@ Agent Council v2.7.5 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - `$council-version --check`
 - `/council-upgrade --check`
 - `/council-upgrade --apply`
+- `$council-longrun`
+- `$council-longrun --show`
 
 原则：
 - `council-open` 可以省略 topic-id，并自动生成类似 `2026-06-03-1` 的名称。
@@ -61,6 +64,12 @@ Agent Council v2.7.5 是 Claude Code 与 Codex 之间的轻量手动交接板。
 - `Next action` 只是当前 topic 内建议，不是停止、恢复、commit、push 或进入下一 task 的授权。
 - 外层工作流可以按用户当前语种提醒 Council 可选，但不能自动调用 Council。
 - 只有 `council-apply` 应该修改项目正式文件。
+- `council-longrun` 只记录用户显式选择的长跑规则，不会自行启动 task 或越过 human gate。
+
+长跑规则：
+- 用几个选择题定义哪些情况自己继续、用 subagents、用 `council-claude-p`、两者都用、或暂停给人。
+- 规则保存到 `.agent-council/longrun/rules.md`。
+- 再次运行 `council-longrun` 可重新定义规则。
 
 可选工具：
 - `council-claude-p` 可以在本机 `claude` CLI 可用时，从 skill 中运行 Claude Code headless 模式。
@@ -79,7 +88,7 @@ Agent Council v2.7.5 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 ## English help
 
-Agent Council v2.7.5 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
+Agent Council v2.8.0 is a lightweight, manual latest-turn bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
@@ -92,6 +101,7 @@ Commands:
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
 - `council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]`
+- `council-longrun [--show|--reset]`
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead. The installer cleans stale standalone installs.
 
@@ -106,6 +116,8 @@ Examples:
 - `$council-version --check`
 - `/council-upgrade --check`
 - `/council-upgrade --apply`
+- `$council-longrun`
+- `$council-longrun --show`
 
 Rule of thumb:
 - `council-open` can omit the topic id and generate one such as `2026-06-03-1`.
@@ -116,6 +128,12 @@ Rule of thumb:
 - `Next action` is advisory for the current topic, not permission to stop, resume, commit, push, or enter the next task.
 - Outer workflows may remind in the user's current language that Council is optional, but must not invoke Council automatically.
 - Only `council-apply` should modify formal project files.
+- `council-longrun` only records user-selected long-run rules; it does not start tasks or bypass human gates.
+
+Longrun rules:
+- A few choices define when to self-continue, use subagents, use `council-claude-p`, use both, or pause for a human.
+- Rules are saved to `.agent-council/longrun/rules.md`.
+- Run `council-longrun` again to redefine them.
 
 Optional utilities:
 - `council-claude-p` can run Claude Code headless mode from a skill when the local `claude` CLI is available.

@@ -14,6 +14,31 @@ must not decide that it is required.
 When a topic finishes, Council does not chain into the next task. Control
 returns to the normal user/tool workflow.
 
+`council-longrun` is a narrow exception only because the user explicitly invokes
+it to record long-run rules. It does not start tasks, create normal Council
+topics, commit, push, merge, deploy, or bypass human gates.
+
+## Longrun rules
+
+`council-longrun` configures rules for future user-authorized ongoing work.
+
+It asks a few short choices and writes:
+
+    .agent-council/longrun/rules.md
+    .agent-council/longrun/history.md
+
+The rules may tell future work when to:
+
+- continue by self-judgment;
+- use subagents;
+- use `council-claude-p`;
+- use both subagents and `council-claude-p`;
+- pause for a human decision.
+
+The rules apply only after the user has authorized ongoing work. They do not
+authorize new scope, formal project changes outside the task, or irreversible
+operations. Running `council-longrun` again redefines the rules.
+
 ## Optional reminders outside Council
 
 Outer workflow instructions may remind the user that Council is available after
@@ -147,6 +172,9 @@ Legal `state` values:
 ## Write policy
 
 `council-open`, `council-review`, and `council-status` write only Council state.
+
+`council-longrun` writes only longrun rules under `.agent-council/longrun/`.
+It must not create normal Council topics or modify formal project files.
 
 `council-apply` may modify formal project files, but only when the user gives an apply instruction or the target is explicit.
 

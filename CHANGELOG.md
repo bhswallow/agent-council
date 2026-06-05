@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.8.0
+
+- Added `council-longrun` to configure explicit long-run self-review rules with
+  short choices.
+- Longrun rules define when future authorized work should self-judge, use
+  subagents, use `council-claude-p`, use both, or pause for a human decision.
+- Rules are stored under `.agent-council/longrun/` and do not create normal
+  Council topics or modify formal project files.
+
 ## 2.7.5
 
 - Increased the default `council-claude-p` headless review timeout from 120

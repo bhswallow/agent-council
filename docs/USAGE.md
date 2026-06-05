@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.7.5 is a latest-turn bridge.
+Agent Council v2.8.0 is a latest-turn bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -30,6 +30,7 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
     council-help [zh|en]
     council-version [--check]
     council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]
+    council-longrun [--show|--reset]
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead.
 
@@ -48,6 +49,14 @@ turn continuity, stale consensus, and status/consensus drift.
 
 `council-open` can omit the topic id. If omitted, it generates a date-based id
 such as `2026-06-03-1`.
+
+Use `council-longrun` to configure explicit long-run self-review rules. It asks
+a few short choices and saves `.agent-council/longrun/rules.md`. The rules
+decide when future authorized work should self-judge, use configured review
+helpers, or pause for a human decision.
+
+    $council-longrun
+    $council-longrun --show
 
 ## Optional utility: council-claude-p
 
