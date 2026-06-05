@@ -1,5 +1,5 @@
-interface:
+policy:
   display_name: "Council Uninstall"
   short_description: "Uninstall Agent Council standalone skills or plugin installs."
-policy:
+  invocation_phrases: []
   allow_implicit_invocation: false

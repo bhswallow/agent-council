@@ -46,6 +46,19 @@ assert_codex_implicit_invocation_disabled() {
   ' "$1" || fail "Missing policy.allow_implicit_invocation: false in $1"
 }
 
+assert_codex_discovery_metadata() {
+  file="$1"
+  ! grep -q '^interface:$' "$file" || \
+    fail "Do not use top-level interface metadata in $file; Codex command discovery expects policy metadata"
+  awk '
+    /^policy:$/ { in_policy = 1; next }
+    in_policy && /^[^[:space:]]/ { in_policy = 0 }
+    in_policy && /^  display_name: / { saw_display = 1 }
+    in_policy && /^  short_description: / { saw_description = 1 }
+    END { exit (saw_display && saw_description) ? 0 : 1 }
+  ' "$file" || fail "Missing policy display metadata in $file"
+}
+
 assert_shell_skill_loop_contains() {
   file="$1"
   skill="$2"
@@ -187,6 +200,7 @@ for skill in "${skills[@]}"; do
     fail "Do not set disable-model-invocation: true; explicit skill invocation must remain visible: $skill_file"
 
   assert_codex_implicit_invocation_disabled "$codex_file"
+  assert_codex_discovery_metadata "$codex_file"
 done
 
 [ -f "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" ] || \

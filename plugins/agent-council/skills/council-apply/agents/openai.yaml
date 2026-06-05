@@ -1,5 +1,5 @@
-interface:
+policy:
   display_name: "Council Apply"
   short_description: "Apply agreed Council results."
-policy:
+  invocation_phrases: []
   allow_implicit_invocation: false

@@ -1,5 +1,5 @@
-interface:
+policy:
   display_name: "Council Claude P"
   short_description: "Run the peer tool headlessly as an optional utility."
-policy:
+  invocation_phrases: []
   allow_implicit_invocation: false

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.10.6
+
+- Moved Codex skill discovery metadata into `policy.display_name` and
+  `policy.short_description` for every Council skill so commands such as
+  `$council-peer-p` are indexed consistently with `$council`.
+- Added validation that rejects the older top-level `interface:` metadata shape
+  for Codex skill command discovery.
+
 ## 2.10.5
 
 - Added a top-level `council` command index so `$council` is a real explicit

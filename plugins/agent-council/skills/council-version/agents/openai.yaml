@@ -1,5 +1,5 @@
-interface:
+policy:
   display_name: "Council Version"
   short_description: "Show Agent Council version."
-policy:
+  invocation_phrases: []
   allow_implicit_invocation: false

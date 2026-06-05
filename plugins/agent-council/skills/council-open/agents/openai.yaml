@@ -1,5 +1,5 @@
-interface:
+policy:
   display_name: "Council Open"
   short_description: "Open a recent-round bridge topic."
-policy:
+  invocation_phrases: []
   allow_implicit_invocation: false
