@@ -1,13 +1,13 @@
 {
   "name": "agent-council-marketplace",
-  "version": "2.10.1",
+  "version": "2.10.2",
   "interface": {
     "displayName": "Agent Council"
   },
   "plugins": [
     {
       "name": "agent-council",
-      "version": "2.10.1",
+      "version": "2.10.2",
       "source": {
         "source": "local",
         "path": "./plugins/agent-council"

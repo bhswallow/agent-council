@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.10.1
+当前版本：2.10.2
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板，按最近可见对话轮次交接上下文。
 
@@ -649,7 +649,14 @@ $council-version --check
 
 standalone 安装中，`council-upgrade` 默认只检查不修改。
 需要更新时，请从当前项目或 home 安装位置再次执行 `council-upgrade --apply`。
-只有当你明确想使用某个 branch、tag 或 commit 时，才需要加 `--ref {git_ref}`。
+如果 standalone 安装已经很脏，使用 `council-upgrade --apply --force` 删除
+`claude-p` / `council-respond` 等废弃命令、重装当前完整 skill 集，并验证
+`council-peer-p` 与 `council-claude-p` 都存在。只有当你明确想使用某个 branch、
+tag 或 commit 时，才需要加 `--ref {git_ref}`。
+
+`claude-p` 已废弃。新调用使用 `council-peer-p`；`council-claude-p` 作为兼容别名
+保留。如果 `claude-p` 消失了但两个替代命令都没有出现，通常说明升级打到了另一个
+standalone 位置，或者当前实际生效的是 plugin 缓存，需要重新安装/reload。
 
 plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 reload plugins 或重启工具。
 
@@ -671,6 +678,7 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 /council-status retry-design --doctor
 /council-upgrade --check
 /council-upgrade --apply
+/council-upgrade --apply --force
 ```
 
 ### Claude Code Plugin
@@ -717,6 +725,7 @@ $council-status retry-design
 $council-status retry-design --doctor
 $council-upgrade --check
 $council-upgrade --apply
+$council-upgrade --apply --force
 ```
 
 ### Codex Plugin

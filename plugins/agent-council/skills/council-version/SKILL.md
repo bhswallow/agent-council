@@ -27,7 +27,7 @@ workflow mechanics. This skill only reports the active installed version.
 
 Report:
 
-- installed version: `2.10.1`
+- installed version: `2.10.2`
 - whether this appears to be standalone or plugin usage, if the path is visible
 - if `--check` is present, compare against:
 
@@ -41,6 +41,14 @@ If the installed version is older than the latest version, tell standalone users
 /council-upgrade --apply
 ```
 
+If deprecated standalone commands such as `claude-p` remain, or if replacement
+commands such as `council-peer-p` / `council-claude-p` are missing after an
+upgrade, tell standalone users to run:
+
+```text
+/council-upgrade --apply --force
+```
+
 For plugin installs, tell the user to reinstall the `agent-council` plugin from the marketplace and reload plugins.
 
 ## User-Facing Response
@@ -48,7 +56,7 @@ For plugin installs, tell the user to reinstall the `agent-council` plugin from 
 Keep it short:
 
 ```text
-Agent Council v2.10.1
+Agent Council v2.10.2
 ```
 
 If `--check` is used, add latest-version status and one upgrade hint.

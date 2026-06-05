@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.10.1 是一个“最近轮次交接”桥梁。
+Agent Council v2.10.2 是一个“最近轮次交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -27,14 +27,16 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
     council-status [topic-id|all] [--doctor]
     council-help [zh|en]
     council-version [--check]
-    council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]
+    council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]
     council-longrun [--show|--reset]
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。
 
 使用 `council-upgrade` 可以检查 standalone 安装版本。
-它默认只检查不修改。使用 `council-upgrade --apply` 才会更新；
-只有需要指定 branch、tag 或 commit 时才加 `--ref {git_ref}`。
+它默认只检查不修改。使用 `council-upgrade --apply` 才会更新。
+如果 standalone 安装很脏，比如还残留废弃命令或缺少替代命令，使用
+`council-upgrade --apply --force` 强制清理并重装。只有需要指定 branch、tag 或 commit
+时才加 `--ref {git_ref}`。
 
 使用 `council-version` 确认当前实际生效的安装版本。
 

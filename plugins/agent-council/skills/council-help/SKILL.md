@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.10.1 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.10.2 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -36,7 +36,7 @@ Agent Council v2.10.1 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
-- `council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]`
+- `council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]`
 - `council-longrun [--show|--reset]`
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。安装脚本会清理 standalone 旧版残留。
@@ -54,6 +54,7 @@ Agent Council v2.10.1 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `$council-version --check`
 - `/council-upgrade --check`
 - `/council-upgrade --apply`
+- `/council-upgrade --apply --force`
 - `$council-longrun`
 - `$council-longrun --show`
 
@@ -79,6 +80,7 @@ Agent Council v2.10.1 是 Claude Code 与 Codex 之间的轻量手动交接板�
 
 可选工具：
 - `council-peer-p` 可以 headless 调用对方工具；`council-claude-p` 是兼容别名。
+- `claude-p` 已废弃；如果升级后缺少 `council-peer-p` / `council-claude-p`，standalone 用 `council-upgrade --apply --force`，plugin 需要重新安装并 reload。
 - 它不是 Council 互审循环的一部分。
 - 在 Codex 中运行时调用 `claude -p`；在 Claude Code 中运行时调用 `codex exec --sandbox read-only`。
 - 适合在 Codex、Claude Code 或脚本化环境中做一次性对方工具检查。
@@ -99,7 +101,7 @@ Agent Council v2.10.1 是 Claude Code 与 Codex 之间的轻量手动交接板�
 
 ## English help
 
-Agent Council v2.10.1 is a lightweight, manual recent-round bridge for Claude Code and Codex.
+Agent Council v2.10.2 is a lightweight, manual recent-round bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
@@ -111,7 +113,7 @@ Commands:
 - `council-status [topic-id|all] [--doctor]`
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
-- `council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]`
+- `council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]`
 - `council-longrun [--show|--reset]`
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead. The installer cleans stale standalone installs.
@@ -129,6 +131,7 @@ Examples:
 - `$council-version --check`
 - `/council-upgrade --check`
 - `/council-upgrade --apply`
+- `/council-upgrade --apply --force`
 - `$council-longrun`
 - `$council-longrun --show`
 
@@ -154,6 +157,7 @@ Longrun rules:
 
 Optional utilities:
 - `council-peer-p` can run the peer tool headlessly; `council-claude-p` is a compatibility alias.
+- `claude-p` is deprecated; if an upgrade leaves `council-peer-p` / `council-claude-p` missing, use `council-upgrade --apply --force` for standalone installs, or reinstall and reload the plugin.
 - It is not part of the Council review loop.
 - From Codex it calls `claude -p`; from Claude Code it calls `codex exec --sandbox read-only`.
 - Use it when you need a one-shot peer check from Codex, Claude Code, or a script-like environment.

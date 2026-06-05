@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.10.1 is a recent-round bridge.
+Agent Council v2.10.2 is a recent-round bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -29,14 +29,16 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
     council-status [topic-id|all] [--doctor]
     council-help [zh|en]
     council-version [--check]
-    council-upgrade [--check|--apply] [--ref {git_ref}] [--claude-only|--codex-only]
+    council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]
     council-longrun [--show|--reset]
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead.
 
 Use `council-upgrade` to check standalone install versions.
-It is check-only by default. Use `council-upgrade --apply` to update. Add
-`--ref {git_ref}` only when you want a specific branch, tag, or commit.
+It is check-only by default. Use `council-upgrade --apply` to update. Use
+`council-upgrade --apply --force` for dirty standalone installs where deprecated
+or replacement commands are missing. Add `--ref {git_ref}` only when you want a
+specific branch, tag, or commit.
 
 Use `council-version` to confirm which installed copy is active.
 

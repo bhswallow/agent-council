@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.10.2
+
+- Added `council-upgrade --apply --force` guidance for dirty standalone
+  installs, including cases where deprecated `claude-p` remains or replacement
+  commands are missing.
+- Updated `install.sh` to accept `--force`, always clean known deprecated
+  standalone commands, and verify `council-peer-p` / `council-claude-p` are
+  installed.
+- Clarified that `claude-p` is deprecated, with `council-peer-p` as the
+  preferred replacement and `council-claude-p` as the compatibility alias.
+- Kept plugin installs under plugin-manager control: force upgrade reports
+  reinstall/reload guidance instead of editing plugin caches.
+
 ## 2.10.1
 
 - Expanded `council-longrun` prompts with localized, concrete explanations for

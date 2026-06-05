@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.10.1
+Current version: 2.10.2
 
 Agent Council is a lightweight, manual recent-round bridge for teams using
 Claude Code and Codex in the same repository.
@@ -699,9 +699,17 @@ active command is usually coming from another install location or from a plugin
 cache. Run `council-version` in the same tool to confirm the active copy.
 
 For standalone installs, `council-upgrade` is check-only by default. To update,
-run it again from the active project or home install with `--apply`. Use
-`--ref {git_ref}` only when you intentionally want a specific branch, tag, or
-commit.
+run it again from the active project or home install with `--apply`. If a
+standalone install is dirty, use `council-upgrade --apply --force` to remove
+deprecated commands such as `claude-p` / `council-respond`, reinstall the
+current skill set, and verify `council-peer-p` plus `council-claude-p` exist.
+Use `--ref {git_ref}` only when you intentionally want a specific branch, tag,
+or commit.
+
+`claude-p` is deprecated. Use `council-peer-p` for new calls; `council-claude-p`
+remains as the compatibility alias. If `claude-p` disappears but neither
+replacement appears, the upgrade likely targeted a different standalone
+location or the active install is a plugin cache that needs reinstall/reload.
 
 For plugin installs, reinstall the `agent-council` plugin from the marketplace
 and reload plugins.
@@ -724,6 +732,7 @@ Use the installer above. Then run the skills in Claude Code with short names:
 /council-status retry-design --doctor
 /council-upgrade --check
 /council-upgrade --apply
+/council-upgrade --apply --force
 ```
 
 ### Claude Code Plugin
@@ -770,6 +779,7 @@ $council-status retry-design
 $council-status retry-design --doctor
 $council-upgrade --check
 $council-upgrade --apply
+$council-upgrade --apply --force
 ```
 
 ### Codex Plugin
