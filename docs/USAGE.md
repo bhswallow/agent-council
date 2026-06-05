@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.10.6 is a recent-round bridge.
+Agent Council v2.10.7 is a recent-round bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -34,15 +34,13 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
     council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]
     council-longrun [--show|--reset]
 
-`council-respond` was removed in v2.0.2. Use `council-review` instead.
-
 Use `council` as the top-level command index when you want a quick reminder or
 are unsure which Council command to run.
 
 Use `council-upgrade` to check standalone install versions.
 It is check-only by default. Use `council-upgrade --apply` to update. Use
-`council-upgrade --apply --force` for dirty standalone installs where deprecated
-or replacement commands are missing. Add `--ref {git_ref}` only when you want a
+`council-upgrade --apply --force` for dirty standalone installs where stale or
+partial commands remain. Add `--ref {git_ref}` only when you want a
 specific branch, tag, or commit.
 
 Use `council-version` to confirm which installed copy is active.
@@ -79,11 +77,10 @@ inside the authorized scope, and no external hard gate applies, continue.
     $council-longrun
     $council-longrun --show
 
-## Optional utility: council-peer-p
+## Optional utility: council-peer
 
-`council-peer-p` is not part of the Council main flow. It is a one-shot utility
-for calling the peer tool headlessly. `council-claude-p` is a backward-compatible
-alias.
+`council-peer` is not part of the Council main flow. It is a one-shot utility
+for calling the peer tool headlessly.
 
 From Codex, it runs Claude Code through `claude -p`. From Claude Code, it runs
 Codex through `codex exec --sandbox read-only`.
@@ -98,7 +95,7 @@ context and asks the peer for a focused one-shot review. Whitespace-only and
 punctuation-only input do not count as a prompt.
 
 A conversation round means one user message plus the immediately following
-Codex or Claude Code reply. By default `council-peer-p` uses the latest 1
+Codex or Claude Code reply. By default `council-peer` uses the latest 1
 round as summarized context. Use `-n` / `--rounds` to choose more visible
 rounds, and add `--full` only when the peer should receive the selected visible
 text verbatim.
@@ -115,18 +112,18 @@ It should also show status updates while running, including starting, elapsed
 running time, completed, timed out, or no-output states.
 
 If the peer command times out or returns no useful output, run
-`$council-peer-p --diagnose`. Diagnose mode checks the detected peer command,
+`$council-peer --diagnose`. Diagnose mode checks the detected peer command,
 version, and a short read-only ping. It writes no files.
 
 Examples:
 
-    $council-peer-p
-    $council-peer-p --diagnose
-    $council-peer-p -n=3 "Review the recent plan for blockers."
-    /council-peer-p --codex-model gpt-5 "Review the latest plan for blockers."
-    $council-claude-p --rounds=all --full "Summarize the visible conversation and call out risks."
-    $council-claude-p "Review docs/design.md for blockers."
-    $council-peer-p --topic product-l1-gate "Review the latest Council handoff for blockers."
+    $council-peer
+    $council-peer --diagnose
+    $council-peer -n=3 "Review the recent plan for blockers."
+    /council-peer --codex-model gpt-5 "Review the latest plan for blockers."
+    $council-peer --rounds=all --full "Summarize the visible conversation and call out risks."
+    $council-peer "Review docs/design.md for blockers."
+    $council-peer --topic product-l1-gate "Review the latest Council handoff for blockers."
 
 ## Open a topic
 

@@ -29,7 +29,7 @@ handles installation state and uninstall guidance.
 
 Important: standalone skills and plugin-installed skills are different
 installations. A standalone uninstall removes directories such as
-`.agents/skills/council-peer-p`; a plugin uninstall must go through the plugin
+`.agents/skills/council-peer`; a plugin uninstall must go through the plugin
 manager or Codex plugin CLI.
 
 ## Behavior
@@ -42,17 +42,14 @@ Known standalone skill directories are:
 - `council-open`
 - `council`
 - `council-review`
-- `council-respond`
 - `council-apply`
 - `council-status`
 - `council-help`
 - `council-upgrade`
 - `council-uninstall`
 - `council-version`
-- `council-peer-p`
-- `council-claude-p`
+- `council-peer`
 - `council-longrun`
-- `claude-p`
 
 Check these roots:
 
@@ -109,10 +106,10 @@ After uninstalling, verify removed commands are absent:
 ```sh
 test ! -e "$PROJECT_ROOT/.agents/skills/council-help"
 test ! -e "$PROJECT_ROOT/.agents/skills/council"
-test ! -e "$PROJECT_ROOT/.agents/skills/council-peer-p"
+test ! -e "$PROJECT_ROOT/.agents/skills/council-peer"
 test ! -e "$PROJECT_ROOT/.claude/skills/council-help"
 test ! -e "$PROJECT_ROOT/.claude/skills/council"
-test ! -e "$PROJECT_ROOT/.claude/skills/council-peer-p"
+test ! -e "$PROJECT_ROOT/.claude/skills/council-peer"
 ```
 
 Adjust the verification for `--claude-only` or `--codex-only`.

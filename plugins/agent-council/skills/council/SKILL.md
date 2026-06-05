@@ -50,7 +50,7 @@ Agent Council 命令入口：
 - `$council-upgrade`：检查或显式升级 standalone 安装。
 - `$council-uninstall`：检查或显式卸载 standalone 安装。
 
-可选的一次性 peer headless review 工具是 `$council-peer-p`。
+可选的一次性 peer headless review 工具是 `$council-peer`。
 
 ## English Response
 
@@ -67,4 +67,4 @@ Agent Council command index:
 - `$council-upgrade`: check or explicitly upgrade standalone installs.
 - `$council-uninstall`: check or explicitly uninstall standalone installs.
 
-The optional one-shot peer headless review utility is `$council-peer-p`.
+The optional one-shot peer headless review utility is `$council-peer`.

@@ -1,29 +1,27 @@
 ---
-name: council-claude-p
+name: council-peer
 description: Run the peer tool headlessly: Claude Code from Codex, or Codex from Claude Code.
 ---
 
-# Council Peer P
+# Council Peer
 
 Arguments:
 `[--help] [--diagnose] [-n[=N|all]|--rounds[=N|all]] [--full] [--topic {topic_id}] [--output {path}] [--output-format {format}] [--allowed-tools "{tools}"] [--codex-model {model}] [--codex-profile {profile}] [--codex-sandbox {mode}] "{prompt}"`
 
 Examples:
-- `$council-peer-p "Review docs/design.md for blockers."`
-- `$council-peer-p`
-- `$council-peer-p --diagnose`
-- `$council-peer-p -n=3 "Review the recent plan for blockers."`
-- `$council-peer-p --rounds=all --full "Summarize the visible conversation and call out risks."`
-- `$council-peer-p --allowed-tools "Read,Grep,Glob,Bash(git diff *)" "Review current diff for rollback risk."`
-- `/council-peer-p --codex-model gpt-5 "Review the latest plan for blockers."`
-- `$council-peer-p --output-format json "Summarize the current repository risks."`
-- `$council-peer-p --topic product-l1-gate "Review the latest Council handoff for blockers."`
-- `$council-claude-p "Review docs/design.md for blockers."`
+- `$council-peer "Review docs/design.md for blockers."`
+- `$council-peer`
+- `$council-peer --diagnose`
+- `$council-peer -n=3 "Review the recent plan for blockers."`
+- `$council-peer --rounds=all --full "Summarize the visible conversation and call out risks."`
+- `$council-peer --allowed-tools "Read,Grep,Glob,Bash(git diff *)" "Review current diff for rollback risk."`
+- `/council-peer --codex-model gpt-5 "Review the latest plan for blockers."`
+- `$council-peer --output-format json "Summarize the current repository risks."`
+- `$council-peer --topic product-l1-gate "Review the latest Council handoff for blockers."`
 
 ## Purpose
 
-`council-peer-p` is the preferred neutral name for this optional utility skill.
-`council-claude-p` is a backward-compatible historical alias.
+`council-peer` is the neutral name for this optional utility skill.
 
 The utility runs the peer tool headlessly:
 
@@ -32,7 +30,7 @@ The utility runs the peer tool headlessly:
 
 Important boundary:
 
-- The user-facing skill command is `council-peer-p` or `council-claude-p`.
+- The user-facing skill command is `council-peer`.
 - From Codex, the underlying subprocess is Claude Code's native `claude -p`.
 - From Claude Code, the underlying subprocess is Codex CLI's
   `codex exec --sandbox read-only`.
@@ -52,8 +50,7 @@ Important boundary:
 
 ## Invocation Boundary
 
-Run this skill only when the user explicitly invokes `council-peer-p` or
-`council-claude-p`.
+Run this skill only when the user explicitly invokes `council-peer`.
 
 Do not invoke it automatically from `council-open`, `council-review`,
 `council-apply`, `council-status`, or any other Council command.
@@ -69,7 +66,7 @@ with no blockers, resume the original user-authorized work immediately after a
 concise peer result, as long as the next action remains inside the user's
 current scope. Do not pause for human confirmation merely because the peer check
 finished. Stop after the peer result only when the user asked solely to run
-`council-peer-p`, when the peer reports blockers, or when the next action would
+`council-peer`, when the peer reports blockers, or when the next action would
 modify files outside the authorized scope.
 
 ## Prompt Handling
@@ -80,8 +77,7 @@ Whitespace-only input and punctuation-only input do not count as a prompt.
 
 If the user passes `--help`, show short help and stop. Mention:
 
-- usage: `$council-peer-p "{prompt}"`, `$council-peer-p`, or the historical
-  alias `$council-claude-p`;
+- usage: `$council-peer "{prompt}"` or `$council-peer`;
 - shared flags: `--diagnose`, `--output`, `--topic`, `-n` / `--rounds`,
   `--full`;
 - Claude-from-Codex flags: `--allowed-tools`, `--output-format`;
@@ -138,13 +134,12 @@ Ignore:
 - empty text;
 - whitespace;
 - punctuation-only text;
-- command-only text such as `council-peer-p` or `council-claude-p` with no
-  substantive content.
+- command-only text such as `council-peer` with no substantive content.
 
 Prefer the latest selected substantive user request. If the latest user request
-is only the `council-peer-p` or `council-claude-p` invocation, use the previous
-substantive user request or the latest substantive assistant result that the
-user appears to be asking the peer to review. Do not scan files or Council state just to find
+is only the `council-peer` invocation, use the previous substantive user
+request or the latest substantive assistant result that the user appears to be
+asking the peer to review. Do not scan files or Council state just to find
 context.
 
 When building the fallback prompt, use the current conversation language when
@@ -239,7 +234,7 @@ From Codex, diagnose Claude Code:
 3. a short ping prompt through `claude -p`, such as:
 
 ```sh
-claude -p "Reply with exactly: council-claude-p-ok"
+claude -p "Reply with exactly: council-peer-ok"
 ```
 
 From Claude Code, diagnose Codex:
@@ -261,7 +256,7 @@ topics. Do not modify project files.
 Diagnose output should be concise:
 
 ```text
-Council Peer P diagnose:
+Council Peer diagnose:
 - host: codex | claude
 - peer command: claude | codex
 - peer path: {path_or_missing}
@@ -284,7 +279,7 @@ codex
 Also suggest trying a direct shell ping outside the skill:
 
 ```sh
-claude -p "Reply with exactly: council-claude-p-ok"
+claude -p "Reply with exactly: council-peer-ok"
 codex exec --sandbox read-only "Reply with exactly: council-peer-ok"
 ```
 
@@ -363,8 +358,8 @@ Do not leave the user waiting silently while the peer headless command runs.
 Before starting the subprocess, send a short status message:
 
 ```text
-Council Peer P status: starting
-- Skill command: council-peer-p | council-claude-p "{short_prompt_summary}"
+Council Peer status: starting
+- Skill command: council-peer "{short_prompt_summary}"
 - Host: codex | claude
 - Peer command: claude -p | codex exec --sandbox read-only
 - Underlying command: {argv_style_command_summary}
@@ -382,7 +377,7 @@ While the subprocess is running, provide progress updates at least every 15 to
 30 seconds:
 
 ```text
-Council Peer P status: running ({elapsed_seconds}s/{timeout_seconds}s)
+Council Peer status: running ({elapsed_seconds}s/{timeout_seconds}s)
 - The peer command has not returned output yet.
 - Still waiting for the headless process.
 ```
@@ -394,19 +389,19 @@ polling it so the user gets status updates.
 When the subprocess completes with output, send:
 
 ```text
-Council Peer P status: completed ({elapsed_seconds}s)
+Council Peer status: completed ({elapsed_seconds}s)
 ```
 
 When the subprocess times out or exits with no useful output, send:
 
 ```text
-Council Peer P status: timed out ({elapsed_seconds}s/{timeout_seconds}s)
+Council Peer status: timed out ({elapsed_seconds}s/{timeout_seconds}s)
 ```
 
 or:
 
 ```text
-Council Peer P status: no output ({elapsed_seconds}s)
+Council Peer status: no output ({elapsed_seconds}s)
 ```
 
 Then explain that no peer analysis result was produced.
@@ -425,8 +420,7 @@ If `claude -p` or `codex exec` times out or returns no output:
   reducing the prompt;
 - remind the user that this utility only sends the selected prompt/context,
   not an unlimited chat transcript;
-- suggest `$council-peer-p --diagnose` or `$council-claude-p --diagnose` as
-  the next check;
+- suggest `$council-peer --diagnose` as the next check;
 - report that no Council files and no formal project files were modified.
 
 If the user explicitly passes `--allowed-tools "{tools}"`, pass the tools
@@ -464,13 +458,13 @@ If the user explicitly asks to save the result to a file:
   and confirms it.
 - do not write `.agent-council/` paths through `--output`;
 - if the user wants to save under a Council topic, require `--topic {topic_id}`
-  and write only `.agent-council/active/{topic_id}/latest/council-claude-p.md`.
+  and write only `.agent-council/active/{topic_id}/latest/council-peer.md`.
 
 If the user explicitly asks to save the result to a Council topic, require an
 explicit topic id:
 
 ```text
-$council-peer-p --topic product-l1-gate "Review the latest handoff for blockers."
+$council-peer --topic product-l1-gate "Review the latest handoff for blockers."
 ```
 
 Validate the topic id before writing:
@@ -486,13 +480,13 @@ Validate the topic id before writing:
 Save the result to:
 
 ```text
-.agent-council/active/{topic_id}/latest/council-claude-p.md
+.agent-council/active/{topic_id}/latest/council-peer.md
 ```
 
 When saving to a Council topic:
 
 - create parent directories if needed;
-- write only `latest/council-claude-p.md`;
+- write only `latest/council-peer.md`;
 - never update Council governance files such as `status.md`, `consensus.md`,
   `latest/for-peer.md`, `topic.md`, `index.md`, or `turns/` from this utility;
 - state that this is a peer-headless external review result, not the same thing
@@ -510,7 +504,7 @@ Peer headless result:
 {result}
 
 Side effects:
-- Skill command: council-peer-p | council-claude-p "{short_prompt_summary}"
+- Skill command: council-peer "{short_prompt_summary}"
 - Host: codex | claude
 - Peer command: claude -p | codex exec --sandbox read-only
 - Underlying command: {peer_command_summary}
@@ -527,7 +521,7 @@ If saved to a Council topic, include:
 
 ```text
 Saved external peer-headless review:
-.agent-council/active/{topic_id}/latest/council-claude-p.md
+.agent-council/active/{topic_id}/latest/council-peer.md
 
 This is not a Council consensus and not an interactive Council review.
 ```

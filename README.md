@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.10.6
+Current version: 2.10.7
 
 Agent Council is a lightweight, manual recent-round bridge for teams using
 Claude Code and Codex in the same repository.
@@ -79,7 +79,7 @@ Agent Council:
 - does not default to running remote commands;
 - does not automatically call Claude Code or Codex;
 - stores local topic state under `.agent-council/`;
-- uses `council-peer-p` / `council-claude-p` only when the user explicitly runs
+- uses `council-peer` / `council-peer` only when the user explicitly runs
   that optional utility.
 
 See [SECURITY.md](SECURITY.md) for reporting and trust-boundary details.
@@ -113,9 +113,8 @@ Support commands are also explicit:
 - `council-longrun` configures explicit long-run assisted-judgment rules:
   when to use subagents, peer headless review, or both before continuing.
 
-`council-respond` was removed in v2.0.2. Use `council-review` for review,
-response, rebuttal, confirmation, and consensus. The installer also removes
-stale standalone `council-respond` directories from older versions.
+Use `council-review` for review, reply, rebuttal, confirmation, and
+consensus.
 
 Agent Council should stay focused on the user's topic. Unless the topic itself
 is Agent Council, reviews should not analyze Council protocol, file layout,
@@ -218,8 +217,8 @@ rules to:
 The rules decide when future work should use:
 
 - subagents for local or technical judgment;
-- `council-peer-p` / `council-claude-p` for independent peer judgment;
-- both subagents and `council-peer-p` together for complex or high-risk
+- `council-peer` / `council-peer` for independent peer judgment;
+- both subagents and `council-peer` together for complex or high-risk
   judgment.
 
 `council-longrun` does not configure when to interrupt the user. Interruption
@@ -233,10 +232,10 @@ Recommended defaults are:
 
 - subagents: `balanced`: use subagents for moderate ambiguity, cross-file
   changes, unclear test coverage, or uncertain implementation paths;
-- peer review: `strategic`: use `council-peer-p` for design, plan, release,
+- peer review: `strategic`: use `council-peer` for design, plan, release,
   security/permission boundaries, and major tradeoffs, not ordinary small
   edits;
-- combined assistance: `high_risk`: use subagents plus `council-peer-p` for
+- combined assistance: `high_risk`: use subagents plus `council-peer` for
   architecture, release, security boundaries, blocker resolution, broad scope
   changes, or hard-to-reverse choices.
 
@@ -273,7 +272,7 @@ Agent Council complements direct invocation tools; it does not replace them.
 | --- | --- | --- | --- | --- |
 | Agent Council | Manual recent-round handoff, peer review, consensus capture | Auditable files, low setup, no hidden cross-agent call, project files stay clean until `council-apply` | User runs the next command manually; not instant; does not fetch the peer answer automatically | You need a durable decision trail and a clear apply boundary |
 | Codex-in-Claude plugin | Call Codex from Claude Code for one-off review or alternatives | Fast second opinion without leaving Claude Code | More setup, possible token/API cost, less durable unless recorded | Speed matters more than an auditable handoff |
-| Peer headless via `council-peer-p` | Call Claude from Codex or Codex from Claude Code | Good for scripted checks, JSON review, CI-like one-shot tasks | Prompt/context packaging matters; peer auth, billing, and limits are separate | The task is naturally a one-shot scripted peer call |
+| Peer headless via `council-peer` | Call Claude from Codex or Codex from Claude Code | Good for scripted checks, JSON review, CI-like one-shot tasks | Prompt/context packaging matters; peer auth, billing, and limits are separate | The task is naturally a one-shot scripted peer call |
 
 You can combine them: use direct invocation for quick checks, then use Agent
 Council only when the result should become a shared decision.
@@ -284,12 +283,11 @@ References:
 - [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage)
 - [Run Claude Code programmatically](https://code.claude.com/docs/en/headless)
 
-## Optional Utility: council-peer-p
+## Optional Utility: council-peer
 
-`council-peer-p` is an optional utility skill, not part of the Agent Council
-main flow. `council-claude-p` remains as a backward-compatible alias. The
-Council flow remains `council-open`, `council-review`, `council-apply`,
-`council-status`, and `council-help`.
+`council-peer` is an optional utility skill, not part of the Agent Council
+main flow. The Council flow remains `council-open`, `council-review`,
+`council-apply`, `council-status`, and `council-help`.
 
 The utility calls the peer tool headlessly:
 
@@ -298,7 +296,7 @@ The utility calls the peer tool headlessly:
 
 Requirements and boundaries:
 
-- Use `council-peer-p` for new calls; `council-claude-p` is still accepted.
+- Use `council-peer` for one-shot peer checks.
 - The peer CLI must already be installed and available in `PATH`.
 - From Codex, the required peer command is `claude`.
 - From Claude Code, the required peer command is `codex`.
@@ -321,19 +319,18 @@ Requirements and boundaries:
 Examples:
 
 ```text
-$council-peer-p
-$council-peer-p --diagnose
-$council-peer-p -n=3 "Review the recent plan for blockers."
-/council-peer-p --codex-model gpt-5 "Review the latest plan for blockers."
-$council-claude-p
-$council-claude-p --rounds=all --full "Summarize the visible conversation and call out risks."
-$council-claude-p "Review docs/design.md for blockers and missing tests."
-$council-claude-p --output-format json "Summarize the current repository risks."
-$council-claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
-$council-peer-p --topic product-l1-gate "Review the latest Council handoff for blockers."
+$council-peer
+$council-peer --diagnose
+$council-peer -n=3 "Review the recent plan for blockers."
+/council-peer --codex-model gpt-5 "Review the latest plan for blockers."
+$council-peer --rounds=all --full "Summarize the visible conversation and call out risks."
+$council-peer "Review docs/design.md for blockers and missing tests."
+$council-peer --output-format json "Summarize the current repository risks."
+$council-peer --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
+$council-peer --topic product-l1-gate "Review the latest Council handoff for blockers."
 ```
 
-If you run `$council-peer-p` with no substantive text after the command,
+If you run `$council-peer` with no substantive text after the command,
 whitespace or punctuation-only input is ignored. The skill uses selected recent
 visible conversation rounds as context and asks the peer for a focused one-shot
 review, for example blockers, missing assumptions, risks, and whether it is
@@ -341,7 +338,7 @@ reasonable to proceed. It should adapt the question to the current topic and
 language instead of using a fixed template.
 
 A conversation round means one user message plus the immediately following
-Codex or Claude Code reply. By default, `council-peer-p` uses the latest 1
+Codex or Claude Code reply. By default, `council-peer` uses the latest 1
 visible round as summarized context. Use `-n` / `--rounds` to select more
 visible rounds, and add `--full` only when the peer should receive the selected
 visible text verbatim. Claude-only flags such as `--allowed-tools` and
@@ -351,13 +348,7 @@ visible text verbatim. Claude-only flags such as `--allowed-tools` and
 Use `--topic {topic_id}` only when you explicitly want to save the result under:
 
 ```text
-.agent-council/active/{topic_id}/latest/council-peer-p.md
-```
-
-The historical alias `council-claude-p` keeps the compatibility path:
-
-```text
-.agent-council/active/{topic_id}/latest/council-claude-p.md
+.agent-council/active/{topic_id}/latest/council-peer.md
 ```
 
 That saved file is an external peer-headless attachment under the topic. It is
@@ -369,14 +360,14 @@ content into the prompt or save it to a file and reference the file. The
 headless peer command only receives the prompt/context selected by the skill; it
 cannot read an unlimited surrounding chat transcript by itself.
 
-`council-peer-p` should not leave you staring at a blank wait. It should
+`council-peer` should not leave you staring at a blank wait. It should
 announce when the headless process starts, report elapsed time while it is still
 running, and clearly say whether it completed, timed out, or returned no output.
 
 If it times out or returns no useful output, run:
 
 ```text
-$council-peer-p --diagnose
+$council-peer --diagnose
 ```
 
 Diagnose mode checks the detected peer path, peer version, and a short
@@ -593,7 +584,7 @@ explicitly overrides the risk.
 Codex skill metadata uses `allow_implicit_invocation: false` so Council commands
 stay user-invoked and do not auto-trigger. Do not use
 `disable-model-invocation: true` for Council skills, because that hides explicit
-commands such as `$council-peer-p` from Codex's available skill list. Next-step
+commands such as `$council-peer` from Codex's available skill list. Next-step
 guidance is controlled by `council-review` output rules.
 
 Council next-step guidance is advisory and topic-scoped. It must not be treated
@@ -674,8 +665,8 @@ The installer copies skills into:
 - `.claude/skills/` for Claude Code.
 - `.agents/skills/` for Codex.
 
-When upgrading from v1, run the installer again. It overwrites the active
-standalone skills and removes stale standalone `council-respond` directories.
+When upgrading, run the installer again. It overwrites the active standalone
+skills and reconciles stale Agent Council skill directories.
 
 Add this to the target project's `.gitignore` unless your team wants to keep
 local discussion state:
@@ -706,16 +697,11 @@ cache. Run `council-version` in the same tool to confirm the active copy.
 
 For standalone installs, `council-upgrade` is check-only by default. To update,
 run it again from the active project or home install with `--apply`. If a
-standalone install is dirty, use `council-upgrade --apply --force` to remove
-deprecated commands such as `claude-p` / `council-respond`, reinstall the
-current skill set, and verify `council-peer-p` plus `council-claude-p` exist.
+standalone install is dirty, use `council-upgrade --apply --force` to reconcile
+stale skill directories, reinstall the current skill set, and verify
+`council-peer` exists.
 Use `--ref {git_ref}` only when you intentionally want a specific branch, tag,
 or commit.
-
-`claude-p` is deprecated. Use `council-peer-p` for new calls; `council-claude-p`
-remains as the compatibility alias. If `claude-p` disappears but neither
-replacement appears, the upgrade likely targeted a different standalone
-location or the active install is a plugin cache that needs reinstall/reload.
 
 For plugin installs, reinstall the `agent-council` plugin from the marketplace
 and reload plugins.
@@ -800,8 +786,9 @@ When installed as a plugin, Claude Code namespaces skills with the plugin name:
 /agent-council:council-uninstall --check
 ```
 
-When upgrading an older plugin install, remove the old plugin if the plugin
-manager still shows `council-respond`, install again, and reload plugins.
+When upgrading an older plugin install, remove the old plugin first if the
+manager still shows stale Agent Council commands, install again, and reload
+plugins.
 
 ## Codex
 
@@ -852,8 +839,9 @@ $council-upgrade --check
 $council-uninstall --check
 ```
 
-When upgrading an older plugin install, remove the old plugin if `/plugins`
-still lists `council-respond`, install again, and restart or reload Codex.
+When upgrading an older plugin install, remove the old plugin first if
+`/plugins` still lists stale Agent Council commands, install again, and restart
+or reload Codex.
 
 ## Basic Workflow
 

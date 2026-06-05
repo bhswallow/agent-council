@@ -1,6 +1,6 @@
 ---
 name: council-longrun
-description: Configure when long-running work uses subagents, council-peer-p, or both for assisted judgment.
+description: Configure when long-running work uses subagents, council-peer, or both for assisted judgment.
 ---
 
 # Council Longrun
@@ -17,8 +17,7 @@ Examples:
 
 `council-longrun` configures a user-approved assistance policy for future
 authorized long-running work. It tells future work when to use subagents, when
-to use `council-peer-p` (or its compatibility alias `council-claude-p`), and
-when to use both together before continuing.
+to use `council-peer`, and when to use both together before continuing.
 
 This skill does not decide when work must interrupt the user. It does not
 configure human-pause or git-finalization policy. Instead, when the surrounding
@@ -36,7 +35,7 @@ Manual invocation boundary:
 
 - Run only when the user explicitly invokes `council-longrun`.
 - Do not start long-run mode automatically.
-- Do not invoke `council-peer-p` or `council-claude-p` while configuring rules.
+- Do not invoke `council-peer` while configuring rules.
 - Do not spawn subagents while configuring rules.
 - Do not modify formal project files.
 - Do not commit, push, merge, deploy, or enter the next workflow stage.
@@ -87,12 +86,12 @@ to collect choices; ask in the chat and let the user reply normally.
 
 Do not present bare tokens such as only `balanced / light / thorough`. Do not
 label Group 2 as "Claude-p usage" or `Claude-p 使用策略`; label it as peer review
-or `council-peer-p` strategy. Each option must say what it controls in concrete
+or `council-peer` strategy. Each option must say what it controls in concrete
 terms:
 
 - when subagents are used for local or technical judgment;
-- when `council-peer-p` is used for independent peer judgment;
-- when subagents and `council-peer-p` are used together;
+- when `council-peer` is used for independent peer judgment;
+- when subagents and `council-peer` are used together;
 - that assisted judgment should continue automatically when clear and within
   the user-authorized scope;
 - that `council-longrun` does not configure human-pause or git-finalization
@@ -124,21 +123,21 @@ Chinese template:
 | B | `light` | 只在明显复杂或不清楚时用 subagents；更依赖当前 agent 自己判断。 |
 | C | `thorough` | 多数非平凡实现、测试策略、数据/并发/集成风险都先用 subagents 判断。 |
 
-**Group 2: Peer review / council-peer-p 辅助判断**
+**Group 2: Peer review / council-peer 辅助判断**
 控制什么时候跑对方 headless review；判断清楚后继续。推荐：`strategic`
 
 | 选项 | 等级 | 行为 |
 | --- | --- | --- |
-| A | `strategic` 推荐 | design、plan、发布前、安全/权限边界、重大取舍时跑 council-peer-p。 |
-| B | `implementation` | 除 strategic 场景外，复杂 diff、跨模块实现、弱覆盖、并发/数据安全也跑 council-peer-p。 |
-| C | `manual` | 不自动跑 council-peer-p；只有你明确要求时才跑。 |
+| A | `strategic` 推荐 | design、plan、发布前、安全/权限边界、重大取舍时跑 council-peer。 |
+| B | `implementation` | 除 strategic 场景外，复杂 diff、跨模块实现、弱覆盖、并发/数据安全也跑 council-peer。 |
+| C | `manual` | 不自动跑 council-peer；只有你明确要求时才跑。 |
 
-**Group 3: Combined assistance / subagents + council-peer-p**
+**Group 3: Combined assistance / subagents + council-peer**
 控制什么时候两种辅助一起用；用于原本可能需要人工判断的复杂点，结论清楚后继续。推荐：`high_risk`
 
 | 选项 | 等级 | 行为 |
 | --- | --- | --- |
-| A | `high_risk` 推荐 | 架构/发布/安全边界/blocker/重大取舍/大范围变更时同时用 subagents + council-peer-p。 |
+| A | `high_risk` 推荐 | 架构/发布/安全边界/blocker/重大取舍/大范围变更时同时用 subagents + council-peer。 |
 | B | `escalation` | 先用单一路线；只有 subagents 或 peer 发现未解决风险、意见冲突、证据不足时再两者一起用。 |
 | C | `intensive` | 对多数跨模块、弱覆盖、数据迁移、并发、复杂回滚风险都同时用两者。 |
 ```
@@ -159,16 +158,16 @@ Controls when to ask subagents for local/technical judgment; continue when the r
 | B | `light` | Use subagents only for clearly complex or unclear work; rely more on the current agent's judgment. |
 | C | `thorough` | Use subagents for most non-trivial implementation, test strategy, data/concurrency, or integration risk. |
 
-**Group 2: Peer review / council-peer-p assisted judgment**
+**Group 2: Peer review / council-peer assisted judgment**
 Controls when to run the peer headless review; continue when the result is clear. Recommended: `strategic`
 
 | Option | Level | Behavior |
 | --- | --- | --- |
-| A | `strategic` recommended | Use council-peer-p for design, plan, pre-release, security/permission boundary, or major tradeoff checks. |
-| B | `implementation` | Also use council-peer-p for complex diffs, cross-module implementation risk, weak coverage, concurrency, or data safety. |
-| C | `manual` | Never use council-peer-p automatically; use it only when the user explicitly asks. |
+| A | `strategic` recommended | Use council-peer for design, plan, pre-release, security/permission boundary, or major tradeoff checks. |
+| B | `implementation` | Also use council-peer for complex diffs, cross-module implementation risk, weak coverage, concurrency, or data safety. |
+| C | `manual` | Never use council-peer automatically; use it only when the user explicitly asks. |
 
-**Group 3: Combined assistance / subagents + council-peer-p**
+**Group 3: Combined assistance / subagents + council-peer**
 Controls when to use both kinds of assistance; use it for complex points that might otherwise need human judgment, then continue when clear. Recommended: `high_risk`
 
 | Option | Level | Behavior |
@@ -198,7 +197,7 @@ Choices:
   implementation choices, test strategy, data/concurrency risk, integration
   risk, and broad refactors.
 
-### Question 2: Peer Review / council-peer-p Assisted Judgment
+### Question 2: Peer Review / council-peer Assisted Judgment
 
 Recommended default: `strategic`.
 
@@ -207,21 +206,20 @@ not start tasks and does not modify formal project files.
 
 Choices:
 
-- `strategic`: use `council-peer-p` for design, plan, release readiness,
+- `strategic`: use `council-peer` for design, plan, release readiness,
   security/privacy/permission boundary, and major tradeoff checks. Do not use
   it for ordinary small code, docs, or test edits.
-- `implementation`: also use `council-peer-p` for complex diffs, cross-module
+- `implementation`: also use `council-peer` for complex diffs, cross-module
   implementation risk, weak test coverage, concurrency/data safety, migrations,
   or broad refactors.
-- `manual`: do not automatically use `council-peer-p`; only use it when the
-  user explicitly asks. `council-claude-p` remains accepted as a compatibility
-  alias.
+- `manual`: do not automatically use `council-peer`; only use it when the
+  user explicitly asks.
 
 ### Question 3: Combined Assistance
 
 Recommended default: `high_risk`.
 
-This question controls when to use both subagents and `council-peer-p` together
+This question controls when to use both subagents and `council-peer` together
 before continuing.
 
 Choices:
@@ -290,7 +288,7 @@ Adapt the lists to the selected choices:
 - For `thorough`, add more implementation, test strategy, integration, and
   refactor cases to `use_subagents`.
 - For `peer_review_policy: manual`, keep `use_peer_p` empty and only use
-  `council-peer-p` when the user explicitly asks. Because combined assistance
+  `council-peer` when the user explicitly asks. Because combined assistance
   includes peer review, also avoid automatic `use_both` unless the user
   explicitly asks.
 - For `peer_review_policy: implementation`, add complex diff review,
@@ -326,10 +324,10 @@ Subagents: balanced
 - Use subagents for moderate ambiguity, cross-file changes, unclear coverage, or uncertain implementation paths.
 
 Peer review: strategic
-- Use council-peer-p for design, plan, release, security, or major tradeoff checks.
+- Use council-peer for design, plan, release, security, or major tradeoff checks.
 
 Combined assistance: high_risk
-- Use subagents + council-peer-p for architecture, blockers, release/security boundaries, broad scope changes, or hard-to-reverse choices.
+- Use subagents + council-peer for architecture, blockers, release/security boundaries, broad scope changes, or hard-to-reverse choices.
 
 Continue behavior:
 - If a workflow would otherwise ask for judgment, run the configured assistance first.

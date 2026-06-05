@@ -19,7 +19,8 @@ Read the peer's latest handoff for the topic, review the actual content, and wri
 
 This command covers review, response, rebuttal, confirmation, and convergence. Use `council-review` for both directions.
 
-`council-review` is the merged review/respond command. `council-respond` is not part of the v2 flow.
+`council-review` handles peer review replies, rebuttals, confirmation, and
+consensus.
 
 Manual invocation boundary: only run this skill because the user explicitly
 invoked `council-review`. Council is advisory and topic-scoped. It must not

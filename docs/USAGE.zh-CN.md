@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.10.6 是一个“最近轮次交接”桥梁。
+Agent Council v2.10.7 是一个“最近轮次交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -32,14 +32,12 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
     council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]
     council-longrun [--show|--reset]
 
-`council-respond` 已在 v2.0.2 移除。请改用 `council-review`。
-
 如果你不确定该用哪个 Council 命令，可以先运行 `council` 查看顶层命令索引。
 
 使用 `council-upgrade` 可以检查 standalone 安装版本。
 它默认只检查不修改。使用 `council-upgrade --apply` 才会更新。
-如果 standalone 安装很脏，比如还残留废弃命令或缺少替代命令，使用
-`council-upgrade --apply --force` 强制清理并重装。只有需要指定 branch、tag 或 commit
+如果 standalone 安装很脏，比如还残留旧目录或缺少当前命令，使用
+`council-upgrade --apply --force` 整理并重装。只有需要指定 branch、tag 或 commit
 时才加 `--ref {git_ref}`。
 
 使用 `council-version` 确认当前实际生效的安装版本。
@@ -72,10 +70,10 @@ peer review、以及 `high_risk` combined assistance：中等不确定时用 sub
     $council-longrun
     $council-longrun --show
 
-## 可选工具：council-peer-p
+## 可选工具：council-peer
 
-`council-peer-p` 不是 Council 主流程的一部分。它是一次性工具，用来 headless
-调用对方工具。`council-claude-p` 作为历史兼容别名继续可用。
+`council-peer` 不是 Council 主流程的一部分。它是一次性工具，用来 headless
+调用对方工具。
 
 在 Codex 中运行时，它通过 `claude -p` 调 Claude Code。在 Claude Code 中运行时，
 它通过 `codex exec --sandbox read-only` 调 Codex。
@@ -99,18 +97,18 @@ conversation round 指一条用户消息，加上紧随其后的 Codex 或 Claud
 运行中也应输出状态，包括 starting、已等待时间、completed、timed out 或
 no-output 状态。
 
-如果对方命令超时或没有有用输出，运行 `$council-peer-p --diagnose`。
+如果对方命令超时或没有有用输出，运行 `$council-peer --diagnose`。
 诊断模式会检查检测到的对方命令、版本，以及一个只读短 ping。它不会写文件。
 
 示例：
 
-    $council-peer-p
-    $council-peer-p --diagnose
-    $council-peer-p -n=3 "Review the recent plan for blockers."
-    /council-peer-p --codex-model gpt-5 "Review the latest plan for blockers."
-    $council-claude-p --rounds=all --full "Summarize the visible conversation and call out risks."
-    $council-claude-p "Review docs/design.md for blockers."
-    $council-peer-p --topic product-l1-gate "Review the latest Council handoff for blockers."
+    $council-peer
+    $council-peer --diagnose
+    $council-peer -n=3 "Review the recent plan for blockers."
+    /council-peer --codex-model gpt-5 "Review the latest plan for blockers."
+    $council-peer --rounds=all --full "Summarize the visible conversation and call out risks."
+    $council-peer "Review docs/design.md for blockers."
+    $council-peer --topic product-l1-gate "Review the latest Council handoff for blockers."
 
 ## 开启话题
 

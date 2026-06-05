@@ -51,26 +51,25 @@ install_claude() {
   mkdir -p "$ROOT/.claude/skills"
   # Always reconcile known Agent Council directories. --force is accepted so
   # council-upgrade can make that cleanup intent explicit.
-  rm -rf "$ROOT/.claude/skills/council-respond"
-  rm -rf "$ROOT/.claude/skills/claude-p"
-  for skill in council council-open council-review council-apply council-status council-help council-upgrade council-uninstall council-version council-peer-p council-claude-p council-longrun; do
+  for stale in council-respond claude-p council-peer-p council-claude-p; do
+    rm -rf "$ROOT/.claude/skills/$stale"
+  done
+  for skill in council council-open council-review council-apply council-status council-help council-upgrade council-uninstall council-version council-peer council-longrun; do
     rm -rf "$ROOT/.claude/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.claude/skills/$skill"
   done
-  for skill in council council-peer-p council-claude-p council-upgrade council-uninstall council-help; do
+  for skill in council council-peer council-upgrade council-uninstall council-help; do
     if [ ! -d "$ROOT/.claude/skills/$skill" ]; then
       echo "Required skill missing after install: $ROOT/.claude/skills/$skill" >&2
       exit 1
     fi
   done
-  if [ -e "$ROOT/.claude/skills/council-respond" ]; then
-    echo "Deprecated skill still exists after cleanup: $ROOT/.claude/skills/council-respond" >&2
-    exit 1
-  fi
-  if [ -e "$ROOT/.claude/skills/claude-p" ]; then
-    echo "Deprecated skill still exists after cleanup: $ROOT/.claude/skills/claude-p" >&2
-    exit 1
-  fi
+  for stale in council-respond claude-p council-peer-p council-claude-p; do
+    if [ -e "$ROOT/.claude/skills/$stale" ]; then
+      echo "Stale Agent Council skill still exists after cleanup: $ROOT/.claude/skills/$stale" >&2
+      exit 1
+    fi
+  done
   echo "Installed Claude Code skills into $ROOT/.claude/skills"
 }
 
@@ -78,26 +77,25 @@ install_codex() {
   mkdir -p "$ROOT/.agents/skills"
   # Always reconcile known Agent Council directories. --force is accepted so
   # council-upgrade can make that cleanup intent explicit.
-  rm -rf "$ROOT/.agents/skills/council-respond"
-  rm -rf "$ROOT/.agents/skills/claude-p"
-  for skill in council council-open council-review council-apply council-status council-help council-upgrade council-uninstall council-version council-peer-p council-claude-p council-longrun; do
+  for stale in council-respond claude-p council-peer-p council-claude-p; do
+    rm -rf "$ROOT/.agents/skills/$stale"
+  done
+  for skill in council council-open council-review council-apply council-status council-help council-upgrade council-uninstall council-version council-peer council-longrun; do
     rm -rf "$ROOT/.agents/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.agents/skills/$skill"
   done
-  for skill in council council-peer-p council-claude-p council-upgrade council-uninstall council-help; do
+  for skill in council council-peer council-upgrade council-uninstall council-help; do
     if [ ! -d "$ROOT/.agents/skills/$skill" ]; then
       echo "Required skill missing after install: $ROOT/.agents/skills/$skill" >&2
       exit 1
     fi
   done
-  if [ -e "$ROOT/.agents/skills/council-respond" ]; then
-    echo "Deprecated skill still exists after cleanup: $ROOT/.agents/skills/council-respond" >&2
-    exit 1
-  fi
-  if [ -e "$ROOT/.agents/skills/claude-p" ]; then
-    echo "Deprecated skill still exists after cleanup: $ROOT/.agents/skills/claude-p" >&2
-    exit 1
-  fi
+  for stale in council-respond claude-p council-peer-p council-claude-p; do
+    if [ -e "$ROOT/.agents/skills/$stale" ]; then
+      echo "Stale Agent Council skill still exists after cleanup: $ROOT/.agents/skills/$stale" >&2
+      exit 1
+    fi
+  done
   echo "Installed Codex skills into $ROOT/.agents/skills"
 }
 

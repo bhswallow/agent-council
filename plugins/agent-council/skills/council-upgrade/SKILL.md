@@ -33,11 +33,9 @@ If `council-help` still shows an old version after upgrade, the user is probably
 calling a plugin install or another standalone copy. Use `council-version` to
 check the active copy.
 
-Historical note: the old standalone command `claude-p` is deprecated and should
-be removed. The replacement commands are `council-peer-p` and the compatibility
-alias `council-claude-p`. If `claude-p` disappeared but neither replacement is
-available, the upgrade probably did not run against the active standalone
-skills directory, or a plugin cache still needs reinstall/reload.
+If current commands are missing after an upgrade, the upgrade probably did not
+run against the active standalone skills directory, or a plugin cache still
+needs reinstall/reload.
 
 ## Behavior
 
@@ -88,26 +86,22 @@ If any of these exists, treat it as a standalone install target:
 - `$HOME/.agents/skills/council-help`
 
 When `--force` is present, also treat a root as a standalone cleanup target if
-any known Agent Council skill directory exists there, including deprecated or
-partially upgraded commands:
+any known Agent Council skill directory exists there, including stale or
+partially upgraded directories:
 
 - `council-open`
 - `council`
 - `council-review`
-- `council-respond`
 - `council-apply`
 - `council-status`
 - `council-help`
 - `council-upgrade`
 - `council-version`
-- `council-peer-p`
-- `council-claude-p`
+- `council-peer`
 - `council-longrun`
-- `claude-p`
 
-This fixes dirty installs where old commands remain but `council-help` is
-missing, or where `claude-p` was deleted without installing `council-peer-p` and
-`council-claude-p`.
+This fixes dirty installs where stale directories remain or `council-help` is
+missing.
 
 Clone the repository to a temporary directory:
 
@@ -154,35 +148,18 @@ Respect mode flags when choosing targets:
 - `--force`: pass `--force` to the installer and include dirty/stale roots in
   target detection
 
-After install, verify stale deprecated commands are gone:
+After install, verify the current command set exists in every target that was
+actually upgraded. Do not require Codex directories when `--claude-only` was
+used, and do not require Claude Code directories when `--codex-only` was used:
 
 ```sh
-test ! -e "$PROJECT_ROOT/.claude/skills/council-respond"
-test ! -e "$PROJECT_ROOT/.agents/skills/council-respond"
-test ! -e "$HOME/.claude/skills/council-respond"
-test ! -e "$HOME/.agents/skills/council-respond"
-test ! -e "$PROJECT_ROOT/.claude/skills/claude-p"
-test ! -e "$PROJECT_ROOT/.agents/skills/claude-p"
-test ! -e "$HOME/.claude/skills/claude-p"
-test ! -e "$HOME/.agents/skills/claude-p"
-```
-
-Also verify the replacement commands exist in every target that was actually
-upgraded. Do not require Codex directories when `--claude-only` was used, and
-do not require Claude Code directories when `--codex-only` was used:
-
-```sh
-test -d "$PROJECT_ROOT/.claude/skills/council-peer-p"
-test -d "$PROJECT_ROOT/.claude/skills/council-claude-p"
+test -d "$PROJECT_ROOT/.claude/skills/council-peer"
 test -d "$PROJECT_ROOT/.claude/skills/council"
-test -d "$PROJECT_ROOT/.agents/skills/council-peer-p"
-test -d "$PROJECT_ROOT/.agents/skills/council-claude-p"
+test -d "$PROJECT_ROOT/.agents/skills/council-peer"
 test -d "$PROJECT_ROOT/.agents/skills/council"
-test -d "$HOME/.claude/skills/council-peer-p"
-test -d "$HOME/.claude/skills/council-claude-p"
+test -d "$HOME/.claude/skills/council-peer"
 test -d "$HOME/.claude/skills/council"
-test -d "$HOME/.agents/skills/council-peer-p"
-test -d "$HOME/.agents/skills/council-claude-p"
+test -d "$HOME/.agents/skills/council-peer"
 test -d "$HOME/.agents/skills/council"
 ```
 
@@ -209,8 +186,8 @@ For Claude Code plugin installs:
 /reload-plugins
 ```
 
-If `council-respond` or `claude-p` still appears after upgrade, uninstall the
-old `agent-council` plugin first, then install again.
+If stale Agent Council commands still appear after upgrade, uninstall the old
+`agent-council` plugin first, then install again.
 
 For Codex plugin installs:
 
@@ -230,8 +207,8 @@ Keep the response concise:
 - whether this was check-only or applied;
 - whether `--force` was used;
 - whether Claude Code and/or Codex standalone skills were updated;
-- whether stale `council-respond` and `claude-p` were removed;
-- whether replacements `council-peer-p` and `council-claude-p` are present;
+- whether stale standalone skill directories were reconciled;
+- whether `council-peer` is present;
 - whether the top-level index command `council` is present;
 - next verification command: `council-version`, then `council`.
 
@@ -242,7 +219,7 @@ For check-only responses, include this command when an update is available:
 ```
 
 For dirty standalone installs with missing replacement commands or leftover
-deprecated commands, include:
+stale commands, include:
 
 ```text
 /council-upgrade --apply --force
