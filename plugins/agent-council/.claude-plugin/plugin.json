@@ -1,7 +1,7 @@
 {
   "name": "agent-council",
-  "description": "A lightweight latest-turn bridge for manual Claude Code and Codex review loops.",
-  "version": "2.8.0",
+  "description": "A lightweight recent-round bridge for manual Claude Code and Codex review loops.",
+  "version": "2.10.0",
   "author": {
     "name": "Agent Council Maintainers"
   },

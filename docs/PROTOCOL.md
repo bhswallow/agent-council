@@ -1,6 +1,6 @@
 # Protocol
 
-Agent Council v2 uses a latest-turn bridge model.
+Agent Council v2 uses a recent-round bridge model.
 
 ## Manual invocation boundary
 
@@ -31,13 +31,25 @@ The rules may tell future work when to:
 
 - continue by self-judgment;
 - use subagents;
-- use `council-claude-p`;
-- use both subagents and `council-claude-p`;
+- use `council-peer-p` / `council-claude-p`;
+- use both subagents and `council-peer-p`;
 - pause for a human decision.
 
 The rules apply only after the user has authorized ongoing work. They do not
 authorize new scope, formal project changes outside the task, or irreversible
 operations. Running `council-longrun` again redefines the rules.
+
+## Peer headless utility
+
+`council-peer-p` is the preferred neutral name for the optional one-shot peer
+headless utility. `council-claude-p` remains a compatibility alias.
+
+From Codex, the utility calls Claude Code through `claude -p`. From Claude Code,
+it calls Codex through `codex exec --sandbox read-only`.
+
+The utility is not part of the Council review loop. It does not declare
+consensus, trigger `council-apply`, or write Council topics by default. It must
+use only selected visible context or explicit user-provided context.
 
 ## Optional reminders outside Council
 
@@ -69,6 +81,31 @@ Recommended files:
     applied/0003-apply.md
 
 Agent ids are canonical lowercase. Valid built-in ids are `claude` and `codex`. Paths must use lowercase agent ids only.
+
+## Conversation rounds
+
+A conversation round is one user message plus the immediately following Codex
+or Claude Code assistant response. If the latest visible user message does not
+yet have an assistant response, it is an unfinished round.
+
+This is different from Council `turns/`, which are compact files that record
+one Council command output from one agent.
+
+Only visible user/assistant chat text is eligible for range selection. Do not
+include system/developer instructions, tool schemas, hidden chain-of-thought,
+or other internal runtime context.
+
+For commands that accept context ranges:
+
+- no `-n` / `--rounds`: select the latest 1 visible conversation round;
+- bare `-n` or bare `--rounds`: select the latest 1 visible conversation round;
+- `-n={N}` or `--rounds={N}`: select the latest `N` visible rounds;
+- `-n=all` or `--rounds=all`: select all visible user/assistant rounds in the
+  current chat window.
+
+Without `--full`, selected rounds are summarized. With `--full`, selected
+visible text is preserved or sent as full context according to the command's
+own write policy.
 
 ## Topic ids
 
@@ -102,11 +139,15 @@ When writing `latest/{agent}.md` or `latest/for-peer.md`, keep the handoff under
 - 500 words; or
 - 20 bullets.
 
-Compress longer source turns to decisions, evidence, blockers, open questions,
+Compress longer selected rounds to decisions, evidence, blockers, open questions,
 and requested peer focus.
 
 Do not roll forward stale detail from previous latest files unless it is still
 needed for the next decision.
+
+If `council-open --full` is used, keep latest files short and write full visible
+source text to a separate `turns/{turn_number}-{agent}-open-full-context.md`
+attachment.
 
 ## Focus policy
 
@@ -233,7 +274,7 @@ For `council-open` and `council-review`, formal project files and code changes s
 - missing peer latest files when expected;
 - non-contiguous turn numbers;
 - `status.md` state disagreeing with `consensus.md`;
-- consensus older than the latest turn;
+- consensus older than the latest recorded turn;
 - signs that a review turn modified formal project files.
 
 Doctor should report short `OK` and `Warnings` lists. It should not enforce a heavy state machine.

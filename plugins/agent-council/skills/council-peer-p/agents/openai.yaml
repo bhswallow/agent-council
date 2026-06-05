@@ -1,5 +1,5 @@
 interface:
-  display_name: "Council Claude P"
+  display_name: "Council Peer P"
   short_description: "Run the peer tool headlessly as an optional utility."
 policy:
   allow_implicit_invocation: false

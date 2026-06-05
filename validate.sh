@@ -28,13 +28,13 @@ assert_no_utility_in_range() {
   awk -v start="$start" -v end="$end" '
     $0 ~ start { in_range = 1; saw_start = 1; next }
     in_range && $0 ~ end { saw_end = 1; in_range = 0; next }
-    in_range && /council-claude-p/ { found = 1 }
+    in_range && /council-(claude|peer)-p/ { found = 1 }
     END {
       if (!saw_start || !saw_end || found) {
         exit 1
       }
     }
-  ' "$file" || fail "$(basename "$file") must not put council-claude-p in the Agent Council main flow"
+  ' "$file" || fail "$(basename "$file") must not put peer headless utilities in the Agent Council main flow"
 }
 
 assert_codex_implicit_invocation_disabled() {
@@ -46,6 +46,59 @@ assert_codex_implicit_invocation_disabled() {
   ' "$1" || fail "Missing policy.allow_implicit_invocation: false in $1"
 }
 
+assert_peer_headless_skill() {
+  skill="$1"
+  file="$ROOT/plugins/agent-council/skills/$skill/SKILL.md"
+
+  grep -q 'claude -p' "$file" || fail "$skill skill must document claude -p"
+  grep -q 'command -v claude' "$file" || fail "$skill skill must check local claude CLI"
+  grep -q 'codex exec' "$file" || fail "$skill skill must document codex exec"
+  grep -q 'command -v codex' "$file" || fail "$skill skill must check local codex CLI"
+  grep -q 'Determine the host from the current assistant/runtime' "$file" || fail "$skill must detect host from runtime"
+  grep -q 'If both `claude` and `codex` are installed' "$file" || fail "$skill must not infer host from PATH"
+  grep -q 'not part of the Agent Council review loop' "$file" || fail "$skill must be outside Council loop"
+  grep -q 'Agent Council does not install Claude Code or Codex' "$file" || fail "$skill must clarify peer CLI install boundary"
+  grep -q 'The user-facing skill command is `council-peer-p` or `council-claude-p`' "$file" || fail "$skill must document peer command alias"
+  case "$skill" in
+    council-peer-p)
+      grep -q 'latest/council-peer-p.md' "$file" || fail "$skill missing neutral topic save path"
+      grep -q 'latest/council-claude-p.md' "$file" || fail "$skill missing historical alias topic save path"
+      ;;
+    council-claude-p)
+      grep -q 'latest/council-claude-p.md' "$file" || fail "$skill missing alias topic save path"
+      ;;
+  esac
+  grep -q 'do not write `.agent-council/` paths through `--output`' "$file" || fail "$skill --output must not write Council paths"
+  grep -q 'any `Bash(...)` pattern' "$file" || fail "$skill must warn on Bash allowed-tools"
+  grep -q 'Council Peer P status: starting' "$file" || fail "$skill must announce starting status"
+  grep -q 'Council Peer P status: running' "$file" || fail "$skill must provide running status updates"
+  grep -q 'Council Peer P status: completed' "$file" || fail "$skill must announce completed status"
+  grep -q 'Council Peer P status: timed out' "$file" || fail "$skill must announce timeout status"
+  grep -q '15 to' "$file" || fail "$skill must define status update interval"
+  grep -q 'Default timeout: 600 seconds (10 minutes)' "$file" || fail "$skill default timeout must be 600 seconds"
+  grep -q 'Timeout: 600s' "$file" || fail "$skill status template must show 600s timeout"
+  grep -q '30 seconds' "$file" || fail "$skill diagnose ping should stay short"
+  grep -q 'Whitespace-only input and punctuation-only input do not count as a prompt' "$file" || fail "$skill must ignore empty punctuation-only prompts"
+  grep -q 'selected visible conversation rounds' "$file" || fail "$skill must use selected visible conversation rounds"
+  grep -q 'Visible conversation context means user messages and Codex/Claude Code' "$file" || fail "$skill must define visible conversation context"
+  grep -q 'system/developer instructions, tool schemas, hidden chain-of-thought' "$file" || fail "$skill must exclude hidden runtime context"
+  grep -q 'bare `-n` or bare `--rounds`' "$file" || fail "$skill must define bare -n/--rounds"
+  grep -q -- '--full' "$file" || fail "$skill must support --full"
+  grep -q '`--diagnose` ignores `-n`, `--rounds`, `--full`' "$file" || fail "$skill diagnose must ignore round/full flags"
+  grep -q 'Do not invent context' "$file" || fail "$skill must not invent missing context"
+  grep -q -- '--diagnose' "$file" || fail "$skill must support diagnose mode"
+  grep -q 'Council Peer P diagnose' "$file" || fail "$skill must define diagnose output"
+  grep -q 'Reply with exactly: council-claude-p-ok' "$file" || fail "$skill diagnose must include claude ping prompt"
+  grep -q 'Reply with exactly: council-peer-ok' "$file" || fail "$skill diagnose must include codex ping prompt"
+  grep -q -- '--codex-sandbox' "$file" || fail "$skill must document codex sandbox"
+  grep -q 'default `--codex-sandbox` is `read-only`' "$file" || fail "$skill codex default sandbox must be read-only"
+  grep -q '`--output` and' "$file" || fail "$skill must treat --output as skill-local"
+  grep -q 'do not pass them to `claude -p` or' "$file" || fail "$skill must not pass skill-local save options to peer CLI"
+  grep -q 'non-zero exit code' "$file" || fail "$skill timeout output must include exit/stderr guidance"
+  grep -q 'do not declare `CONSENSUS`' "$file" || fail "$skill must not declare consensus"
+  grep -q 'Do not automatically trigger `council-apply`' "$file" || fail "$skill must not trigger council-apply"
+}
+
 required=(
   ".claude-plugin/marketplace.json"
   ".agents/plugins/marketplace.json"
@@ -53,6 +106,13 @@ required=(
   "plugins/agent-council/.codex-plugin/plugin.json"
   "README.md"
   "README.zh-CN.md"
+  "SECURITY.md"
+  "CONTRIBUTING.md"
+  "CODE_OF_CONDUCT.md"
+  ".github/ISSUE_TEMPLATE/bug_report.md"
+  ".github/ISSUE_TEMPLATE/feature_request.md"
+  ".github/PULL_REQUEST_TEMPLATE.md"
+  "docs/RELEASE_AND_DISCOVERY.md"
   "VERSION"
 )
 
@@ -60,7 +120,7 @@ for f in "${required[@]}"; do
   require_file "$f"
 done
 
-skills=(council-open council-review council-apply council-status council-help council-version council-upgrade council-claude-p council-longrun)
+skills=(council-open council-review council-apply council-status council-help council-version council-upgrade council-peer-p council-claude-p council-longrun)
 
 for skill in "${skills[@]}"; do
   skill_file="$ROOT/plugins/agent-council/skills/$skill/SKILL.md"
@@ -68,6 +128,14 @@ for skill in "${skills[@]}"; do
 
   [ -f "$skill_file" ] || fail "Missing skill: $skill"
   [ -f "$codex_file" ] || fail "Missing Codex metadata for skill: $skill"
+  grep -q "plugins/agent-council/skills/$skill/SKILL.md" "$ROOT/FILES.md" || \
+    fail "FILES.md missing SKILL.md entry for skill: $skill"
+  grep -q "plugins/agent-council/skills/$skill/agents/openai.yaml" "$ROOT/FILES.md" || \
+    fail "FILES.md missing Codex metadata entry for skill: $skill"
+  grep -Eq "for skill in .*\\b$skill\\b" "$ROOT/install.sh" || \
+    fail "install.sh does not install skill: $skill"
+  grep -Eq "for skill in .*\\b$skill\\b" "$ROOT/uninstall.sh" || \
+    fail "uninstall.sh does not remove skill: $skill"
 
   first_line="$(sed -n '1p' "$skill_file")"
   [ "$first_line" = "---" ] || fail "SKILL.md frontmatter must start with ---: $skill_file"
@@ -85,13 +153,17 @@ done
   fail "Missing council-claude-p utility skill"
 [ -f "$ROOT/plugins/agent-council/skills/council-claude-p/agents/openai.yaml" ] || \
   fail "Missing council-claude-p Codex metadata"
+[ -f "$ROOT/plugins/agent-council/skills/council-peer-p/SKILL.md" ] || \
+  fail "Missing council-peer-p utility skill"
+[ -f "$ROOT/plugins/agent-council/skills/council-peer-p/agents/openai.yaml" ] || \
+  fail "Missing council-peer-p Codex metadata"
 [ -f "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" ] || \
   fail "Missing council-longrun skill"
 [ -f "$ROOT/plugins/agent-council/skills/council-longrun/agents/openai.yaml" ] || \
   fail "Missing council-longrun Codex metadata"
 
 if [ -d "$ROOT/plugins/agent-council/skills/claude-p" ]; then
-  fail "Deprecated claude-p skill directory must not remain; use council-claude-p"
+  fail "Deprecated claude-p skill directory must not remain; use council-peer-p or council-claude-p"
 fi
 
 if [ -d "$ROOT/plugins/agent-council/skills/council-claude" ] || \
@@ -123,14 +195,28 @@ for readme in README.md README.zh-CN.md; do
   grep -q '2026-06-03-1' "$file" || fail "$readme missing automatic topic id example"
   grep -qi 'human-invoked\|显式唤醒' "$file" || fail "$readme missing manual invocation boundary"
   grep -qi 'Optional Workflow Reminders\|可选工作流提醒' "$file" || fail "$readme missing optional workflow reminders"
-  grep -qi 'council-claude-p.*optional utility\|optional utility.*council-claude-p\|council-claude-p.*可选工具\|可选工具.*council-claude-p\|council-claude-p.*可选 utility\|可选 utility.*council-claude-p' "$file" || \
-    fail "$readme must describe council-claude-p as an optional utility"
+  grep -qi 'council-peer-p.*optional utility\|optional utility.*council-peer-p\|council-peer-p.*可选工具\|可选工具.*council-peer-p' "$file" || \
+    fail "$readme must describe council-peer-p as an optional utility"
+  grep -qi 'council-claude-p.*alias\|alias.*council-claude-p\|council-claude-p.*别名\|别名.*council-claude-p' "$file" || \
+    fail "$readme must describe council-claude-p as a compatibility alias"
+  grep -q 'council-peer-p' "$file" || \
+    fail "$readme missing council-peer-p guidance"
   grep -qi 'no substantive text\|没有实质文字' "$file" || \
-    fail "$readme missing council-claude-p empty prompt fallback"
+    fail "$readme missing peer-headless empty prompt fallback"
+  grep -q 'conversation round' "$file" || \
+    fail "$readme missing conversation round definition"
+  grep -q -- '--rounds' "$file" || \
+    fail "$readme missing --rounds guidance"
+  grep -q -- '--full' "$file" || \
+    fail "$readme missing --full guidance"
+  grep -q 'latest/council-peer-p.md' "$file" || \
+    fail "$readme missing council-peer-p topic save path"
+  grep -q 'latest/council-claude-p.md' "$file" || \
+    fail "$readme missing council-claude-p compatibility save path"
   grep -q -- '--diagnose' "$file" || \
-    fail "$readme missing council-claude-p diagnose guidance"
+    fail "$readme missing peer-headless diagnose guidance"
   grep -q '600 seconds\|600 秒' "$file" || \
-    fail "$readme missing council-claude-p 600 second timeout guidance"
+    fail "$readme missing peer-headless 600 second timeout guidance"
   grep -q 'council-longrun' "$file" || \
     fail "$readme missing council-longrun guidance"
   grep -q '.agent-council/longrun/rules.md' "$file" || \
@@ -145,44 +231,21 @@ assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## 命令$' '^## 解决什�
 assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## 基本流程$' '^## Topic Id$'
 assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## Claude Code$' '^## Codex$'
 assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## Codex$' '^## 基本流程$'
-assert_no_utility_in_range "$ROOT/docs/USAGE.md" '^## Commands$' '^## Optional utility: council-claude-p$'
+assert_no_utility_in_range "$ROOT/docs/USAGE.md" '^## Commands$' '^## Optional utility: council-peer-p$'
 assert_no_utility_in_range "$ROOT/docs/USAGE.md" '^## Open a topic$' '^## Notes$'
-assert_no_utility_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 命令$' '^## 可选工具：council-claude-p$'
+assert_no_utility_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 命令$' '^## 可选工具：council-peer-p$'
 assert_no_utility_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 开启话题$' '^## 说明$'
 
-grep -q 'claude -p' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p skill must document claude -p"
-grep -q 'command -v claude' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p skill must check local claude CLI"
-grep -q 'not part of the Agent Council review loop' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must be outside Council loop"
-grep -q 'Agent Council does not install Claude Code' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must clarify Claude Code install boundary"
-grep -q 'The user-facing skill command is `council-claude-p`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must document user-facing command"
-grep -q 'latest/council-claude-p.md' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p missing topic save path"
-grep -q 'do not write `.agent-council/` paths through `--output`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p --output must not write Council paths"
-grep -q 'any `Bash(...)` pattern' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must warn on Bash allowed-tools"
-grep -q 'Council Claude P status: starting' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce starting status"
-grep -q 'Council Claude P status: running' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must provide running status updates"
-grep -q 'Council Claude P status: completed' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce completed status"
-grep -q 'Council Claude P status: timed out' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must announce timeout status"
-grep -q '15 to' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must define status update interval"
-grep -q 'Default timeout: 600 seconds (10 minutes)' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p default timeout must be 600 seconds"
-grep -q 'Timeout: 600s' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p status template must show 600s timeout"
-grep -q '30 seconds' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p diagnose ping should stay short"
-grep -q 'Whitespace-only input and punctuation-only input do not count as a prompt' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must ignore empty punctuation-only prompts"
-grep -q 'most recent substantive visible chat message' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must use recent visible chat fallback"
-grep -q 'Do not invent context' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not invent missing context"
-grep -q -- '--diagnose' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must support diagnose mode"
-grep -q 'Council Claude P diagnose' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must define diagnose output"
-grep -q 'Reply with exactly: council-claude-p-ok' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p diagnose must include ping prompt"
-grep -q 'non-zero exit code' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p timeout output must include exit/stderr guidance"
-grep -q 'do not declare `CONSENSUS`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not declare consensus"
-grep -q 'Do not automatically trigger `council-apply`' "$ROOT/plugins/agent-council/skills/council-claude-p/SKILL.md" || fail "council-claude-p must not trigger council-apply"
+assert_peer_headless_skill council-claude-p
+assert_peer_headless_skill council-peer-p
 grep -q 'at most three short multiple-choice questions' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must use short choices"
 grep -q '.agent-council/longrun/rules.md' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must write rules.md"
 grep -q 'use subagents' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define subagent use"
-grep -q 'council-claude-p' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define claude-p use"
+grep -q 'council-peer-p' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define peer-p use"
 grep -q 'pause_for_human' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define human pause rules"
 grep -q 'Do not start long-run mode automatically' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must preserve manual boundary"
 
-grep -q 'lightweight, manual latest-turn bridge' "$ROOT/README.md" || \
+grep -q 'lightweight, manual recent-round bridge' "$ROOT/README.md" || \
   fail "README.md missing lightweight manual bridge positioning"
 grep -q 'preserves consensus without polluting project files' "$ROOT/README.md" || \
   fail "README.md missing clean project files positioning"
@@ -220,6 +283,20 @@ PY
 
 grep -q "Current version: $VERSION" "$ROOT/README.md" || fail "README.md version does not match VERSION"
 grep -q "当前版本：$VERSION" "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md version does not match VERSION"
+grep -q '60 Second Demo' "$ROOT/README.md" || fail "README.md missing 60 second demo"
+grep -q '60 秒演示' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing 60 second demo"
+grep -q 'Security Model' "$ROOT/README.md" || fail "README.md missing security model"
+grep -q '安全模型' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing security model"
+grep -q 'does not collect tokens' "$ROOT/SECURITY.md" || fail "SECURITY.md missing token boundary"
+grep -q 'does not upload code' "$ROOT/SECURITY.md" || fail "SECURITY.md missing upload boundary"
+grep -q 'does not automatically call Claude Code, Codex' "$ROOT/SECURITY.md" || fail "SECURITY.md missing auto-call boundary"
+grep -q 'council-peer-p' "$ROOT/SECURITY.md" || fail "SECURITY.md missing optional peer utility boundary"
+grep -q 'manual bridge' "$ROOT/CONTRIBUTING.md" || fail "CONTRIBUTING.md missing project scope"
+grep -q 'Expected Behavior' "$ROOT/CODE_OF_CONDUCT.md" || fail "CODE_OF_CONDUCT.md missing expected behavior"
+grep -q 'Manual Boundary' "$ROOT/.github/PULL_REQUEST_TEMPLATE.md" || fail "PR template missing manual boundary checklist"
+grep -q 'GitHub Topics' "$ROOT/docs/RELEASE_AND_DISCOVERY.md" || fail "Release checklist missing GitHub topics"
+grep -q 'Claude Plugin Directory Submission' "$ROOT/docs/RELEASE_AND_DISCOVERY.md" || fail "Release checklist missing Claude directory guidance"
+grep -q 'Codex Marketplace And Community' "$ROOT/docs/RELEASE_AND_DISCOVERY.md" || fail "Release checklist missing Codex community guidance"
 grep -q "Agent Council v$VERSION" "$ROOT/docs/USAGE.md" || fail "docs/USAGE.md version does not match VERSION"
 grep -q "Agent Council v$VERSION" "$ROOT/docs/USAGE.zh-CN.md" || fail "docs/USAGE.zh-CN.md version does not match VERSION"
 grep -q "Agent Council v$VERSION" "$ROOT/plugins/agent-council/skills/council-help/SKILL.md" || fail "council-help version does not match VERSION"
@@ -229,6 +306,10 @@ grep -q -- '--doctor' "$ROOT/plugins/agent-council/skills/council-status/SKILL.m
 grep -q 'Side effects' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing Side effects"
 grep -q 'Verdict: {state}' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing compact verdict-first output"
 grep -q 'maximum 500 words' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing handoff size budget"
+grep -q 'bare `-n` or bare `--rounds`' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open must define bare -n/--rounds"
+grep -q 'system/developer instructions, tool schemas, hidden chain-of-thought' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open must exclude hidden runtime context"
+grep -q -- '--full' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open must support --full"
+grep -q 'open-full-context.md' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open --full must write a full-context attachment"
 grep -q 'maximum 500 words' "$ROOT/plugins/agent-council/skills/council-review/SKILL.md" || fail "council-review missing handoff size budget"
 grep -q 'topic id is optional' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing optional topic-id rule"
 grep -q '{YYYY-MM-DD}-{n}' "$ROOT/plugins/agent-council/skills/council-open/SKILL.md" || fail "council-open missing generated topic-id format"

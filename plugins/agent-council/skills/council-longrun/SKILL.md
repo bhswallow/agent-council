@@ -18,7 +18,7 @@ Examples:
 
 `council-longrun` configures a user-approved long-run rule set. It tells future
 work when to continue by self-judgment, when to use subagents, when to use
-`council-claude-p`, when to use both, and when to pause for a human decision.
+`council-peer-p` / `council-claude-p`, when to use both, and when to pause for a human decision.
 
 This skill does not run the long task by itself. It only records the rules the
 user chose and returns a compact summary. Future work may follow those rules
@@ -28,7 +28,7 @@ Manual invocation boundary:
 
 - Run only when the user explicitly invokes `council-longrun`.
 - Do not start long-run mode automatically.
-- Do not invoke `council-claude-p` while configuring rules.
+- Do not invoke `council-peer-p` or `council-claude-p` while configuring rules.
 - Do not spawn subagents while configuring rules.
 - Do not modify formal project files.
 - Do not commit, push, merge, deploy, or enter the next workflow stage.
@@ -74,23 +74,23 @@ Recommended default: `balanced`.
 Choices:
 
 - `balanced`: self-judge Green work; use subagents for Yellow; use both
-  subagents and `council-claude-p` for important Red; pause for human gates.
+  subagents and `council-peer-p` for important Red; pause for human gates.
 - `fast`: self-judge Green and most Yellow; use subagents only for clear Red;
   pause mostly for irreversible operations.
 - `strict`: use subagents for Yellow; use both for most Red; pause more often.
 
-### Question 2: Claude-p Use
+### Question 2: Peer-p Use
 
 Recommended default: `strategic`.
 
 Choices:
 
-- `strategic`: use `council-claude-p` for design, plan, release readiness,
+- `strategic`: use `council-peer-p` for design, plan, release readiness,
   security boundary, and major tradeoff checks.
-- `implementation`: also use `council-claude-p` for cross-module
+- `implementation`: also use `council-peer-p` for cross-module
   implementation risk, complex diffs, and weak test coverage.
-- `manual`: do not automatically use `council-claude-p`; only use it when the
-  user explicitly asks.
+- `manual`: do not automatically use `council-peer-p`; only use it when the
+  user explicitly asks. `council-claude-p` remains accepted as a compatibility alias.
 
 ### Question 3: Human Pause
 

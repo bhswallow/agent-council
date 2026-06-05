@@ -4,20 +4,35 @@
     README.zh-CN.md
     VERSION
     CHANGELOG.md
+    CODE_OF_CONDUCT.md
+    CONTRIBUTING.md
     LICENSE
+    SECURITY.md
     .gitignore
     .gitignore.example
+    .github/ISSUE_TEMPLATE/bug_report.md
+    .github/ISSUE_TEMPLATE/feature_request.md
+    .github/PULL_REQUEST_TEMPLATE.md
     .claude-plugin/marketplace.json
     .agents/plugins/marketplace.json
     plugins/agent-council/.claude-plugin/plugin.json
     plugins/agent-council/.codex-plugin/plugin.json
     plugins/agent-council/skills/council-open/SKILL.md
+    plugins/agent-council/skills/council-open/agents/openai.yaml
     plugins/agent-council/skills/council-review/SKILL.md
+    plugins/agent-council/skills/council-review/agents/openai.yaml
     plugins/agent-council/skills/council-apply/SKILL.md
+    plugins/agent-council/skills/council-apply/agents/openai.yaml
     plugins/agent-council/skills/council-status/SKILL.md
+    plugins/agent-council/skills/council-status/agents/openai.yaml
     plugins/agent-council/skills/council-help/SKILL.md
+    plugins/agent-council/skills/council-help/agents/openai.yaml
     plugins/agent-council/skills/council-upgrade/SKILL.md
+    plugins/agent-council/skills/council-upgrade/agents/openai.yaml
     plugins/agent-council/skills/council-version/SKILL.md
+    plugins/agent-council/skills/council-version/agents/openai.yaml
+    plugins/agent-council/skills/council-peer-p/SKILL.md
+    plugins/agent-council/skills/council-peer-p/agents/openai.yaml
     plugins/agent-council/skills/council-claude-p/SKILL.md
     plugins/agent-council/skills/council-claude-p/agents/openai.yaml
     plugins/agent-council/skills/council-longrun/SKILL.md
@@ -26,6 +41,7 @@
     docs/USAGE.zh-CN.md
     docs/PROTOCOL.md
     docs/PROTOCOL.zh-CN.md
+    docs/RELEASE_AND_DISCOVERY.md
     install.sh
     uninstall.sh
     validate.sh

@@ -1,12 +1,12 @@
 {
   "name": "agent-council",
-  "version": "2.8.0",
-  "description": "A lightweight latest-turn bridge for manual Claude Code and Codex review loops.",
+  "version": "2.10.0",
+  "description": "A lightweight recent-round bridge for manual Claude Code and Codex review loops.",
   "license": "MIT",
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent Council",
-    "shortDescription": "Latest-turn bridge for Claude Code and Codex reviews",
+    "shortDescription": "Recent-round bridge for Claude Code and Codex reviews",
     "category": "Development",
     "capabilities": [
       "Read",

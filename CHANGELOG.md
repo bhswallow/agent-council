@@ -1,5 +1,35 @@
 # Changelog
 
+## 2.10.0
+
+- Tightened the README first screen with a short positioning statement, quick
+  install paths, a three-command demo, and a security model summary.
+- Added repository health files: `SECURITY.md`, `CONTRIBUTING.md`,
+  `CODE_OF_CONDUCT.md`, issue templates, and a PR template.
+- Added `docs/RELEASE_AND_DISCOVERY.md` with release, demo, GitHub topic,
+  Claude directory, and Codex marketplace/community checklists.
+- Added `council-peer-p` as the neutral peer-headless utility command.
+- Kept `council-claude-p` as a backward-compatible alias.
+- From Codex, the utility continues to call Claude Code through `claude -p`.
+- From Claude Code, the utility now calls Codex through
+  `codex exec --sandbox read-only`.
+- Added Codex-specific peer options such as `--codex-model`,
+  `--codex-profile`, and `--codex-sandbox`.
+- `council-peer-p --topic` saves to `latest/council-peer-p.md`; the historical
+  `council-claude-p` alias keeps `latest/council-claude-p.md`.
+
+## 2.9.0
+
+- Added `-n` / `--rounds` and `--full` context selection to `council-open`
+  and `council-claude-p`.
+- Defined a conversation round as one user message plus the immediately
+  following Codex or Claude Code reply.
+- Kept `council-open --full` lightweight by storing full visible source text in
+  a separate `open-full-context.md` attachment while latest handoffs remain
+  compact.
+- Updated docs, help, protocol, and validation from latest-turn wording to
+  recent-round behavior.
+
 ## 2.8.0
 
 - Added `council-longrun` to configure explicit long-run self-review rules with

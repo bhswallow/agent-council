@@ -1,10 +1,10 @@
 # Usage
 
-Agent Council v2.8.0 is a latest-turn bridge.
+Agent Council v2.10.0 is a recent-round bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
-Agent Council is a lightweight, manual latest-turn bridge for Claude Code and
+Agent Council is a lightweight, manual recent-round bridge for Claude Code and
 Codex. It records what one tool wants the other to review, lets the peer reply,
 and preserves consensus without polluting project files.
 
@@ -23,7 +23,7 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
 
 ## Commands
 
-    council-open [topic-id] [-- handoff note]
+    council-open [topic-id] [--overwrite] [-n[=N|all]|--rounds[=N|all]] [--full] [-- handoff note]
     council-review {topic_id} [CONSENSUS] [-- review instruction]
     council-apply {topic_id} [-- apply instruction]
     council-status [topic-id|all] [--doctor]
@@ -58,22 +58,33 @@ helpers, or pause for a human decision.
     $council-longrun
     $council-longrun --show
 
-## Optional utility: council-claude-p
+## Optional utility: council-peer-p
 
-`council-claude-p` is not part of the Council main flow. It is a one-shot utility for
-running the Claude Code native headless command `claude -p` when the local
-`claude` CLI is installed and available in `PATH`.
+`council-peer-p` is not part of the Council main flow. It is a one-shot utility
+for calling the peer tool headlessly. `council-claude-p` is a backward-compatible
+alias.
 
-Use `$council-claude-p ...` as the skill command. The underlying subprocess is
-Claude Code's native `claude -p`.
+From Codex, it runs Claude Code through `claude -p`. From Claude Code, it runs
+Codex through `codex exec --sandbox read-only`.
 
-It does not require Codex CLI. It does not write Council topics or project
+It requires the peer CLI to be installed and available in `PATH`: `claude` from
+Codex, or `codex` from Claude Code. It does not write Council topics or project
 files by default.
 
 If a substantive prompt is provided, it sends that prompt. If no substantive
-prompt is provided, it uses the most recent substantive visible chat message as
-context and asks Claude for a focused one-shot review. Whitespace-only and
+prompt is provided, it uses the selected recent visible conversation rounds as
+context and asks the peer for a focused one-shot review. Whitespace-only and
 punctuation-only input do not count as a prompt.
+
+A conversation round means one user message plus the immediately following
+Codex or Claude Code reply. By default `council-peer-p` uses the latest 1
+round as summarized context. Use `-n` / `--rounds` to choose more visible
+rounds, and add `--full` only when the peer should receive the selected visible
+text verbatim.
+
+Range selection only uses visible user/assistant chat text. It does not include
+system/developer instructions, tool schemas, hidden reasoning, or other
+internal runtime context.
 
 It cannot read an unlimited Codex or Claude chat transcript by itself. The
 default headless review timeout is 600 seconds (10 minutes). Report timeout/no
@@ -82,30 +93,45 @@ output clearly.
 It should also show status updates while running, including starting, elapsed
 running time, completed, timed out, or no-output states.
 
-If `claude -p` times out or returns no useful output, run
-`$council-claude-p --diagnose`. Diagnose mode checks `command -v claude`,
-`claude --version`, and a short read-only `claude -p` ping. It writes no files.
+If the peer command times out or returns no useful output, run
+`$council-peer-p --diagnose`. Diagnose mode checks the detected peer command,
+version, and a short read-only ping. It writes no files.
 
 Examples:
 
-    $council-claude-p
-    $council-claude-p --diagnose
+    $council-peer-p
+    $council-peer-p --diagnose
+    $council-peer-p -n=3 "Review the recent plan for blockers."
+    /council-peer-p --codex-model gpt-5 "Review the latest plan for blockers."
+    $council-claude-p --rounds=all --full "Summarize the visible conversation and call out risks."
     $council-claude-p "Review docs/design.md for blockers."
-    $council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
+    $council-peer-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 
 ## Open a topic
 
-    $council-open retry-design -- Use my latest answer as the handoff.
+    $council-open retry-design -- Use the latest visible round as the handoff.
 
 Or let Council choose the topic id:
 
-    $council-open -- Use my latest answer as the handoff.
+    $council-open -- Use the latest visible round as the handoff.
 
 The skill writes the handoff under `.agent-council/active/retry-design/`.
 
-Latest handoffs should stay under 500 words or 20 bullets. Compress long source
-turns to decisions, evidence, blockers, open questions, and requested peer
-focus.
+A conversation round means one user message plus the immediately following
+Codex or Claude Code reply. By default `council-open` uses the latest 1 visible
+round. Use `-n` / `--rounds` to select more visible rounds:
+
+    $council-open -n=10 -- Review the recent plan changes.
+    $council-open retry-design --rounds=all --full -- Preserve the visible context and review blockers.
+
+Latest handoffs should stay under 500 words or 20 bullets. Without `--full`,
+compress selected rounds to decisions, evidence, blockers, open questions, and
+requested peer focus. With `--full`, write full visible source text to a
+separate `turns/{turn_number}-{agent}-open-full-context.md` attachment and keep
+latest handoffs short.
+
+Even in `--full` mode, only visible user/assistant chat text is eligible for
+the attachment.
 
 ## Review the peer's latest handoff
 

@@ -1,5 +1,5 @@
 ---
-name: council-claude-p
+name: council-peer-p
 description: Run the peer tool headlessly: Claude Code from Codex, or Codex from Claude Code.
 disable-model-invocation: true
 ---
@@ -456,7 +456,7 @@ If the user explicitly asks to save the result to a file:
   and confirms it.
 - do not write `.agent-council/` paths through `--output`;
 - if the user wants to save under a Council topic, require `--topic {topic_id}`
-  and write only `.agent-council/active/{topic_id}/latest/council-claude-p.md`.
+  and write only `.agent-council/active/{topic_id}/latest/council-peer-p.md`.
 
 If the user explicitly asks to save the result to a Council topic, require an
 explicit topic id:
@@ -478,13 +478,21 @@ Validate the topic id before writing:
 Save the result to:
 
 ```text
+.agent-council/active/{topic_id}/latest/council-peer-p.md
+```
+
+If the user invoked the historical alias `council-claude-p`, keep the
+compatibility save path instead:
+
+```text
 .agent-council/active/{topic_id}/latest/council-claude-p.md
 ```
 
 When saving to a Council topic:
 
 - create parent directories if needed;
-- write only `latest/council-claude-p.md`;
+- write only `latest/council-peer-p.md` for `council-peer-p`, or
+  `latest/council-claude-p.md` for the historical alias;
 - never update Council governance files such as `status.md`, `consensus.md`,
   `latest/for-peer.md`, `topic.md`, `index.md`, or `turns/` from this utility;
 - state that this is a peer-headless external review result, not the same thing
@@ -518,7 +526,7 @@ If saved to a Council topic, include:
 
 ```text
 Saved external peer-headless review:
-.agent-council/active/{topic_id}/latest/council-claude-p.md
+.agent-council/active/{topic_id}/latest/council-peer-p.md
 
 This is not a Council consensus and not an interactive Council review.
 ```

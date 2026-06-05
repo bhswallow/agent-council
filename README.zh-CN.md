@@ -1,19 +1,95 @@
 # Agent Council
 
-当前版本：2.8.0
+当前版本：2.10.0
 
-Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
-它不自动调用另一个工具，只负责把当前工具的最新观点、评审请求和最终共识落盘，
-让另一个工具可以接住。
+Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板，按最近可见对话轮次交接上下文。
+
+当一个工具希望另一个工具评审最新理由、风险提醒或共识时使用它。
+
+它不会自动调用另一个工具，只会把很小的 topic 状态写入 `.agent-council/`，
+并把控制权留给用户。
+
+## 60 秒演示
+
+```text
+# Codex 开启一个给 Claude Code 的交接。
+$council-open checkout-design -- 请让 Claude Code 评审这个最新设计决策。
+
+# Claude Code 只评审 blocker。
+/council-review checkout-design -- 只评审阻塞问题。
+
+# Codex 判断能否收敛。
+$council-review checkout-design CONSENSUS -- 如果没有 blocker，请收敛成共识。
+```
+
+结果会保存到：
+
+```text
+.agent-council/active/checkout-design/consensus.md
+```
+
+## 快速安装
+
+standalone 项目安装：
+
+```sh
+./install.sh /path/to/your/project
+```
+
+Claude Code plugin：
+
+```text
+/plugin marketplace add bhswallow/agent-council
+/plugin install agent-council@agent-council-marketplace
+/reload-plugins
+```
+
+Codex plugin：
+
+```sh
+codex plugin marketplace add bhswallow/agent-council
+```
+
+然后打开 Codex，执行 `/plugins`，选择 Agent Council marketplace，安装
+`agent-council`。
+
+## 什么时候用
+
+适合在阶段边界、卡点、或某个决策需要另一个工具评审时使用。不要每个 task 都用。
 
 它不是流程引擎，而是一个带少量防错护栏的共享记事板。
 它必须由用户显式唤醒，不应自动叫停任务、自动创建 topic，或插入普通 task 步骤之间。
+
+更多细节见 [docs/USAGE.zh-CN.md](docs/USAGE.zh-CN.md) 和
+[docs/PROTOCOL.zh-CN.md](docs/PROTOCOL.zh-CN.md)。
+
+## 安全模型
+
+Agent Council：
+
+- 不收集 token；
+- 不上传代码；
+- 不默认执行远程命令；
+- 不自动调用 Claude Code 或 Codex；
+- 把本地 topic 状态保存在 `.agent-council/`；
+- 只有用户显式运行可选工具时，才会使用 `council-peer-p` /
+  `council-claude-p`。
+
+报告问题和信任边界见 [SECURITY.md](SECURITY.md)。
+
+## 仓库健康文件
+
+- 贡献指南：[CONTRIBUTING.md](CONTRIBUTING.md)
+- 行为规范：[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Issue 模板：[.github/ISSUE_TEMPLATE](.github/ISSUE_TEMPLATE)
+- PR 模板：[.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md)
+- release 和目录提交清单：[docs/RELEASE_AND_DISCOVERY.md](docs/RELEASE_AND_DISCOVERY.md)
 
 ## 命令
 
 Agent Council 的评审环路刻意保持简单：
 
-- `council-open` 开启一个 topic，并记录当前交接内容。
+- `council-open` 开启一个 topic，并记录所选最近轮次交接内容。
   topic-id 可以省略。
 - `council-review` 读取对方最新交接内容并给出评审或回应。
 - `council-apply` 把已经达成一致的结果应用到正式项目文件。
@@ -123,14 +199,14 @@ $council-longrun
 
 - 由当前 agent 自己判断并继续；
 - 使用 subagents；
-- 使用 `council-claude-p`；
-- 同时使用 subagents 和 `council-claude-p`；
+- 使用 `council-peer-p` / `council-claude-p`；
+- 同时使用 subagents 和 `council-peer-p`；
 - 暂停并交给人类判断下一步。
 
 推荐默认值是：
 
 - mode: `balanced`；
-- `council-claude-p`: 只用于战略性或高风险检查；
+- `council-peer-p`: 只用于战略性或高风险检查；
 - human pause: commit、push、merge、deploy、删除数据、权限/安全变更、
   接受 blocker、扩大 scope 等不可逆 gate。
 
@@ -146,9 +222,9 @@ Agent Council 是直接调用工具的补充，不是替代品。
 
 | 工具 | 解决什么 | 优点 | 取舍 | 适合场景 |
 | --- | --- | --- | --- | --- |
-| Agent Council | 手动 latest-turn 交接、互评、共识保存 | 文件显式、设置轻、不隐藏调用、`council-apply` 前不污染项目文件 | 需要用户手动切到另一个工具；不是即时互调；不自动获取对方回答 | 需要可追溯决策记录和明确 apply 边界 |
+| Agent Council | 手动 recent-round 交接、互评、共识保存 | 文件显式、设置轻、不隐藏调用、`council-apply` 前不污染项目文件 | 需要用户手动切到另一个工具；不是即时互调；不自动获取对方回答 | 需要可追溯决策记录和明确 apply 边界 |
 | Claude Code 中的 Codex 插件 | 在 Claude Code 里直接问 Codex，做一次性 review 或替代方案 | 快速获得第二意见，不必离开 Claude Code | 需要额外配置；可能有 token/API 成本；除非写记录，否则不如 Council 可追溯 | 速度比可审计交接更重要 |
-| Codex 中通过 `claude -p` 调 Claude | 在 Codex 中非交互调用 Claude Code | 适合脚本化检查、JSON review、类似 CI 的单轮任务 | 需要打包 prompt/context；Claude 的权限、计费和限制独立 | 任务天然是一次性脚本调用 |
+| 通过 `council-peer-p` 调对方工具 | 从 Codex 调 Claude，或从 Claude Code 调 Codex | 适合脚本化检查、JSON review、类似 CI 的单轮任务 | 需要打包 prompt/context；对方工具的认证、计费和限制独立 | 任务天然是一次性脚本调用 |
 
 可以组合使用：先用直接调用快速探路，只有当结果需要成为共享决策时，再用 Agent Council 落盘。
 
@@ -158,76 +234,95 @@ Agent Council 是直接调用工具的补充，不是替代品。
 - [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage)
 - [Run Claude Code programmatically](https://code.claude.com/docs/en/headless)
 
-## 可选工具：council-claude-p
+## 可选工具：council-peer-p
 
-`council-claude-p` 是 optional utility（可选工具），不是 Agent Council 主流程的一部分。
-Council 主流程仍然是 `council-open`、`council-review`、`council-apply`、
-`council-status` 和 `council-help`。
+`council-peer-p` 是 optional utility（可选工具），不是 Agent Council 主流程的一部分。
+`council-claude-p` 作为历史兼容别名继续可用。Council 主流程仍然是
+`council-open`、`council-review`、`council-apply`、`council-status` 和
+`council-help`。
 
-`council-claude-p` 封装的是 Claude Code 原生 headless 命令 `claude -p`。
-这个命令来自 Claude Code / Anthropic，不来自 Codex 或 OpenAI。
+这个工具会 headless 调用“对方工具”：
+
+- 在 Codex 中运行时，调用 Claude Code 的 `claude -p`。
+- 在 Claude Code 中运行时，调用 Codex 的 `codex exec --sandbox read-only`。
 
 使用前提和边界：
 
-- 用户显式调用的 Agent Council skill 命令是 `council-claude-p`。
-- 底层子进程才是 Claude Code 原生命令 `claude -p`。
-- 用户本机必须已经安装 Claude Code CLI。
-- 本机 `claude` 命令必须在 `PATH` 中可用。
-- 它不依赖 Codex CLI。
-- 它不负责安装或配置 Claude Code。
-- 它只会收到 skill 选中的 prompt/context，不能自己读取无限制的 Codex 或 Claude Code 聊天记录。
+- 新调用推荐使用 `council-peer-p`；`council-claude-p` 仍然兼容。
+- 对方 CLI 必须已经安装并在 `PATH` 中可用。
+- 从 Codex 调用时，对方命令是 `claude`。
+- 从 Claude Code 调用时，对方命令是 `codex`。
+- Agent Council 不负责安装或配置 Claude Code 或 Codex。
+- 对方工具只会收到 skill 选中的 prompt/context，不能自己读取无限制的 Codex 或 Claude Code 聊天记录。
+- 支持用 `-n` / `--rounds` 选择最近可见 conversation rounds，并用 `--full`
+  发送所选可见文本全文。
 - 默认不写 Council topic。
-- 默认不修改项目文件。
+- 默认不修改项目文件；从 Claude Code 调 Codex 时默认使用 `--sandbox read-only`。
 - 不会声明 consensus，也不会触发 `council-apply`。
-- 应使用有界 timeout；超时时要明确说明没有拿到 Claude 分析结果。
+- 应使用有界 timeout；超时时要明确说明没有拿到对方分析结果。
 - 普通 headless review 默认 timeout 是 600 秒（10 分钟）。
-- 当 `claude -p` 超时或没有输出时，可以用 `--diagnose` 做短诊断，检查 CLI、
-  auth/ping 是否正常。
+- `--diagnose` 会对当前检测到的对方 CLI 做短诊断。
 - 运行时应输出状态：`starting`、`running`、`completed`、`timed out` 或
   `no output`。
 
 示例：
 
 ```text
+$council-peer-p
+$council-peer-p --diagnose
+$council-peer-p -n=3 "Review the recent plan for blockers."
+/council-peer-p --codex-model gpt-5 "Review the latest plan for blockers."
 $council-claude-p
-$council-claude-p --diagnose
+$council-claude-p --rounds=all --full "Summarize the visible conversation and call out risks."
 $council-claude-p "Review docs/design.md for blockers and missing tests."
 $council-claude-p --output-format json "Summarize the current repository risks."
 $council-claude-p --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
-$council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
+$council-peer-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 ```
 
-如果 `$council-claude-p` 后面没有实质文字，只有空白或标点也会被视为没有
-prompt。此时 skill 会取当前可见聊天中最近一条有实质内容的消息作为上下文，
-自动组织一个适合 Claude 的单轮 review 问题，例如检查 blocker、遗漏假设、风险，
-以及是否适合继续推进。它应根据当前 topic 和语种调整问题，而不是套固定模板。
+如果 `$council-peer-p` 后面没有实质文字，只有空白或标点也会被视为没有
+prompt。此时 skill 会取所选最近可见 conversation rounds 作为上下文，自动组织一个
+适合对方工具的单轮 review 问题，例如检查 blocker、遗漏假设、风险，以及是否适合继续
+推进。它应根据当前 topic 和语种调整问题，而不是套固定模板。
+
+conversation round 指一条用户消息，加上紧随其后的 Codex 或 Claude Code 回复。
+默认使用最近 1 个可见 round 的摘要。用 `-n` / `--rounds` 可以选择更多可见轮次；
+只有希望对方收到所选可见文本全文时，才加 `--full`。`--allowed-tools` 和
+`--output-format` 只在从 Codex 调 Claude 时有效；Codex 分支可用
+`--codex-model`、`--codex-profile` 和 `--codex-sandbox`。
 
 只有当你明确希望保存到 Council topic 时，才使用 `--topic {topic_id}`。
 保存路径是：
 
 ```text
+.agent-council/active/{topic_id}/latest/council-peer-p.md
+```
+
+历史兼容别名 `council-claude-p` 继续使用兼容路径：
+
+```text
 .agent-council/active/{topic_id}/latest/council-claude-p.md
 ```
 
-这个文件只是保存在 topic 下的外部 `council-claude-p` 附件，不等同于 Claude Code
-交互式 Council review。若要进入标准 Council 互审循环，仍需手动运行
-`council-open` / `council-review`。
+这个文件只是保存在 topic 下的外部 peer-headless 附件，不等同于交互式 Council
+review。若要进入标准 Council 互审循环，仍需手动运行 `council-open` /
+`council-review`。
 
-如果你希望 Claude 总结更长的历史聊天，请把相关内容粘贴到 prompt，或保存成文件后在
-prompt 中引用该文件。headless `claude -p` 只会收到 skill 选中的 prompt/context，
-不能自己读取无限制的 Codex 当前聊天记录。
+如果你希望对方工具总结更长的历史聊天，请把相关内容粘贴到 prompt，或保存成文件后在
+prompt 中引用该文件。headless 对方命令只会收到 skill 选中的 prompt/context，
+不能自己读取无限制的当前聊天记录。
 
-`council-claude-p` 不应该让用户盯着空白等待。它应该在 headless 进程启动时提示，
+`council-peer-p` 不应该让用户盯着空白等待。它应该在 headless 进程启动时提示，
 运行中报告已等待时间，结束时明确说明是完成、超时，还是没有输出。
 
 如果它超时或没有有用输出，可以运行：
 
 ```text
-$council-claude-p --diagnose
+$council-peer-p --diagnose
 ```
 
-诊断模式会检查本机 `claude` 路径、`claude --version`，以及一个只读的短
-`claude -p` ping。它不会写 Council topic，也不会修改项目文件。
+诊断模式会检查检测到的对方命令路径、版本，以及一个只读短 ping：`claude -p` 或
+`codex exec --sandbox read-only`。它不会写 Council topic，也不会修改项目文件。
 
 ## Topic 文件
 
@@ -251,11 +346,30 @@ $council-claude-p --diagnose
 默认只读取当前 topic 和对方最新内容。
 除非你明确要求，不应该扫描全部 turns、archive 或无关项目文件。
 
+## 对话轮次
+
+conversation round 指一条用户消息，加上紧随其后的 Codex 或 Claude Code 回复。
+这和 Council 目录里的 `turns/` 不同：`turns/` 是某个 agent 执行一次 Council
+命令后的紧凑记录文件。
+
+支持上下文范围的命令使用：
+
+- 不传 `-n` / `--rounds`：最近 1 个可见 conversation round；
+- 单独传 `-n` 或 `--rounds`：最近 1 个可见 conversation round；
+- `-n=10` 或 `--rounds=10`：最近 10 个可见 round；
+- `-n=all` 或 `--rounds=all`：当前聊天窗口里全部可见的用户/助手 round。
+
+默认使用摘要。`--full` 才保留或发送所选可见文本全文。全文模式也只使用可见的
+用户/助手聊天文本，不包含 system/developer 指令、tool schema、隐藏推理或其他内部
+运行时上下文。
+
 ## 轻量护栏
 
 Agent Council 保持轻量，但使用少量高收益护栏：
 
 - `council-open` 可以在用户省略 topic-id 时自动生成。
+- `council-open` 支持 `-n` / `--rounds` 和 `--full`，用于选择最近可见
+  conversation rounds。
 - agent id 统一为小写：`claude` 和 `codex`。
 - 文件路径使用小写 agent id：
   `latest/claude.md`、`latest/codex.md`、`turns/0005-claude-review.md`。
@@ -294,14 +408,14 @@ $council-open -- 请评审最新方案。
 
 ## Handoff 大小预算
 
-bridge 默认读取 latest，因此 latest 文件必须保持短。
+bridge 默认读取最近 1 个可见 conversation round，因此 latest 文件必须保持短。
 
 写入 `latest/{agent}.md` 和 `latest/for-peer.md` 时，控制在：
 
 - 500 words 以内；或
 - 20 bullets 以内。
 
-如果原始内容更长，只保留：
+不传 `--full` 时，如果所选轮次更长，只保留：
 
 - decisions；
 - evidence；
@@ -310,6 +424,10 @@ bridge 默认读取 latest，因此 latest 文件必须保持短。
 - requested peer focus。
 
 不要因为旧 latest 里有很多细节，就把它们继续滚动带到下一轮。
+
+使用 `council-open --full` 时，把可见源文本全文写入单独的
+`turns/{turn_number}-{agent}-open-full-context.md` 附件，`latest/{agent}.md`
+和 `latest/for-peer.md` 仍保持短摘要。
 
 ## Topic 状态
 
@@ -522,8 +640,8 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 ```text
 /council-help
 /council-version
-/council-open -- 使用最近一次回复作为给对方评审的交接内容。
-/council-open retry-design -- 使用最近一次回复作为给对方评审的交接内容。
+/council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
+/council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
 /council-review retry-design -- 判断当前下一步是否合理。
 /council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛成共识。
 /council-apply retry-design -- 将共识应用到相关文件。
@@ -548,8 +666,8 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 ```text
 /agent-council:council-help
 /agent-council:council-version
-/agent-council:council-open -- 使用最近一次回复作为给对方评审的交接内容。
-/agent-council:council-open retry-design -- 使用最近一次回复作为给对方评审的交接内容。
+/agent-council:council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
+/agent-council:council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
 /agent-council:council-review retry-design
 /agent-council:council-apply retry-design
 /agent-council:council-status retry-design
@@ -568,8 +686,8 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 ```text
 $council-help
 $council-version
-$council-open -- 使用最近一次回复作为给对方评审的交接内容。
-$council-open retry-design -- 使用最近一次回复作为给对方评审的交接内容。
+$council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
+$council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
 $council-review retry-design -- 判断当前下一步是否合理。
 $council-review retry-design CONSENSUS -- 如果只剩非阻塞问题，请收敛成共识。
 $council-apply retry-design -- 将共识应用到相关文件。
@@ -594,8 +712,8 @@ codex plugin marketplace add bhswallow/agent-council
 ```text
 $council-help
 $council-version
-$council-open -- 使用最近一次回复作为给对方评审的交接内容。
-$council-open retry-design -- 使用最近一次回复作为给对方评审的交接内容。
+$council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
+$council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
 $council-review retry-design
 $council-apply retry-design
 $council-status retry-design

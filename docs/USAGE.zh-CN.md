@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.8.0 是一个“最新一轮交接”桥梁。
+Agent Council v2.10.0 是一个“最近轮次交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -21,7 +21,7 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
 
 ## 命令
 
-    council-open [topic-id] [-- 交接说明]
+    council-open [topic-id] [--overwrite] [-n[=N|all]|--rounds[=N|all]] [--full] [-- 交接说明]
     council-review {topic_id} [CONSENSUS] [-- 评审要求]
     council-apply {topic_id} [-- 应用要求]
     council-status [topic-id|all] [--doctor]
@@ -54,20 +54,26 @@ turn 连续性、过期 consensus、status/consensus 漂移。
     $council-longrun
     $council-longrun --show
 
-## 可选工具：council-claude-p
+## 可选工具：council-peer-p
 
-`council-claude-p` 不是 Council 主流程的一部分。它是一次性工具，用于在本机已经安装
-Claude Code CLI 且 `claude` 在 `PATH` 中可用时，运行 Claude Code 原生
-headless 命令 `claude -p`。
+`council-peer-p` 不是 Council 主流程的一部分。它是一次性工具，用来 headless
+调用对方工具。`council-claude-p` 作为历史兼容别名继续可用。
 
-用户输入 `$council-claude-p ...` 作为 skill 命令。底层子进程才是 Claude Code
-原生命令 `claude -p`。
+在 Codex 中运行时，它通过 `claude -p` 调 Claude Code。在 Claude Code 中运行时，
+它通过 `codex exec --sandbox read-only` 调 Codex。
 
-它不依赖 Codex CLI。默认不写 Council topic，也不修改项目文件。
+它要求对方 CLI 已安装并在 `PATH` 中可用：从 Codex 调用时需要 `claude`，从
+Claude Code 调用时需要 `codex`。默认不写 Council topic，也不修改项目文件。
 
-如果提供了实质 prompt，它会发送该 prompt。如果没有提供实质 prompt，它会取当前可见聊天中
-最近一条有实质内容的消息作为上下文，让 Claude 做一次聚焦 review。只有空白或标点不算
-prompt。
+如果提供了实质 prompt，它会发送该 prompt。如果没有提供实质 prompt，它会取所选最近可见
+conversation rounds 作为上下文，让对方工具做一次聚焦 review。只有空白或标点不算 prompt。
+
+conversation round 指一条用户消息，加上紧随其后的 Codex 或 Claude Code 回复。
+默认使用最近 1 轮摘要。用 `-n` / `--rounds` 可以选择更多可见轮次；只有希望对方
+收到所选可见文本全文时，才加 `--full`。
+
+范围选择只使用可见的用户/助手聊天文本，不包含 system/developer 指令、tool schema、
+隐藏推理或其他内部运行时上下文。
 
 它不能自己读取无限制的 Codex 或 Claude 聊天记录。普通 headless review 默认 timeout 是
 600 秒（10 分钟）。超时或无输出时要明确说明没有拿到分析结果。
@@ -75,29 +81,41 @@ prompt。
 运行中也应输出状态，包括 starting、已等待时间、completed、timed out 或
 no-output 状态。
 
-如果 `claude -p` 超时或没有有用输出，运行 `$council-claude-p --diagnose`。
-诊断模式会检查 `command -v claude`、`claude --version`，以及一个只读的短
-`claude -p` ping。它不会写文件。
+如果对方命令超时或没有有用输出，运行 `$council-peer-p --diagnose`。
+诊断模式会检查检测到的对方命令、版本，以及一个只读短 ping。它不会写文件。
 
 示例：
 
-    $council-claude-p
-    $council-claude-p --diagnose
+    $council-peer-p
+    $council-peer-p --diagnose
+    $council-peer-p -n=3 "Review the recent plan for blockers."
+    /council-peer-p --codex-model gpt-5 "Review the latest plan for blockers."
+    $council-claude-p --rounds=all --full "Summarize the visible conversation and call out risks."
     $council-claude-p "Review docs/design.md for blockers."
-    $council-claude-p --topic product-l1-gate "Review the latest Council handoff for blockers."
+    $council-peer-p --topic product-l1-gate "Review the latest Council handoff for blockers."
 
 ## 开启话题
 
-    $council-open retry-design -- 使用我最近一次回复作为交接内容。
+    $council-open retry-design -- 使用最近一个可见对话轮次作为交接内容。
 
 也可以让 Council 自动选择 topic-id：
 
-    $council-open -- 使用我最近一次回复作为交接内容。
+    $council-open -- 使用最近一个可见对话轮次作为交接内容。
 
 skill 会把交接内容写入 `.agent-council/active/retry-design/`。
 
-latest handoff 应控制在 500 words 或 20 bullets 以内。原始内容较长时，
-只保留 decisions、evidence、blockers、open questions 和 requested peer focus。
+conversation round 指一条用户消息，加上紧随其后的 Codex 或 Claude Code 回复。
+默认使用最近 1 个可见 round。用 `-n` / `--rounds` 可以选择更多可见轮次：
+
+    $council-open -n=10 -- Review the recent plan changes.
+    $council-open retry-design --rounds=all --full -- Preserve the visible context and review blockers.
+
+latest handoff 应控制在 500 words 或 20 bullets 以内。不传 `--full` 时，
+把所选轮次压缩成 decisions、evidence、blockers、open questions 和 requested peer
+focus。传 `--full` 时，把可见源文本全文写入单独的
+`turns/{turn_number}-{agent}-open-full-context.md` 附件，latest handoff 仍保持短摘要。
+
+即使使用 `--full`，附件里也只允许包含可见的用户/助手聊天文本。
 
 ## 评审对方最新内容
 
