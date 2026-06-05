@@ -35,9 +35,19 @@ The rules may tell future work when to:
 - use both subagents and `council-peer-p`;
 - pause for a human decision.
 
+The default human-pause policy should be `git_safe`: normal requested
+add/commit/push may continue after checks pass, while force-push, merge/rebase,
+deploy/release, destructive actions, broad `git add .`, unclear branch/remote,
+and unrequested git operations still pause.
+
+Legacy `human_pause_policy: irreversible` paused for normal commit and push.
+Treat it as an older rule set and recommend rerunning `council-longrun` to
+migrate.
+
 The rules apply only after the user has authorized ongoing work. They do not
-authorize new scope, formal project changes outside the task, or irreversible
-operations. Running `council-longrun` again redefines the rules.
+authorize new scope, formal project changes outside the task, or dangerous git,
+release, deploy, data-loss, or security-boundary operations. Running
+`council-longrun` again redefines the rules.
 
 ## Peer headless utility
 

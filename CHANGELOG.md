@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.10.1
+
+- Expanded `council-longrun` prompts with localized, concrete explanations for
+  every mode, peer review, and human-pause/git option.
+- Changed the recommended human-pause/git policy to `git_safe`, allowing
+  user-requested precise add/commit/push after checks pass while still pausing
+  for force-push, merge/rebase, release/deploy, broad staging, destructive
+  actions, unclear branch/remote, and unrequested git operations.
+- Updated longrun rules schema guidance to write `peer_review_policy` and
+  `use_peer_p`, with old `claude_p_policy`, `use_claude_p`, and
+  `irreversible` rules treated as legacy migration-only fields.
+- Added validation to prevent vague longrun option prompts and to keep normal
+  requested commit/push out of the default pause lists.
+
 ## 2.10.0
 
 - Tightened the README first screen with a short positioning statement, quick

@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.10.0
+当前版本：2.10.1
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板，按最近可见对话轮次交接上下文。
 
@@ -205,16 +205,38 @@ $council-longrun
 
 推荐默认值是：
 
-- mode: `balanced`；
-- `council-peer-p`: 只用于战略性或高风险检查；
-- human pause: commit、push、merge、deploy、删除数据、权限/安全变更、
-  接受 blocker、扩大 scope 等不可逆 gate。
+- mode: `balanced`：低风险的已授权工作可继续；中等不确定、跨文件风险、覆盖不清时用
+  subagents；高风险架构、发布、安全/权限边界、blocker 解决时同时用 subagents 和
+  `council-peer-p`；
+- `council-peer-p`: `strategic`：只在设计、计划、发布前、安全/权限边界、重大取舍时跑
+  对方 headless review，不用于普通小改动；
+- human pause / git: `git_safe`：用户已要求 git 收尾且检查通过时，普通
+  add/commit/push 可以完成；危险或不清楚的操作仍会暂停。
+
+其他选项也会明确说明：
+
+- mode `fast`：更自主；
+- mode `strict`：review checkpoint 更多；
+- peer review `implementation`：代码层面的实现风险也交给 peer review；
+- peer review `manual`：除非你明确要求，否则不跑 peer review；
+- human pause `product`：产品或 UX 取舍前也暂停；
+- human pause `strict`：commit/push 也会问，除非本轮请求已经明确授权对应 git 操作。
+
+使用 `git_safe` 时，如果用户已经明确授权 git 收尾并且检查通过，可以继续执行精确
+`git add` 目标文件、`git commit`、以及 push 到目标 branch/remote。它会在
+force-push、merge/rebase、deploy/release、删除数据、删除分支、宽泛 `git add .`、
+权限/安全变更、未解决 blocker、扩大 scope、branch/remote 不清楚、或用户没有授权的
+git 操作前暂停。
+
+旧规则里可能会看到 `human_pause_policy: irreversible`。这个旧设置会在普通 commit
+和 push 前暂停，所以 git 收尾看起来会“卡住”。重新运行 `council-longrun` 可迁移到
+`git_safe`。
 
 再次运行 `council-longrun` 可以重新定义规则。
 运行 `council-longrun --show` 可以查看当前规则。
 
 这些规则只适用于用户已经授权的连续工作，不授权新的 scope，也不授权越过人类确认去执行
-不可逆操作。
+危险 git、发布、删除数据或安全边界变更。
 
 ## 如何选择工具
 

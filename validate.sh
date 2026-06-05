@@ -99,6 +99,46 @@ assert_peer_headless_skill() {
   grep -q 'Do not automatically trigger `council-apply`' "$file" || fail "$skill must not trigger council-apply"
 }
 
+assert_longrun_default_yaml() {
+  file="$1"
+  awk '
+    /^## Default Mapping$/ { in_section = 1; next }
+    in_section && /^```yaml$/ { in_yaml = 1; next }
+    in_yaml && /^```$/ { exit }
+    in_yaml {
+      if ($0 ~ /^use_peer_p:/) saw_peer = 1
+      if ($0 ~ /^(use_claude_p|claude_p_policy):/) bad_legacy = 1
+      if ($0 ~ /^human_pause_policy: irreversible/) bad_legacy = 1
+
+      if ($0 ~ /^git_finalization:/) in_git = 1
+      if (in_git && $0 ~ /^  pause_for:/) {
+        in_git_pause = 1
+        next
+      }
+      if (in_git_pause && $0 ~ /^  [^ -]/) in_git_pause = 0
+      if (in_git_pause && $0 ~ /^[^ ]/) in_git_pause = 0
+
+      if ($0 ~ /^pause_for_human:/) {
+        in_human_pause = 1
+        next
+      }
+      if (in_human_pause && $0 ~ /^[^ -]/) in_human_pause = 0
+
+      if (in_git_pause && $0 ~ /^[[:space:]]*-[[:space:]]*(commit|push|git_commit|git_push|commit_and_push|normal_commit_push)([[:space:]#]|$)/) {
+        bad_git_pause = 1
+      }
+      if (in_human_pause && $0 ~ /^[[:space:]]*-[[:space:]]*(commit|push|git_commit|git_push|commit_and_push|normal_commit_push)([[:space:]#]|$)/) {
+        bad_human_pause = 1
+      }
+    }
+    END {
+      if (!saw_peer || bad_legacy || bad_git_pause || bad_human_pause) {
+        exit 1
+      }
+    }
+  ' "$file" || fail "council-longrun default YAML must use v2 peer fields and must not pause ordinary commit/push"
+}
+
 required=(
   ".claude-plugin/marketplace.json"
   ".agents/plugins/marketplace.json"
@@ -239,11 +279,30 @@ assert_no_utility_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 开启话题$' '^## 
 assert_peer_headless_skill council-claude-p
 assert_peer_headless_skill council-peer-p
 grep -q 'at most three short multiple-choice questions' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must use short choices"
+grep -q 'Each option' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun options must explain behavior"
+grep -q 'Use the user'"'"'s current language' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must localize option explanations"
+grep -q 'Question Presentation Templates' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must include localized prompt templates"
+grep -q 'Peer review / council-peer-p 使用策略' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label Chinese peer strategy clearly"
+grep -q 'Human pause / Git 收尾策略' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label Chinese git strategy clearly"
+grep -q 'Peer review / council-peer-p strategy' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label English peer strategy clearly"
+grep -q 'Human pause / Git finalization' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label English git strategy clearly"
 grep -q '.agent-council/longrun/rules.md' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must write rules.md"
 grep -q 'use subagents' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define subagent use"
 grep -q 'council-peer-p' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define peer-p use"
 grep -q 'pause_for_human' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define human pause rules"
+grep -q 'human_pause_policy: git_safe' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun default must be git_safe"
+grep -q '^use_peer_p:' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun v2 schema must use use_peer_p"
+! grep -q '^use_claude_p:' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun v2 schema must not write use_claude_p"
+grep -q 'normal_commit_push: allowed_when_user_requested_and_checks_pass' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must allow requested normal commit/push"
+grep -q 'normal user-authorized git finalization may continue' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must allow requested git finalization"
+grep -q 'Legacy `irreversible` paused for normal `commit` and `push`' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must explain legacy irreversible git pause"
+grep -q 'default and legacy' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must make git_safe a default/migration target, not override selected policy"
+grep -q 'version: 2' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun rules schema must be version 2"
 grep -q 'Do not start long-run mode automatically' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must preserve manual boundary"
+assert_longrun_default_yaml "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md"
+grep -q 'default mix is `balanced` review intensity, `strategic` peer review' "$ROOT/docs/USAGE.md" || fail "docs/USAGE.md must explain longrun defaults"
+grep -q '默认组合是 `balanced` 复审强度、`strategic`' "$ROOT/docs/USAGE.zh-CN.md" || fail "docs/USAGE.zh-CN.md must explain longrun defaults"
+! grep -q 'irreversible operations' "$ROOT/README.md" || fail "README.md must not use vague irreversible operations wording"
 
 grep -q 'lightweight, manual recent-round bridge' "$ROOT/README.md" || \
   fail "README.md missing lightweight manual bridge positioning"

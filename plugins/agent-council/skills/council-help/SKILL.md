@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.10.0 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.10.1 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -72,7 +72,8 @@ Agent Council v2.10.0 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `council-longrun` 只记录用户显式选择的长跑规则，不会自行启动 task 或越过 human gate。
 
 长跑规则：
-- 用几个选择题定义哪些情况自己继续、用 subagents、用 `council-peer-p`、两者都用、或暂停给人。
+- 用几个带说明的选择题定义哪些情况自己继续、用 subagents、用 `council-peer-p`、两者都用、或暂停给人。
+- 默认组合是 `balanced` + `strategic` + `git_safe`：低风险已授权工作可继续；peer review 只用于设计/发布/安全/重大取舍；用户已要求 git 收尾且检查通过时，精确 add/commit/push 可继续。force-push、merge/rebase、deploy/release、宽泛 `git add .`、branch/remote 不清楚等仍会暂停。
 - 规则保存到 `.agent-council/longrun/rules.md`。
 - 再次运行 `council-longrun` 可重新定义规则。
 
@@ -98,7 +99,7 @@ Agent Council v2.10.0 是 Claude Code 与 Codex 之间的轻量手动交接板�
 
 ## English help
 
-Agent Council v2.10.0 is a lightweight, manual recent-round bridge for Claude Code and Codex.
+Agent Council v2.10.1 is a lightweight, manual recent-round bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
@@ -146,7 +147,8 @@ Rule of thumb:
 - `council-longrun` only records user-selected long-run rules; it does not start tasks or bypass human gates.
 
 Longrun rules:
-- A few choices define when to self-continue, use subagents, use `council-peer-p`, use both, or pause for a human.
+- A few explained choices define when to self-continue, use subagents, use `council-peer-p`, use both, or pause for a human.
+- The default mix is `balanced` + `strategic` + `git_safe`: low-risk approved work may continue; peer review is reserved for design/release/security/major tradeoffs; precise add/commit/push may continue after the user requested git finalization and checks pass. Force-push, merge/rebase, deploy/release, broad `git add .`, unclear branch/remote, and similar risks still pause.
 - Rules are saved to `.agent-council/longrun/rules.md`.
 - Run `council-longrun` again to redefine them.
 

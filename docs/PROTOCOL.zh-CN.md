@@ -34,8 +34,16 @@ Council 必须由用户显式唤醒。它不能自动叫停任务、自动创建
 - 同时使用 subagents 和 `council-peer-p`；
 - 暂停并交给人类判断。
 
+默认 human-pause 策略应为 `git_safe`：用户已经要求 git 收尾并且检查通过时，普通
+精确 add/commit/push 可以继续；force-push、merge/rebase、deploy/release、破坏性操作、
+宽泛 `git add .`、branch/remote 不清楚、或用户未授权的 git 操作仍会暂停。
+
+旧的 `human_pause_policy: irreversible` 会在普通 commit 和 push 前暂停。遇到这种
+旧规则时，应说明它是旧规则集，并建议重新运行 `council-longrun` 迁移。
+
 这些规则只在用户已经授权连续工作的前提下生效。
-它们不授权新的 scope，不授权 task 外的正式项目修改，也不授权不可逆操作。
+它们不授权新的 scope，不授权 task 外的正式项目修改，也不授权危险 git、release、
+deploy、数据丢失或安全边界操作。
 再次运行 `council-longrun` 会重新定义规则。
 
 ## 对方 headless 工具

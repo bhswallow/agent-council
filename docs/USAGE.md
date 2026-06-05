@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.10.0 is a recent-round bridge.
+Agent Council v2.10.1 is a recent-round bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -51,9 +51,13 @@ turn continuity, stale consensus, and status/consensus drift.
 such as `2026-06-03-1`.
 
 Use `council-longrun` to configure explicit long-run self-review rules. It asks
-a few short choices and saves `.agent-council/longrun/rules.md`. The rules
-decide when future authorized work should self-judge, use configured review
-helpers, or pause for a human decision.
+a few short explained choices and saves `.agent-council/longrun/rules.md`. The
+default mix is `balanced` review intensity, `strategic` peer review, and
+`git_safe` human pause / git finalization. That means low-risk approved work
+can continue, peer headless review is saved for design/release/security/major
+tradeoff checks, and normal requested add/commit/push may continue after checks
+pass. Force-push, merge/rebase, deploy/release, destructive actions, broad
+staging, unclear branch/remote, and unrequested git operations still pause.
 
     $council-longrun
     $council-longrun --show

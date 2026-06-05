@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.10.0 是一个“最近轮次交接”桥梁。
+Agent Council v2.10.1 是一个“最近轮次交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -47,9 +47,12 @@ turn 连续性、过期 consensus、status/consensus 漂移。
 `council-open` 可以省略 topic-id。省略时会自动生成类似 `2026-06-03-1`
 的日期序号名称。
 
-使用 `council-longrun` 可以配置显式长跑自审规则。它会用几个简短选择题生成
-`.agent-council/longrun/rules.md`。这些规则决定后续已授权工作什么时候自己判断、
-什么时候使用已配置的 review helper，什么时候暂停交给人。
+使用 `council-longrun` 可以配置显式长跑自审规则。它会用几个带说明的简短选择题生成
+`.agent-council/longrun/rules.md`。默认组合是 `balanced` 复审强度、`strategic`
+peer review、以及 `git_safe` human pause / git 收尾：低风险已授权工作可继续，
+peer headless review 只用于设计/发布/安全/重大取舍检查，用户已要求 git 收尾且检查
+通过时可以继续精确 add/commit/push。force-push、merge/rebase、deploy/release、
+破坏性操作、宽泛 staging、branch/remote 不清楚、或用户未授权的 git 操作仍会暂停。
 
     $council-longrun
     $council-longrun --show

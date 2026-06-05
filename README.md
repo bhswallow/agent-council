@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.10.0
+Current version: 2.10.1
 
 Agent Council is a lightweight, manual recent-round bridge for teams using
 Claude Code and Codex in the same repository.
@@ -223,17 +223,43 @@ The rules decide which events should:
 
 Recommended defaults are:
 
-- mode: `balanced`;
-- `council-peer-p`: strategic or high-risk checks only;
-- human pause: irreversible gates such as commit, push, merge, deploy, deleting
-  data, permission/security changes, accepting blockers, or expanding scope.
+- mode: `balanced`: continue low-risk approved work, use subagents for moderate
+  ambiguity or cross-file risk, and use both subagents and `council-peer-p` for
+  high-risk architecture, release, security, or blocker checkpoints;
+- `council-peer-p`: `strategic`: use peer headless review for design, plan,
+  release, security/permission boundaries, and major tradeoffs, not ordinary
+  small edits;
+- human pause / git: `git_safe`: requested add/commit/push can finish after
+  checks pass, while dangerous or unclear operations still pause.
+
+Other choices are explicit too:
+
+- mode `fast`: more autonomous;
+- mode `strict`: more review checkpoints;
+- peer review `implementation`: add peer checks for code-level risk;
+- peer review `manual`: never run peer review unless asked;
+- human pause `product`: also pause for product or UX tradeoffs;
+- human pause `strict`: ask before commit/push unless the current request
+  explicitly authorized that exact git operation.
+
+With `git_safe`, normal user-authorized git finalization may continue after
+checks pass: precise `git add` of intended files, `git commit`, and `git push`
+to the intended branch/remote. It pauses for force-push, merge/rebase,
+deploy/release, deleting data, deleting branches, broad `git add .`,
+permission/security changes, unresolved blockers, expanding scope, unclear
+branch/remote, or unrequested git operations.
+
+Older rules may show `human_pause_policy: irreversible`. That legacy setting
+paused for normal commit and push, which can make git finishing appear stuck.
+Rerun `council-longrun` to migrate to `git_safe`.
 
 Run `council-longrun` again to redefine the rules. Run
 `council-longrun --show` to inspect the active rules.
 
 These rules apply only when the user has already authorized ongoing work. They
-do not authorize new scope, formal project changes outside the task, or
-irreversible operations.
+do not authorize new scope, formal project changes outside the task, force-push,
+merge/rebase, release/deploy, data deletion, branch deletion, or
+security-boundary changes.
 
 ## Choosing A Bridge
 
