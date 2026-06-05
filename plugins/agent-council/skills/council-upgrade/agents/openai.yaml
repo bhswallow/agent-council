@@ -1,5 +1,5 @@
-policy:
+interface:
   display_name: "Council Upgrade"
   short_description: "Upgrade Agent Council."
-  invocation_phrases: []
+policy:
   allow_implicit_invocation: false

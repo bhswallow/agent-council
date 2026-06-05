@@ -1,5 +1,5 @@
-policy:
+interface:
   display_name: "Council Review"
   short_description: "Review or reply to a peer handoff."
-  invocation_phrases: []
+policy:
   allow_implicit_invocation: false

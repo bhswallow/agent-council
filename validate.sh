@@ -48,15 +48,13 @@ assert_codex_implicit_invocation_disabled() {
 
 assert_codex_discovery_metadata() {
   file="$1"
-  ! grep -q '^interface:$' "$file" || \
-    fail "Do not use top-level interface metadata in $file; Codex command discovery expects policy metadata"
   awk '
-    /^policy:$/ { in_policy = 1; next }
-    in_policy && /^[^[:space:]]/ { in_policy = 0 }
-    in_policy && /^  display_name: / { saw_display = 1 }
-    in_policy && /^  short_description: / { saw_description = 1 }
+    /^interface:$/ { in_interface = 1; next }
+    in_interface && /^[^[:space:]]/ { in_interface = 0 }
+    in_interface && /^  display_name: / { saw_display = 1 }
+    in_interface && /^  short_description: / { saw_description = 1 }
     END { exit (saw_display && saw_description) ? 0 : 1 }
-  ' "$file" || fail "Missing policy display metadata in $file"
+  ' "$file" || fail "Missing interface display metadata in $file"
 }
 
 assert_shell_skill_loop_contains() {

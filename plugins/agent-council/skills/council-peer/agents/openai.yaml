@@ -1,5 +1,5 @@
-policy:
+interface:
   display_name: "Council Peer"
   short_description: "Run peer headless review."
-  invocation_phrases: []
+policy:
   allow_implicit_invocation: false

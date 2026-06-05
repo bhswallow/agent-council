@@ -1,5 +1,5 @@
-policy:
+interface:
   display_name: "Council"
   short_description: "Show Agent Council command index."
-  invocation_phrases: []
+policy:
   allow_implicit_invocation: false

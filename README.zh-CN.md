@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.10.8
+当前版本：2.10.9
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板，按最近可见对话轮次交接上下文。
 

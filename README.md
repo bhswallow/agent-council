@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.10.8
+Current version: 2.10.9
 
 Agent Council is a lightweight, manual recent-round bridge for teams using
 Claude Code and Codex in the same repository.

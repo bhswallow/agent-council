@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.10.9
+
+- Restored Codex skill discovery metadata to the top-level `interface:` shape
+  used by the original visible `claude-p` command and by current bundled Codex
+  plugins.
+- Kept `policy.allow_implicit_invocation: false` so commands remain explicit
+  while the command picker can index display metadata correctly.
+
 ## 2.10.8
 
 - Added `council-longrun --template` to print a long-running task startup

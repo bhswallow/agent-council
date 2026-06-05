@@ -1,5 +1,5 @@
-policy:
+interface:
   display_name: "Council Status"
   short_description: "Show topic status."
-  invocation_phrases: []
+policy:
   allow_implicit_invocation: false
