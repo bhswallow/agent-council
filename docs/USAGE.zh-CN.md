@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.10.3 是一个“最近轮次交接”桥梁。
+Agent Council v2.10.4 是一个“最近轮次交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。

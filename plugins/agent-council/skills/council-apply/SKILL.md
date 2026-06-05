@@ -1,7 +1,6 @@
 ---
 name: council-apply
 description: Apply an Agent Council consensus or latest agreed result to project files.
-disable-model-invocation: true
 ---
 
 # Council Apply

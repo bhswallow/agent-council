@@ -1,7 +1,6 @@
 ---
 name: council-help
 description: Show concise help for Agent Council in English or Chinese.
-disable-model-invocation: true
 ---
 
 # Council Help
@@ -24,7 +23,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.10.3 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.10.4 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -105,7 +104,7 @@ Agent Council v2.10.3 是 Claude Code 与 Codex 之间的轻量手动交接板�
 
 ## English help
 
-Agent Council v2.10.3 is a lightweight, manual recent-round bridge for Claude Code and Codex.
+Agent Council v2.10.4 is a lightweight, manual recent-round bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.

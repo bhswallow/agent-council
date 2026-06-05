@@ -1,7 +1,6 @@
 ---
 name: council-version
 description: Show the installed Agent Council version and upgrade hints.
-disable-model-invocation: true
 ---
 
 # Council Version
@@ -27,7 +26,7 @@ workflow mechanics. This skill only reports the active installed version.
 
 Report:
 
-- installed version: `2.10.3`
+- installed version: `2.10.4`
 - whether this appears to be standalone or plugin usage, if the path is visible
 - if `--check` is present, compare against:
 
@@ -69,7 +68,7 @@ codex plugin remove agent-council@agent-council-marketplace
 Keep it short:
 
 ```text
-Agent Council v2.10.3
+Agent Council v2.10.4
 ```
 
 If `--check` is used, add latest-version status and one upgrade hint.

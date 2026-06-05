@@ -1,7 +1,6 @@
 ---
 name: council-open
 description: Open a lightweight Agent Council topic using selected recent conversation rounds as the peer handoff.
-disable-model-invocation: true
 ---
 
 # Council Open

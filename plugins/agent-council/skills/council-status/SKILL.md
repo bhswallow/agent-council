@@ -1,7 +1,6 @@
 ---
 name: council-status
 description: Show or update the status of Agent Council topics.
-disable-model-invocation: true
 ---
 
 # Council Status

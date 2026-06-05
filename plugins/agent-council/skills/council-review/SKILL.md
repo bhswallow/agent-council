@@ -1,7 +1,6 @@
 ---
 name: council-review
 description: Review the peer's latest Agent Council handoff and write the current agent's latest reply.
-disable-model-invocation: true
 ---
 
 # Council Review

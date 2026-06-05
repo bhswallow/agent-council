@@ -1,7 +1,6 @@
 ---
 name: council-upgrade
 description: Check or explicitly upgrade Agent Council standalone installs and explain plugin upgrade steps.
-disable-model-invocation: true
 ---
 
 # Council Upgrade

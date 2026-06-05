@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.10.4
+
+- Removed `disable-model-invocation: true` from Council skills so explicit
+  Codex commands such as `$council-peer-p` remain visible after plugin install.
+- Kept `allow_implicit_invocation: false` in Codex metadata so Council skills
+  remain user-invoked and do not auto-trigger.
+
 ## 2.10.3
 
 - Added `council-uninstall` for explicit check/apply uninstall workflows.

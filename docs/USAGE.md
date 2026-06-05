@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.10.3 is a recent-round bridge.
+Agent Council v2.10.4 is a recent-round bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 

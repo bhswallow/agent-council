@@ -1,7 +1,6 @@
 ---
 name: council-uninstall
 description: Check or explicitly uninstall Agent Council standalone installs and explain plugin uninstall steps.
-disable-model-invocation: true
 ---
 
 # Council Uninstall

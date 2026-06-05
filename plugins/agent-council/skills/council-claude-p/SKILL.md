@@ -1,7 +1,6 @@
 ---
 name: council-claude-p
 description: Run the peer tool headlessly: Claude Code from Codex, or Codex from Claude Code.
-disable-model-invocation: true
 ---
 
 # Council Peer P

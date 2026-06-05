@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.10.3
+Current version: 2.10.4
 
 Agent Council is a lightweight, manual recent-round bridge for teams using
 Claude Code and Codex in the same repository.
@@ -589,9 +589,11 @@ make. It should not route another peer-review round.
 If the state is `BLOCKED`, it says apply is not allowed unless the user
 explicitly overrides the risk.
 
-`disable-model-invocation: true` only means Claude Code will not auto-trigger a
-skill. It does not affect whether the skill tells the user what command to run
-next. Next-step guidance is controlled by `council-review` output rules.
+Codex skill metadata uses `allow_implicit_invocation: false` so Council commands
+stay user-invoked and do not auto-trigger. Do not use
+`disable-model-invocation: true` for Council skills, because that hides explicit
+commands such as `$council-peer-p` from Codex's available skill list. Next-step
+guidance is controlled by `council-review` output rules.
 
 Council next-step guidance is advisory and topic-scoped. It must not be treated
 as permission to stop, resume, chain, commit, push, merge, deploy, or enter the

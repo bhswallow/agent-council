@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.10.3
+当前版本：2.10.4
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板，按最近可见对话轮次交接上下文。
 
@@ -535,8 +535,9 @@ $council-apply {topic_id} -- Apply the consensus.
 
 如果状态是 `BLOCKED`，必须说明不能 apply，除非用户明确覆盖风险。
 
-`disable-model-invocation: true` 只表示 Claude Code 不会自动触发该 skill。
-它不影响 skill 执行后是否告诉用户下一步命令。
+Codex skill metadata 使用 `allow_implicit_invocation: false`，确保 Council 命令只能由用户显式唤醒，
+不会自动触发。不要给 Council skills 使用 `disable-model-invocation: true`，
+因为这会让 `$council-peer-p` 这类显式命令从 Codex 可用 skill 列表里消失。
 下一步命令由 `council-review` 的输出规则决定。
 
 Council 的 next-step guidance 只是当前 topic 内的建议。

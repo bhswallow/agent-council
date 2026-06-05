@@ -4,13 +4,13 @@
     "name": "Agent Council Maintainers"
   },
   "description": "Marketplace for the Agent Council workflow plugin.",
-  "version": "2.10.3",
+  "version": "2.10.4",
   "plugins": [
     {
       "name": "agent-council",
       "source": "./plugins/agent-council",
       "description": "A lightweight recent-round bridge for manual Claude Code and Codex review loops.",
-      "version": "2.10.3",
+      "version": "2.10.4",
       "category": "Development",
       "tags": [
         "skills",

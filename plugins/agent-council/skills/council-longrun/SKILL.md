@@ -1,7 +1,6 @@
 ---
 name: council-longrun
 description: Configure when long-running work uses subagents, council-peer-p, or both for assisted judgment.
-disable-model-invocation: true
 ---
 
 # Council Longrun

@@ -166,8 +166,8 @@ for skill in "${skills[@]}"; do
     fail "SKILL.md frontmatter must close with standalone --- in first 10 lines: $skill_file"
 
   frontmatter="$(skill_frontmatter "$skill_file")"
-  printf '%s\n' "$frontmatter" | grep -qx 'disable-model-invocation: true' || \
-    fail "Missing disable-model-invocation: true in SKILL.md frontmatter: $skill_file"
+  ! printf '%s\n' "$frontmatter" | grep -qx 'disable-model-invocation: true' || \
+    fail "Do not set disable-model-invocation: true; explicit skill invocation must remain visible: $skill_file"
 
   assert_codex_implicit_invocation_disabled "$codex_file"
 done
@@ -211,7 +211,7 @@ for readme in README.md README.zh-CN.md; do
   for state in CONSENSUS CONSENSUS_WITH_NITS USER_FORCED_CONSENSUS NEEDS_DISCUSSION USER_DECISION_NEEDED BLOCKED APPLIED CLOSED ABANDONED; do
     grep -q "$state" "$file" || fail "$readme missing state documentation: $state"
   done
-  grep -q 'disable-model-invocation' "$file" || fail "$readme missing disable-model-invocation explanation"
+  grep -q 'allow_implicit_invocation: false' "$file" || fail "$readme missing implicit invocation guard explanation"
   grep -q 'Next action' "$file" || fail "$readme missing Next action explanation"
   grep -q 'Side effects' "$file" || fail "$readme missing Side effects explanation"
   grep -q 'latest/claude.md' "$file" || fail "$readme missing lowercase claude path guidance"
