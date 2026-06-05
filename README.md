@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.10.2
+Current version: 2.10.3
 
 Agent Council is a lightweight, manual recent-round bridge for teams using
 Claude Code and Codex in the same repository.
@@ -108,8 +108,9 @@ Support commands are also explicit:
 - `council-version` prints the installed version.
 - `council-upgrade` checks for updates and can update standalone installs when
   explicitly run with `--apply`.
-- `council-longrun` configures explicit long-run self-review and human-pause
-  rules.
+- `council-uninstall` previews or explicitly removes standalone installs.
+- `council-longrun` configures explicit long-run assisted-judgment rules:
+  when to use subagents, peer headless review, or both before continuing.
 
 `council-respond` was removed in v2.0.2. Use `council-review` for review,
 response, rebuttal, confirmation, and consensus. The installer also removes
@@ -199,67 +200,69 @@ Continuing without Council unless you ask for it.
 
 ## Longrun Rules
 
-Use `council-longrun` when you want to define how future authorized long-running
-work should self-review with less repeated human input:
+Use `council-longrun` when you want future authorized long-running work to use
+assisted judgment before continuing, with less repeated human input:
 
 ```text
 $council-longrun
 ```
 
-The skill asks a few short multiple-choice questions, then saves the active
+The skill asks three grouped multiple-choice questions, then saves the active
 rules to:
 
 ```text
 .agent-council/longrun/rules.md
 ```
 
-The rules decide which events should:
+The rules decide when future work should use:
 
-- continue by self-judgment;
-- use subagents;
-- use `council-peer-p` / `council-claude-p`;
-- use both subagents and `council-peer-p`;
-- pause for a human decision.
+- subagents for local or technical judgment;
+- `council-peer-p` / `council-claude-p` for independent peer judgment;
+- both subagents and `council-peer-p` together for complex or high-risk
+  judgment.
+
+`council-longrun` does not configure when to interrupt the user. Interruption
+points still belong to the surrounding workflow, user instructions, tool
+policy, credentials, sandbox, deployment process, or other external hard gates.
+When the workflow would otherwise ask for judgment, these rules make the agent
+run the configured assistance first. If the assisted recommendation is clear,
+inside the user-authorized scope, and no external hard gate applies, continue.
 
 Recommended defaults are:
 
-- mode: `balanced`: continue low-risk approved work, use subagents for moderate
-  ambiguity or cross-file risk, and use both subagents and `council-peer-p` for
-  high-risk architecture, release, security, or blocker checkpoints;
-- `council-peer-p`: `strategic`: use peer headless review for design, plan,
-  release, security/permission boundaries, and major tradeoffs, not ordinary
-  small edits;
-- human pause / git: `git_safe`: requested add/commit/push can finish after
-  checks pass, while dangerous or unclear operations still pause.
+- subagents: `balanced`: use subagents for moderate ambiguity, cross-file
+  changes, unclear test coverage, or uncertain implementation paths;
+- peer review: `strategic`: use `council-peer-p` for design, plan, release,
+  security/permission boundaries, and major tradeoffs, not ordinary small
+  edits;
+- combined assistance: `high_risk`: use subagents plus `council-peer-p` for
+  architecture, release, security boundaries, blocker resolution, broad scope
+  changes, or hard-to-reverse choices.
 
 Other choices are explicit too:
 
-- mode `fast`: more autonomous;
-- mode `strict`: more review checkpoints;
+- subagents `light`: use subagents only for clearly complex or unclear work;
+- subagents `thorough`: use subagents for most non-trivial implementation and
+  test strategy decisions;
 - peer review `implementation`: add peer checks for code-level risk;
 - peer review `manual`: never run peer review unless asked;
-- human pause `product`: also pause for product or UX tradeoffs;
-- human pause `strict`: ask before commit/push unless the current request
-  explicitly authorized that exact git operation.
+- combined assistance `escalation`: start with one route and use both only
+  when the first route finds unresolved risk, conflicting recommendations, or
+  insufficient evidence;
+- combined assistance `intensive`: use both for most cross-module, migration,
+  data/concurrency, weak-coverage, or rollback-risk work.
 
-With `git_safe`, normal user-authorized git finalization may continue after
-checks pass: precise `git add` of intended files, `git commit`, and `git push`
-to the intended branch/remote. It pauses for force-push, merge/rebase,
-deploy/release, deleting data, deleting branches, broad `git add .`,
-permission/security changes, unresolved blockers, expanding scope, unclear
-branch/remote, or unrequested git operations.
-
-Older rules may show `human_pause_policy: irreversible`. That legacy setting
-paused for normal commit and push, which can make git finishing appear stuck.
-Rerun `council-longrun` to migrate to `git_safe`.
+Older rules may show `human_pause_policy`, `pause_for_human`, or
+`git_finalization`. Those are legacy longrun fields. New rules use
+`version: 3` and do not configure interruption or git-finalization policy.
 
 Run `council-longrun` again to redefine the rules. Run
 `council-longrun --show` to inspect the active rules.
 
 These rules apply only when the user has already authorized ongoing work. They
 do not authorize new scope, formal project changes outside the task, force-push,
-merge/rebase, release/deploy, data deletion, branch deletion, or
-security-boundary changes.
+merge/rebase, release/deploy, data deletion, branch deletion, public side
+effects, credentials access, or security-boundary changes.
 
 ## Choosing A Bridge
 
@@ -714,6 +717,38 @@ location or the active install is a plugin cache that needs reinstall/reload.
 For plugin installs, reinstall the `agent-council` plugin from the marketplace
 and reload plugins.
 
+## Uninstalling
+
+Preview standalone uninstall targets:
+
+```sh
+./uninstall.sh /path/to/your/project
+```
+
+Remove standalone skills:
+
+```sh
+./uninstall.sh /path/to/your/project --apply
+```
+
+This keeps `.agent-council/` discussion state by default. Add `--remove-state`
+only when you want to delete local Council history too. From an installed
+standalone skill, use:
+
+```text
+/council-uninstall --check
+/council-uninstall --apply
+```
+
+For Codex plugin installs:
+
+```sh
+codex plugin remove agent-council@agent-council-marketplace
+```
+
+For Claude Code plugin installs, remove `agent-council` from the plugin manager
+and reload plugins.
+
 ## Claude Code
 
 ### Standalone Project Install
@@ -733,6 +768,7 @@ Use the installer above. Then run the skills in Claude Code with short names:
 /council-upgrade --check
 /council-upgrade --apply
 /council-upgrade --apply --force
+/council-uninstall --check
 ```
 
 ### Claude Code Plugin
@@ -756,6 +792,7 @@ When installed as a plugin, Claude Code namespaces skills with the plugin name:
 /agent-council:council-apply retry-design
 /agent-council:council-status retry-design
 /agent-council:council-upgrade --check
+/agent-council:council-uninstall --check
 ```
 
 When upgrading an older plugin install, remove the old plugin if the plugin
@@ -780,6 +817,7 @@ $council-status retry-design --doctor
 $council-upgrade --check
 $council-upgrade --apply
 $council-upgrade --apply --force
+$council-uninstall --check
 ```
 
 ### Codex Plugin
@@ -804,6 +842,7 @@ $council-review retry-design
 $council-apply retry-design
 $council-status retry-design
 $council-upgrade --check
+$council-uninstall --check
 ```
 
 When upgrading an older plugin install, remove the old plugin if `/plugins`
@@ -882,7 +921,7 @@ Avoid reusing the same topic id for unrelated work.
 plugins/agent-council/                   Plugin package
 plugins/agent-council/skills/            Shared skills
 install.sh                               Local standalone installer
-uninstall.sh                             Local standalone uninstaller
+uninstall.sh                             Local standalone uninstaller, dry-run unless --apply
 docs/                                    Usage and protocol notes
 ```
 

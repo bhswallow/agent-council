@@ -53,11 +53,11 @@ install_claude() {
   # council-upgrade can make that cleanup intent explicit.
   rm -rf "$ROOT/.claude/skills/council-respond"
   rm -rf "$ROOT/.claude/skills/claude-p"
-  for skill in council-open council-review council-apply council-status council-help council-upgrade council-version council-peer-p council-claude-p council-longrun; do
+  for skill in council-open council-review council-apply council-status council-help council-upgrade council-uninstall council-version council-peer-p council-claude-p council-longrun; do
     rm -rf "$ROOT/.claude/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.claude/skills/$skill"
   done
-  for skill in council-peer-p council-claude-p council-upgrade council-help; do
+  for skill in council-peer-p council-claude-p council-upgrade council-uninstall council-help; do
     if [ ! -d "$ROOT/.claude/skills/$skill" ]; then
       echo "Required skill missing after install: $ROOT/.claude/skills/$skill" >&2
       exit 1
@@ -80,11 +80,11 @@ install_codex() {
   # council-upgrade can make that cleanup intent explicit.
   rm -rf "$ROOT/.agents/skills/council-respond"
   rm -rf "$ROOT/.agents/skills/claude-p"
-  for skill in council-open council-review council-apply council-status council-help council-upgrade council-version council-peer-p council-claude-p council-longrun; do
+  for skill in council-open council-review council-apply council-status council-help council-upgrade council-uninstall council-version council-peer-p council-claude-p council-longrun; do
     rm -rf "$ROOT/.agents/skills/$skill"
     cp -R "$SKILLS_SRC/$skill" "$ROOT/.agents/skills/$skill"
   done
-  for skill in council-peer-p council-claude-p council-upgrade council-help; do
+  for skill in council-peer-p council-claude-p council-upgrade council-uninstall council-help; do
     if [ ! -d "$ROOT/.agents/skills/$skill" ]; then
       echo "Required skill missing after install: $ROOT/.agents/skills/$skill" >&2
       exit 1

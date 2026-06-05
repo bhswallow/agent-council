@@ -15,39 +15,45 @@ When a topic finishes, Council does not chain into the next task. Control
 returns to the normal user/tool workflow.
 
 `council-longrun` is a narrow exception only because the user explicitly invokes
-it to record long-run rules. It does not start tasks, create normal Council
-topics, commit, push, merge, deploy, or bypass human gates.
+it to record long-run assisted-judgment rules. It does not start tasks, create
+normal Council topics, commit, push, merge, deploy, add human gates, remove
+human gates, or bypass external hard gates.
 
 ## Longrun rules
 
-`council-longrun` configures rules for future user-authorized ongoing work.
+`council-longrun` configures assisted-judgment rules for future
+user-authorized ongoing work.
 
 It asks a few short choices and writes:
 
     .agent-council/longrun/rules.md
     .agent-council/longrun/history.md
 
-The rules may tell future work when to:
+The rules may tell future work when to use:
 
-- continue by self-judgment;
-- use subagents;
-- use `council-peer-p` / `council-claude-p`;
-- use both subagents and `council-peer-p`;
-- pause for a human decision.
+- subagents for local or technical judgment;
+- `council-peer-p` / `council-claude-p` for independent peer judgment;
+- both subagents and `council-peer-p` for complex or high-risk judgment.
 
-The default human-pause policy should be `git_safe`: normal requested
-add/commit/push may continue after checks pass, while force-push, merge/rebase,
-deploy/release, destructive actions, broad `git add .`, unclear branch/remote,
-and unrequested git operations still pause.
+The rules must not configure when to interrupt the user. Interruption timing
+belongs to the surrounding workflow, user instructions, tool policy,
+credentials, sandbox, deployment process, or other external hard gates.
 
-Legacy `human_pause_policy: irreversible` paused for normal commit and push.
-Treat it as an older rule set and recommend rerunning `council-longrun` to
-migrate.
+When the surrounding workflow would otherwise ask for judgment, the configured
+assistance should run first. If the assisted recommendation is clear, the next
+action stays inside the user's authorized scope, and no external hard gate
+applies, continue execution.
+
+New rules use `version: 3`, `subagent_policy`, `peer_review_policy`,
+`combined_assist_policy`, `use_subagents`, `use_peer_p`, and `use_both`.
+Legacy fields such as `human_pause_policy`, `pause_for_human`, or
+`git_finalization` should be treated as older rule sets.
 
 The rules apply only after the user has authorized ongoing work. They do not
-authorize new scope, formal project changes outside the task, or dangerous git,
-release, deploy, data-loss, or security-boundary operations. Running
-`council-longrun` again redefines the rules.
+authorize new scope, formal project changes outside the task, dangerous git,
+release, deploy, data-loss, public side effects, credential access, or
+security-boundary operations. Running `council-longrun` again redefines the
+rules.
 
 ## Peer headless utility
 

@@ -29,6 +29,8 @@
     plugins/agent-council/skills/council-help/agents/openai.yaml
     plugins/agent-council/skills/council-upgrade/SKILL.md
     plugins/agent-council/skills/council-upgrade/agents/openai.yaml
+    plugins/agent-council/skills/council-uninstall/SKILL.md
+    plugins/agent-council/skills/council-uninstall/agents/openai.yaml
     plugins/agent-council/skills/council-version/SKILL.md
     plugins/agent-council/skills/council-version/agents/openai.yaml
     plugins/agent-council/skills/council-peer-p/SKILL.md

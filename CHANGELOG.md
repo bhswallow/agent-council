@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.10.3
+
+- Added `council-uninstall` for explicit check/apply uninstall workflows.
+- Made `uninstall.sh` dry-run by default; pass `--apply` to remove standalone
+  skills and `--remove-state` to remove `.agent-council/` state.
+- Changed `council-longrun` option presentation to three grouped tables with
+  consistent `A` / `B` / `C` choices, and clarified that users can reply in
+  chat instead of using a blocking chooser.
+- Refocused `council-longrun` on assisted judgment: configure when to use
+  subagents, `council-peer-p`, or both, without configuring human interruption
+  or git-finalization policy.
+
 ## 2.10.2
 
 - Added `council-upgrade --apply --force` guidance for dirty standalone

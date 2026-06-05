@@ -27,7 +27,7 @@ workflow mechanics. This skill only reports the active installed version.
 
 Report:
 
-- installed version: `2.10.2`
+- installed version: `2.10.3`
 - whether this appears to be standalone or plugin usage, if the path is visible
 - if `--check` is present, compare against:
 
@@ -51,12 +51,25 @@ upgrade, tell standalone users to run:
 
 For plugin installs, tell the user to reinstall the `agent-council` plugin from the marketplace and reload plugins.
 
+If the user wants to remove Agent Council, tell standalone users to run:
+
+```text
+/council-uninstall --check
+/council-uninstall --apply
+```
+
+For Codex plugin installs, tell them to run:
+
+```sh
+codex plugin remove agent-council@agent-council-marketplace
+```
+
 ## User-Facing Response
 
 Keep it short:
 
 ```text
-Agent Council v2.10.2
+Agent Council v2.10.3
 ```
 
 If `--check` is used, add latest-version status and one upgrade hint.

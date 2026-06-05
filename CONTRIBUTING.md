@@ -27,6 +27,7 @@ For install-script changes, also test a temporary project install:
 tmpdir="$(mktemp -d)"
 ./install.sh "$tmpdir"
 ./uninstall.sh "$tmpdir"
+./uninstall.sh "$tmpdir" --apply
 rm -rf "$tmpdir"
 ```
 

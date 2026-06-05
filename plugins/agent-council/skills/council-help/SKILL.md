@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.10.2 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.10.3 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -37,6 +37,7 @@ Agent Council v2.10.2 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
 - `council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]`
+- `council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]`
 - `council-longrun [--show|--reset]`
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。安装脚本会清理 standalone 旧版残留。
@@ -55,6 +56,7 @@ Agent Council v2.10.2 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `/council-upgrade --check`
 - `/council-upgrade --apply`
 - `/council-upgrade --apply --force`
+- `/council-uninstall --check`
 - `$council-longrun`
 - `$council-longrun --show`
 
@@ -70,11 +72,13 @@ Agent Council v2.10.2 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `Next action` 只是当前 topic 内建议，不是停止、恢复、commit、push 或进入下一 task 的授权。
 - 外层工作流可以按用户当前语种提醒 Council 可选，但不能自动调用 Council。
 - 只有 `council-apply` 应该修改项目正式文件。
-- `council-longrun` 只记录用户显式选择的长跑规则，不会自行启动 task 或越过 human gate。
+- `council-longrun` 只记录用户显式选择的长跑辅助判断规则，不会自行启动 task、设置打断点或越过外部 hard gate。
+- `council-uninstall` 默认只检查；只有带 `--apply` 才删除 standalone skills，plugin 安装应走 plugin 管理器或 `codex plugin remove agent-council@agent-council-marketplace`。
 
 长跑规则：
-- 用几个带说明的选择题定义哪些情况自己继续、用 subagents、用 `council-peer-p`、两者都用、或暂停给人。
-- 默认组合是 `balanced` + `strategic` + `git_safe`：低风险已授权工作可继续；peer review 只用于设计/发布/安全/重大取舍；用户已要求 git 收尾且检查通过时，精确 add/commit/push 可继续。force-push、merge/rebase、deploy/release、宽泛 `git add .`、branch/remote 不清楚等仍会暂停。
+- 用三组选择定义什么时候用 subagents、什么时候用 `council-peer-p`、什么时候两者一起用。
+- 默认组合是 `balanced` + `strategic` + `high_risk`：中等不确定时用 subagents；design/plan/发布/安全/重大取舍时用 peer review；架构、blocker、发布/安全边界、大范围变更、难回滚选择时两者一起用。
+- `council-longrun` 不配置什么时候打断你；原本 workflow 可能要停下来判断时，先按规则辅助判断，结论清楚且仍在授权 scope 内就继续。
 - 规则保存到 `.agent-council/longrun/rules.md`。
 - 再次运行 `council-longrun` 可重新定义规则。
 
@@ -101,7 +105,7 @@ Agent Council v2.10.2 是 Claude Code 与 Codex 之间的轻量手动交接板�
 
 ## English help
 
-Agent Council v2.10.2 is a lightweight, manual recent-round bridge for Claude Code and Codex.
+Agent Council v2.10.3 is a lightweight, manual recent-round bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
@@ -114,6 +118,7 @@ Commands:
 - `council-help [zh|en] [command]`
 - `council-version [--check]`
 - `council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]`
+- `council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]`
 - `council-longrun [--show|--reset]`
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead. The installer cleans stale standalone installs.
@@ -132,6 +137,7 @@ Examples:
 - `/council-upgrade --check`
 - `/council-upgrade --apply`
 - `/council-upgrade --apply --force`
+- `/council-uninstall --check`
 - `$council-longrun`
 - `$council-longrun --show`
 
@@ -147,11 +153,13 @@ Rule of thumb:
 - `Next action` is advisory for the current topic, not permission to stop, resume, commit, push, or enter the next task.
 - Outer workflows may remind in the user's current language that Council is optional, but must not invoke Council automatically.
 - Only `council-apply` should modify formal project files.
-- `council-longrun` only records user-selected long-run rules; it does not start tasks or bypass human gates.
+- `council-longrun` only records user-selected long-run assisted-judgment rules; it does not start tasks, configure interruption points, or bypass external hard gates.
+- `council-uninstall` is check-only by default; it deletes standalone skills only with `--apply`. Plugin installs should use the plugin manager or `codex plugin remove agent-council@agent-council-marketplace`.
 
 Longrun rules:
-- A few explained choices define when to self-continue, use subagents, use `council-peer-p`, use both, or pause for a human.
-- The default mix is `balanced` + `strategic` + `git_safe`: low-risk approved work may continue; peer review is reserved for design/release/security/major tradeoffs; precise add/commit/push may continue after the user requested git finalization and checks pass. Force-push, merge/rebase, deploy/release, broad `git add .`, unclear branch/remote, and similar risks still pause.
+- Three grouped choices define when to use subagents, when to use `council-peer-p`, and when to use both together.
+- The default mix is `balanced` + `strategic` + `high_risk`: use subagents for moderate ambiguity; peer review for design/plan/release/security/major tradeoffs; both for architecture, blockers, release/security boundaries, broad scope changes, or hard-to-reverse choices.
+- `council-longrun` does not configure when to interrupt the user; when a workflow would otherwise stop for judgment, run the configured assistance first, then continue if the recommendation is clear and inside the authorized scope.
 - Rules are saved to `.agent-council/longrun/rules.md`.
 - Run `council-longrun` again to redefine them.
 

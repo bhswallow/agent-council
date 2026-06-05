@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.10.2 is a recent-round bridge.
+Agent Council v2.10.3 is a recent-round bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -30,6 +30,7 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
     council-help [zh|en]
     council-version [--check]
     council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]
+    council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]
     council-longrun [--show|--reset]
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead.
@@ -46,20 +47,30 @@ If `council-upgrade` completes but `council-help` still shows an old version,
 the active command is usually from another standalone location or from a plugin
 cache.
 
+Use `council-uninstall --check` to preview standalone uninstall targets.
+Nothing is deleted unless `--apply` is present. Add `--remove-state` only when
+you also want to delete `.agent-council/` discussion state. Codex plugin
+installs should use:
+
+```sh
+codex plugin remove agent-council@agent-council-marketplace
+```
+
 Use `council-status {topic_id} --doctor` to check lowercase path conflicts,
 turn continuity, stale consensus, and status/consensus drift.
 
 `council-open` can omit the topic id. If omitted, it generates a date-based id
 such as `2026-06-03-1`.
 
-Use `council-longrun` to configure explicit long-run self-review rules. It asks
-a few short explained choices and saves `.agent-council/longrun/rules.md`. The
-default mix is `balanced` review intensity, `strategic` peer review, and
-`git_safe` human pause / git finalization. That means low-risk approved work
-can continue, peer headless review is saved for design/release/security/major
-tradeoff checks, and normal requested add/commit/push may continue after checks
-pass. Force-push, merge/rebase, deploy/release, destructive actions, broad
-staging, unclear branch/remote, and unrequested git operations still pause.
+Use `council-longrun` to configure explicit long-run assisted-judgment rules.
+It asks in chat with three grouped choice tables: subagents, peer review, and
+combined assistance. The default mix is `balanced` subagents, `strategic` peer
+review, and `high_risk` combined assistance. That means subagents help with
+moderate ambiguity, peer headless review helps with design/release/security/major
+tradeoff checks, and both run for architecture, blockers, release/security
+boundaries, broad scope changes, or hard-to-reverse choices. `council-longrun`
+does not configure when to interrupt the user; when assisted judgment is clear,
+inside the authorized scope, and no external hard gate applies, continue.
 
     $council-longrun
     $council-longrun --show

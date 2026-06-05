@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.10.2
+当前版本：2.10.3
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板，按最近可见对话轮次交接上下文。
 
@@ -100,7 +100,9 @@ Agent Council 的评审环路刻意保持简单：
 - `council-help` 查看简短帮助。
 - `council-version` 输出当前安装版本。
 - `council-upgrade` 检查更新；只有显式使用 `--apply` 时才更新 standalone 安装。
-- `council-longrun` 配置显式长跑自审规则和 human-pause 规则。
+- `council-uninstall` 预览或显式移除 standalone 安装。
+- `council-longrun` 配置显式长跑辅助判断规则：什么时候用 subagents、
+  peer headless review，或两者一起辅助判断后继续。
 
 `council-respond` 已在 v2.0.2 移除。
 请统一使用 `council-review` 完成评审、回应、反驳、确认和收敛。
@@ -183,60 +185,56 @@ $council-open checkout-design -- 请评审这个 design。
 
 ## 长跑规则
 
-当你希望后续已授权的长时间工作减少反复人工确认时，可以运行：
+当你希望后续已授权的长时间工作先用辅助判断、再自动继续，减少反复人工确认时，可以运行：
 
 ```text
 $council-longrun
 ```
 
-这个 skill 会用几个很短的选择题生成规则，并保存到：
+这个 skill 会用三组规整选择题生成规则，并保存到：
 
 ```text
 .agent-council/longrun/rules.md
 ```
 
-规则会定义哪些事件应该：
+规则会定义后续工作什么时候使用：
 
-- 由当前 agent 自己判断并继续；
-- 使用 subagents；
-- 使用 `council-peer-p` / `council-claude-p`；
-- 同时使用 subagents 和 `council-peer-p`；
-- 暂停并交给人类判断下一步。
+- subagents 做本地/技术辅助判断；
+- `council-peer-p` / `council-claude-p` 做独立 peer 辅助判断；
+- subagents 和 `council-peer-p` 一起处理复杂或高风险判断。
+
+`council-longrun` 不配置什么时候打断你。打断点仍归外围 workflow、用户指令、
+tool policy、凭据、sandbox、发布流程或其他外部 hard gate 管。原本 workflow 可能要停下来
+做人为判断时，先按这里的规则运行辅助判断；如果结论清楚、仍在用户授权 scope 内、且没有外部
+hard gate，就继续往下执行。
 
 推荐默认值是：
 
-- mode: `balanced`：低风险的已授权工作可继续；中等不确定、跨文件风险、覆盖不清时用
-  subagents；高风险架构、发布、安全/权限边界、blocker 解决时同时用 subagents 和
-  `council-peer-p`；
-- `council-peer-p`: `strategic`：只在设计、计划、发布前、安全/权限边界、重大取舍时跑
-  对方 headless review，不用于普通小改动；
-- human pause / git: `git_safe`：用户已要求 git 收尾且检查通过时，普通
-  add/commit/push 可以完成；危险或不清楚的操作仍会暂停。
+- subagents: `balanced`：中等不确定、跨文件、覆盖不清、实现路径不确定时用
+  subagents；
+- peer review: `strategic`：design、plan、发布前、安全/权限边界、重大取舍时跑
+  `council-peer-p`，不用于普通小改动；
+- combined assistance: `high_risk`：架构、发布、安全边界、blocker、重大取舍、大范围变更、
+  难回滚选择时同时用 subagents 和 `council-peer-p`。
 
 其他选项也会明确说明：
 
-- mode `fast`：更自主；
-- mode `strict`：review checkpoint 更多；
+- subagents `light`：只在明显复杂或不清楚时用 subagents；
+- subagents `thorough`：多数非平凡实现和测试策略都先用 subagents；
 - peer review `implementation`：代码层面的实现风险也交给 peer review；
 - peer review `manual`：除非你明确要求，否则不跑 peer review；
-- human pause `product`：产品或 UX 取舍前也暂停；
-- human pause `strict`：commit/push 也会问，除非本轮请求已经明确授权对应 git 操作。
+- combined assistance `escalation`：先走单一路线，只有发现未解决风险、意见冲突或证据不足时
+  再两者一起用；
+- combined assistance `intensive`：多数跨模块、迁移、数据/并发、弱覆盖、复杂回滚风险都同时用两者。
 
-使用 `git_safe` 时，如果用户已经明确授权 git 收尾并且检查通过，可以继续执行精确
-`git add` 目标文件、`git commit`、以及 push 到目标 branch/remote。它会在
-force-push、merge/rebase、deploy/release、删除数据、删除分支、宽泛 `git add .`、
-权限/安全变更、未解决 blocker、扩大 scope、branch/remote 不清楚、或用户没有授权的
-git 操作前暂停。
-
-旧规则里可能会看到 `human_pause_policy: irreversible`。这个旧设置会在普通 commit
-和 push 前暂停，所以 git 收尾看起来会“卡住”。重新运行 `council-longrun` 可迁移到
-`git_safe`。
+旧规则里可能会看到 `human_pause_policy`、`pause_for_human` 或 `git_finalization`。
+这些是旧版 longrun 字段。新规则使用 `version: 3`，不再配置打断或 git 收尾策略。
 
 再次运行 `council-longrun` 可以重新定义规则。
 运行 `council-longrun --show` 可以查看当前规则。
 
 这些规则只适用于用户已经授权的连续工作，不授权新的 scope，也不授权越过人类确认去执行
-危险 git、发布、删除数据或安全边界变更。
+危险 git、发布、删除数据、公开副作用、凭据访问或安全边界变更。
 
 ## 如何选择工具
 
@@ -660,6 +658,36 @@ standalone 位置，或者当前实际生效的是 plugin 缓存，需要重新�
 
 plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 reload plugins 或重启工具。
 
+## 卸载
+
+预览 standalone 卸载目标：
+
+```sh
+./uninstall.sh /path/to/your/project
+```
+
+删除 standalone skills：
+
+```sh
+./uninstall.sh /path/to/your/project --apply
+```
+
+默认保留 `.agent-council/` 讨论状态。只有你也想删除本地 Council 历史时，才加
+`--remove-state`。从已安装的 standalone skill 中可使用：
+
+```text
+/council-uninstall --check
+/council-uninstall --apply
+```
+
+Codex plugin 安装使用：
+
+```sh
+codex plugin remove agent-council@agent-council-marketplace
+```
+
+Claude Code plugin 安装请在 plugin 管理器里移除 `agent-council`，然后 reload plugins。
+
 ## Claude Code
 
 ### 项目本地安装
@@ -679,6 +707,7 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 /council-upgrade --check
 /council-upgrade --apply
 /council-upgrade --apply --force
+/council-uninstall --check
 ```
 
 ### Claude Code Plugin
@@ -702,6 +731,7 @@ plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 rel
 /agent-council:council-apply retry-design
 /agent-council:council-status retry-design
 /agent-council:council-upgrade --check
+/agent-council:council-uninstall --check
 ```
 
 从旧版 plugin 升级时，如果 plugin 管理器里仍能看到 `council-respond`，
@@ -726,6 +756,7 @@ $council-status retry-design --doctor
 $council-upgrade --check
 $council-upgrade --apply
 $council-upgrade --apply --force
+$council-uninstall --check
 ```
 
 ### Codex Plugin
@@ -749,6 +780,7 @@ $council-review retry-design
 $council-apply retry-design
 $council-status retry-design
 $council-upgrade --check
+$council-uninstall --check
 ```
 
 从旧版 plugin 升级时，如果 `/plugins` 里仍列出 `council-respond`，
@@ -826,7 +858,7 @@ $council-apply retry-plan -- 根据共识修改 docs/plan.md。
 plugins/agent-council/                   Plugin 包
 plugins/agent-council/skills/            共享 skills
 install.sh                               本地 standalone 安装脚本
-uninstall.sh                             本地 standalone 卸载脚本
+uninstall.sh                             本地 standalone 卸载脚本，默认 dry-run，带 --apply 才删除
 docs/                                    使用说明和协议说明
 ```
 

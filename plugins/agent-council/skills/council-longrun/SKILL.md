@@ -1,6 +1,6 @@
 ---
 name: council-longrun
-description: Configure explicit long-run self-review rules for Agent Council guardrails.
+description: Configure when long-running work uses subagents, council-peer-p, or both for assisted judgment.
 disable-model-invocation: true
 ---
 
@@ -16,11 +16,18 @@ Examples:
 
 ## Purpose
 
-`council-longrun` configures a user-approved long-run rule set. It tells future
-work when to continue by self-judgment, when to use subagents, when to use
-`council-peer-p` (or its compatibility alias `council-claude-p`), when to use
-both peer review and subagents, and exactly which human checkpoints should stop
-execution.
+`council-longrun` configures a user-approved assistance policy for future
+authorized long-running work. It tells future work when to use subagents, when
+to use `council-peer-p` (or its compatibility alias `council-claude-p`), and
+when to use both together before continuing.
+
+This skill does not decide when work must interrupt the user. It does not
+configure human-pause or git-finalization policy. Instead, when the surrounding
+workflow would otherwise stop because it needs judgment, tradeoff analysis, or
+extra confidence, these rules tell the agent which assistance to run first. If
+the assisted judgment produces a clear recommendation within the user's
+authorized scope and no external hard gate applies, continue execution.
+In short, `council-longrun` does not configure when to interrupt the user.
 
 This skill does not run the long task by itself. It only records the rules the
 user chose and returns a compact summary. Future work may follow those rules
@@ -34,6 +41,8 @@ Manual invocation boundary:
 - Do not spawn subagents while configuring rules.
 - Do not modify formal project files.
 - Do not commit, push, merge, deploy, or enter the next workflow stage.
+- Do not add new human gates. Do not remove external hard gates required by the
+  user, system, tool policy, credentials, sandbox, or deployment process.
 
 ## Storage
 
@@ -70,19 +79,30 @@ For normal invocation, ask at most three short multiple-choice questions.
 Prefer recommended defaults. Use the user's current language for the questions,
 option labels, option explanations, and final summary when clear.
 
-Do not present bare tokens such as only `balanced / fast / strict`. Do not label
-Question 2 as "Claude-p usage" or `Claude-p 使用策略`; label it as peer review
+Present the choices as three clearly separated groups, not as one continuous
+numbered list. In plain chat, use compact Markdown tables with options `A`,
+`B`, and `C` inside each group. If the host UI supports tabs, segmented
+controls, or another nonblocking grouped chooser, it is acceptable to show one
+tab/group per setting. Do not require a blocking modal or pause the chat just
+to collect choices; ask in the chat and let the user reply normally.
+
+Do not present bare tokens such as only `balanced / light / thorough`. Do not
+label Group 2 as "Claude-p usage" or `Claude-p 使用策略`; label it as peer review
 or `council-peer-p` strategy. Each option must say what it controls in concrete
 terms:
 
-- what future work may continue without asking again;
-- when subagents are used;
-- when `council-peer-p` is used;
-- when execution pauses for the user;
-- whether normal git finalization can proceed.
+- when subagents are used for local or technical judgment;
+- when `council-peer-p` is used for independent peer judgment;
+- when subagents and `council-peer-p` are used together;
+- that assisted judgment should continue automatically when clear and within
+  the user-authorized scope;
+- that `council-longrun` does not configure human-pause or git-finalization
+  policy.
 
-Accept the exact option value, the option number, or a localized default reply
-such as `default` / `默认`.
+Accept the exact option value, `A`/`B`/`C` within each group, a compact reply
+such as `A A A`, a key-value reply such as
+`subagents=balanced peer=strategic both=high_risk`, or a localized default
+reply such as `default` / `默认`.
 
 ### Question Presentation Templates
 
@@ -92,74 +112,94 @@ explain the behavior of every option.
 Chinese template:
 
 ```text
-我会按 `council-longrun` 配置规则。请选择 3 项；如果接受默认，回复“默认”即可。
+我会按 `council-longrun` 配置“辅助判断”规则，不配置什么时候打断你。
+请在 chat 里回复 3 个选择；接受默认可直接回复“默认”。
+也可以回复：`subagents=balanced peer=strategic both=high_risk`。
 
-1. Longrun Mode / 复审强度（控制后续任务能多自主、何时用 subagents；不控制 git 收尾）
-推荐：balanced
-1) balanced（推荐）：低风险的已授权工作可继续；中等不确定、跨文件、覆盖不清时用 subagents；高风险架构、发布、安全/权限边界或 blocker 解决时同时用 subagents + council-peer-p。
-2) fast：更自主；低/中风险已授权工作在检查通过后继续；只有明显高风险或很不清楚时才用 subagents，较少用 council-peer-p。
-3) strict：更谨慎；多数非平凡改动都先用 subagents，高风险多用 council-peer-p；需求、风险、owner、测试覆盖不清时更容易停下来问你。
+**Group 1: Subagents 辅助判断**
+控制什么时候先让 subagents 做本地/技术判断；判断清楚后继续。推荐：`balanced`
 
-2. Peer review / council-peer-p 使用策略（控制是否主动跑对方 headless review；不会启动任务或改文件）
-推荐：strategic
-1) strategic（推荐）：只在设计、计划、发布前、安全/权限边界、重大取舍时用 council-peer-p。
-2) implementation：除 strategic 场景外，跨模块实现风险、复杂 diff、测试覆盖弱、并发/数据安全、较大重构也会用 council-peer-p。
-3) manual：不会自动用 council-peer-p；只有你明确要求时才用。
+| 选项 | 等级 | 行为 |
+| --- | --- | --- |
+| A | `balanced` 推荐 | 中等不确定、跨文件、覆盖不清、实现路径不确定时用 subagents；低风险已授权工作直接继续。 |
+| B | `light` | 只在明显复杂或不清楚时用 subagents；更依赖当前 agent 自己判断。 |
+| C | `thorough` | 多数非平凡实现、测试策略、数据/并发/集成风险都先用 subagents 判断。 |
 
-3. Human pause / Git 收尾策略（控制什么时候必须停下来等你；也控制普通 add/commit/push 是否会卡住）
-推荐：git_safe
-1) git_safe（推荐）：如果你已经要求 git 收尾且检查通过，可继续精确 add 目标文件、commit、push 到目标 branch/remote；force-push、merge/rebase、release/deploy、删除数据/分支、宽泛 git add .、权限/安全变更、未解决 blocker、扩大 scope、branch/remote 不清楚、未授权 git 操作仍会暂停。
-2) product：包含 git_safe；另外产品取舍、UX 方向、影响业务行为、A/B 选项也会暂停问你。
-3) strict：任何高风险或需求不清都暂停；commit/push 也会问，除非本轮请求已经明确授权了对应 git 操作。
+**Group 2: Peer review / council-peer-p 辅助判断**
+控制什么时候跑对方 headless review；判断清楚后继续。推荐：`strategic`
+
+| 选项 | 等级 | 行为 |
+| --- | --- | --- |
+| A | `strategic` 推荐 | design、plan、发布前、安全/权限边界、重大取舍时跑 council-peer-p。 |
+| B | `implementation` | 除 strategic 场景外，复杂 diff、跨模块实现、弱覆盖、并发/数据安全也跑 council-peer-p。 |
+| C | `manual` | 不自动跑 council-peer-p；只有你明确要求时才跑。 |
+
+**Group 3: Combined assistance / subagents + council-peer-p**
+控制什么时候两种辅助一起用；用于原本可能需要人工判断的复杂点，结论清楚后继续。推荐：`high_risk`
+
+| 选项 | 等级 | 行为 |
+| --- | --- | --- |
+| A | `high_risk` 推荐 | 架构/发布/安全边界/blocker/重大取舍/大范围变更时同时用 subagents + council-peer-p。 |
+| B | `escalation` | 先用单一路线；只有 subagents 或 peer 发现未解决风险、意见冲突、证据不足时再两者一起用。 |
+| C | `intensive` | 对多数跨模块、弱覆盖、数据迁移、并发、复杂回滚风险都同时用两者。 |
 ```
 
 English template:
 
 ```text
-I will configure `council-longrun` rules. Pick 3 options; reply `default` to accept the defaults.
+I will configure `council-longrun` assisted-judgment rules, not human interruption rules.
+Reply in chat with 3 choices; reply `default` to accept the defaults.
+You can also reply: `subagents=balanced peer=strategic both=high_risk`.
 
-1. Longrun Mode / Review intensity (controls autonomy and subagent use; does not control git finalization)
-Recommended: balanced
-1) balanced (recommended): continue low-risk approved work; use subagents for moderate ambiguity, cross-file changes, or unclear coverage; use subagents + council-peer-p for high-risk architecture, release, security/permission boundaries, or blocker resolution.
-2) fast: more autonomous; continue low/medium-risk approved work after checks pass; use subagents only for clearly high-risk or unclear work, and use council-peer-p rarely.
-3) strict: more cautious; use subagents for most non-trivial changes, use council-peer-p for high-risk work, and pause more often when requirements, risk, ownership, or test coverage are unclear.
+**Group 1: Subagents assisted judgment**
+Controls when to ask subagents for local/technical judgment; continue when the result is clear. Recommended: `balanced`
 
-2. Peer review / council-peer-p strategy (controls whether to run the peer headless review; does not start tasks or edit files)
-Recommended: strategic
-1) strategic (recommended): use council-peer-p only for design, plan, pre-release, security/permission boundary, or major tradeoff checks.
-2) implementation: also use council-peer-p for cross-module implementation risk, complex diffs, weak coverage, concurrency/data safety, or broad refactors.
-3) manual: never use council-peer-p automatically; use it only when the user explicitly asks.
+| Option | Level | Behavior |
+| --- | --- | --- |
+| A | `balanced` recommended | Use subagents for moderate uncertainty, cross-file changes, unclear coverage, or uncertain implementation paths; continue low-risk approved work directly. |
+| B | `light` | Use subagents only for clearly complex or unclear work; rely more on the current agent's judgment. |
+| C | `thorough` | Use subagents for most non-trivial implementation, test strategy, data/concurrency, or integration risk. |
 
-3. Human pause / Git finalization (controls when execution must stop for the user; also controls whether normal add/commit/push gets stuck)
-Recommended: git_safe
-1) git_safe (recommended): if the user requested git finalization and checks passed, continue with precise add of intended files, commit, and push to the intended branch/remote; pause for force-push, merge/rebase, release/deploy, deleting data/branches, broad git add ., permission/security changes, unresolved blockers, scope expansion, unclear branch/remote, or unauthorized git operations.
-2) product: includes git_safe; also pause for product tradeoffs, UX direction, business-impacting behavior, or A/B choices.
-3) strict: pause for any high-risk or unclear requirement; also ask before commit/push unless this turn explicitly authorized the exact git operation.
+**Group 2: Peer review / council-peer-p assisted judgment**
+Controls when to run the peer headless review; continue when the result is clear. Recommended: `strategic`
+
+| Option | Level | Behavior |
+| --- | --- | --- |
+| A | `strategic` recommended | Use council-peer-p for design, plan, pre-release, security/permission boundary, or major tradeoff checks. |
+| B | `implementation` | Also use council-peer-p for complex diffs, cross-module implementation risk, weak coverage, concurrency, or data safety. |
+| C | `manual` | Never use council-peer-p automatically; use it only when the user explicitly asks. |
+
+**Group 3: Combined assistance / subagents + council-peer-p**
+Controls when to use both kinds of assistance; use it for complex points that might otherwise need human judgment, then continue when clear. Recommended: `high_risk`
+
+| Option | Level | Behavior |
+| --- | --- | --- |
+| A | `high_risk` recommended | Use both for architecture, release, security boundary, blocker resolution, major tradeoffs, or broad scope changes. |
+| B | `escalation` | Start with one route; use both only when subagents or peer review finds unresolved risk, conflicting judgment, or insufficient evidence. |
+| C | `intensive` | Use both for most cross-module, weak-coverage, migration, concurrency, or complex rollback-risk work. |
 ```
 
-### Question 1: Longrun Mode / Review Intensity
+### Question 1: Subagents Assisted Judgment
 
 Recommended default: `balanced`.
 
-This question controls review intensity. It does not by itself authorize new
-scope, formal project changes outside the requested work, or git finalization;
-git finalization is controlled by Question 3.
+This question controls when to ask subagents for local or technical judgment.
+It does not authorize new scope, formal project changes outside the requested
+work, or git finalization.
 
 Choices:
 
-- `balanced`: default. Continue low-risk work inside the approved task, such as
-  small docs/tests/local refactors after checks pass. Use subagents for
-  moderate ambiguity, cross-file changes, or unclear test coverage. Use both
-  subagents and `council-peer-p` for high-risk architecture, release readiness,
-  security/privacy boundaries, or blocker resolution.
-- `fast`: more autonomous. Continue low- and medium-risk approved work after
-  checks pass. Use subagents only for clearly high-risk or unclear work. Use
-  `council-peer-p` rarely. This saves time but relies more on self-judgment.
-- `strict`: more checkpoints. Use subagents for most non-trivial work. Use
-  `council-peer-p` for most high-risk work. Pause more often when requirements,
-  risk, ownership, or test coverage are unclear.
+- `balanced`: default. Continue low-risk approved work directly. Use subagents
+  for moderate ambiguity, cross-file changes, unclear test coverage, uncertain
+  implementation paths, unfamiliar code ownership, or local design choices.
+- `light`: more autonomous. Use subagents only for clearly complex, unclear, or
+  risky local work. This saves time but relies more on the current agent's
+  judgment.
+- `thorough`: more review checkpoints. Use subagents for most non-trivial
+  implementation choices, test strategy, data/concurrency risk, integration
+  risk, and broad refactors.
 
-### Question 2: Peer Review Strategy
+### Question 2: Peer Review / council-peer-p Assisted Judgment
 
 Recommended default: `strategic`.
 
@@ -171,32 +211,32 @@ Choices:
 - `strategic`: use `council-peer-p` for design, plan, release readiness,
   security/privacy/permission boundary, and major tradeoff checks. Do not use
   it for ordinary small code, docs, or test edits.
-- `implementation`: also use `council-peer-p` for cross-module
-  implementation risk, complex diffs, weak test coverage, concurrency/data
-  safety, or broad refactors.
+- `implementation`: also use `council-peer-p` for complex diffs, cross-module
+  implementation risk, weak test coverage, concurrency/data safety, migrations,
+  or broad refactors.
 - `manual`: do not automatically use `council-peer-p`; only use it when the
-  user explicitly asks. `council-claude-p` remains accepted as a compatibility alias.
+  user explicitly asks. `council-claude-p` remains accepted as a compatibility
+  alias.
 
-### Question 3: Human Pause / Git Finalization
+### Question 3: Combined Assistance
 
-Recommended default: `git_safe`.
+Recommended default: `high_risk`.
 
-This question controls when to stop and ask the user. The recommended default
-is designed so normal requested git finishing does not get stuck.
+This question controls when to use both subagents and `council-peer-p` together
+before continuing.
 
 Choices:
 
-- `git_safe`: normal user-authorized git finalization may continue after checks
-  pass: precise `git add` of intended files, `git commit`, and `git push` to
-  the intended branch/remote. Pause for force-push, merge, rebase, release,
-  deploy, deleting data, deleting branches, broad `git add .`, secrets,
-  permission/security changes, accepting unresolved blockers, expanding scope,
-  unclear branch/remote, or any operation the user did not authorize.
-- `product`: same as `git_safe`, and also pause for product tradeoffs, UX
-  direction, business-impacting behavior changes, or option A/B decisions.
-- `strict`: pause for any high-risk tripwire or uncertain requirement. Also ask
-  before commit or push unless the user explicitly authorized that exact git
-  operation in the current request.
+- `high_risk`: default. Use both for high-risk architecture, release readiness,
+  security/privacy/permission boundaries, blocker resolution, major product or
+  technical tradeoffs, broad scope changes, and hard-to-reverse implementation
+  choices.
+- `escalation`: start with the narrower route from Question 1 or Question 2.
+  Use both only when the first route reports unresolved risk, conflicting
+  recommendations, insufficient evidence, or a blocker.
+- `intensive`: use both for most cross-module implementation, weak test
+  coverage, migrations, concurrency/data safety, complex rollback risk, and
+  broad refactors.
 
 ## Default Mapping
 
@@ -204,21 +244,26 @@ After choices are made, write a rules file with this shape:
 
 ```yaml
 enabled: true
-version: 2
+version: 3
 configured_at: {iso8601_utc_timestamp}
-mode: balanced|fast|strict
+subagent_policy: balanced|light|thorough
 peer_review_policy: strategic|implementation|manual
-human_pause_policy: git_safe|product|strict
+combined_assist_policy: high_risk|escalation|intensive
 applies_until: redefined_by_council_longrun
-self_continue:
-  - green_tasks_within_approved_plan
-  - local_refactors_with_tests
-  - docs_or_tests_with_low_risk
+interruption_policy: not_configured_by_council_longrun
+judgment_flow:
+  when_existing_workflow_would_ask_for_judgment: assist_then_continue
+  continue_after_assist_when:
+    - recommendation_is_clear
+    - action_is_within_user_authorized_scope
+    - checks_pass_or_next_check_is_defined
+    - no_external_hard_gate_applies
 use_subagents:
-  - yellow_tasks
+  - moderate_ambiguity
   - cross_file_changes
   - unclear_test_coverage
-  - implementation_risk
+  - uncertain_implementation_path
+  - local_design_choice
 use_peer_p:
   - design_to_plan
   - plan_to_implementation
@@ -229,81 +274,74 @@ use_both:
   - high_risk_architecture
   - blocker_resolution
   - broad_scope_change
+  - hard_to_reverse_choice
   - pre_release_review
-git_finalization:
-  normal_commit_push: allowed_when_user_requested_and_checks_pass
-  allowed:
-    - precise_git_add_of_intended_files
-    - commit_after_checks_pass
-    - push_to_intended_branch_after_commit
-  pause_for:
-    - force_push
-    - merge
-    - rebase
-    - release
-    - deploy
-    - delete_branch
-    - broad_git_add_dot
-    - unclear_branch_or_remote
-pause_for_human:
-  - data_loss_risk
-  - security_boundary_change
-  - accept_blocker
-  - expand_scope
+hard_gates_not_owned_by_longrun:
+  - explicit_user_request_to_choose_or_pause
+  - credentials_or_auth_required
+  - external_approval_required
+  - destructive_or_public_side_effect_not_authorized
+  - tool_policy_or_sandbox_requires_user_approval
 ```
 
 Adapt the lists to the selected choices:
 
-- For `fast`, move mild Yellow tasks to `self_continue` and keep `use_peer_p`
-  narrower.
-- For `strict`, move more Yellow and Red items into `use_subagents`,
-  `use_both`, and `pause_for_human`.
-- For `peer_review_policy: manual`, keep `use_peer_p` and `use_both` empty
-  unless the user explicitly asks.
-- For `peer_review_policy: implementation`, add cross-module implementation risk,
-  complex diff review, and weak-test-coverage review to `use_peer_p`.
-- For `human_pause_policy: product`, add product tradeoffs, UX direction, and
-  option selection to `pause_for_human`.
-- For `human_pause_policy: strict`, add any Red tripwire and uncertain
-  requirements to `pause_for_human`; set `git_finalization.normal_commit_push`
-  to `ask_before_commit_or_push_unless_current_request_explicitly_authorized`.
+- For `light`, keep `use_subagents` narrower and let more low/moderate work
+  continue by current-agent judgment.
+- For `thorough`, add more implementation, test strategy, integration, and
+  refactor cases to `use_subagents`.
+- For `peer_review_policy: manual`, keep `use_peer_p` empty and only use
+  `council-peer-p` when the user explicitly asks. Because combined assistance
+  includes peer review, also avoid automatic `use_both` unless the user
+  explicitly asks.
+- For `peer_review_policy: implementation`, add complex diff review,
+  cross-module implementation risk, weak-test-coverage review, migrations, and
+  data/concurrency safety to `use_peer_p`.
+- For `combined_assist_policy: escalation`, keep `use_both` focused on
+  unresolved risk, conflicting recommendations, insufficient evidence, and
+  blockers after a narrower route has run.
+- For `combined_assist_policy: intensive`, add cross-module implementation,
+  weak coverage, migrations, data/concurrency safety, broad refactors, and
+  rollback risk to `use_both`.
 
 Compatibility:
 
-- If showing an older rules file with `version: 1`, `claude_p_policy`,
-  `use_claude_p`, or `human_pause_policy: irreversible`, explain that this is a
-  legacy rule set.
-- Legacy `irreversible` paused for normal `commit` and `push`, which can make
-  git finishing feel stuck. Recommend rerunning `council-longrun` to migrate to
-  `git_safe`.
-- When writing new rules, use `version: 2`, `peer_review_policy`, and
-  `use_peer_p`. Use `human_pause_policy: git_safe` as the default and legacy
-  migration target; if the user selected `product` or `strict`, write that
-  selected value.
+- If showing an older rules file with `version: 1`, `version: 2`,
+  `claude_p_policy`, `use_claude_p`, `human_pause_policy`,
+  `pause_for_human`, or `git_finalization`, explain that this is a legacy rule
+  set.
+- New rules must use `version: 3`, `subagent_policy`, `peer_review_policy`,
+  `combined_assist_policy`, and `use_peer_p`.
+- New rules must not write human-pause or git-finalization policy. Interruption
+  timing belongs to the surrounding workflow and hard gates, not
+  `council-longrun`.
 
 ## User-Facing Response
 
 Keep the final response short:
 
 ```text
-Longrun rules configured.
+Longrun assistance rules configured.
 
-Mode: balanced
-- Continue low-risk approved work; use subagents for moderate risk; use peer review for high-risk checkpoints.
+Subagents: balanced
+- Use subagents for moderate ambiguity, cross-file changes, unclear coverage, or uncertain implementation paths.
 
 Peer review: strategic
-- Use council-peer-p for design, plan, release, security, or major tradeoff checks only.
+- Use council-peer-p for design, plan, release, security, or major tradeoff checks.
 
-Human pause / Git: git_safe
-- Normal requested add/commit/push may continue after checks pass.
-- Pause for force-push, merge/rebase, deploy/release, data loss, security boundary changes, broad staging, or unclear branch/remote.
+Combined assistance: high_risk
+- Use subagents + council-peer-p for architecture, blockers, release/security boundaries, broad scope changes, or hard-to-reverse choices.
+
+Continue behavior:
+- If a workflow would otherwise ask for judgment, run the configured assistance first.
+- Continue automatically when the assisted recommendation is clear and inside the user-authorized scope.
 
 Saved:
 - .agent-council/longrun/rules.md
 - .agent-council/longrun/history.md
 
 Side effects:
-- Council files modified: longrun rules only
+- Council files modified: longrun assistance rules only
 - Formal project files modified: none
 ```
 

@@ -13,37 +13,38 @@ Council 必须由用户显式唤醒。它不能自动叫停任务、自动创建
 当一个 topic 结束后，Council 不会自动串联到下一个任务。
 控制权回到普通用户/工具工作流。
 
-`council-longrun` 只是一个很窄的例外，因为它必须由用户显式调用来记录长跑规则。
+`council-longrun` 只是一个很窄的例外，因为它必须由用户显式调用来记录长跑辅助判断规则。
 它不会自行启动 task、创建普通 Council topic、commit、push、merge、deploy，
-也不会绕过 human gate。
+也不会新增 human gate、移除 human gate，或绕过外部 hard gate。
 
 ## 长跑规则
 
-`council-longrun` 为后续用户已授权的连续工作配置规则。
+`council-longrun` 为后续用户已授权的连续工作配置辅助判断规则。
 
 它通过几个简短选择题写入：
 
     .agent-council/longrun/rules.md
     .agent-council/longrun/history.md
 
-这些规则可以告诉后续工作什么时候：
+这些规则可以告诉后续工作什么时候使用：
 
-- 自己判断并继续；
-- 使用 subagents；
-- 使用 `council-peer-p` / `council-claude-p`；
-- 同时使用 subagents 和 `council-peer-p`；
-- 暂停并交给人类判断。
+- subagents 做本地或技术判断；
+- `council-peer-p` / `council-claude-p` 做独立 peer 判断；
+- subagents 和 `council-peer-p` 一起处理复杂或高风险判断。
 
-默认 human-pause 策略应为 `git_safe`：用户已经要求 git 收尾并且检查通过时，普通
-精确 add/commit/push 可以继续；force-push、merge/rebase、deploy/release、破坏性操作、
-宽泛 `git add .`、branch/remote 不清楚、或用户未授权的 git 操作仍会暂停。
+这些规则不能配置什么时候打断用户。打断时机属于外围 workflow、用户指令、tool policy、
+凭据、sandbox、发布流程或其他外部 hard gate。
 
-旧的 `human_pause_policy: irreversible` 会在普通 commit 和 push 前暂停。遇到这种
-旧规则时，应说明它是旧规则集，并建议重新运行 `council-longrun` 迁移。
+当外围 workflow 原本会因为需要判断而停下来时，应先运行配置好的辅助判断。如果辅助结论清楚、
+下一步仍在用户授权 scope 内、且没有外部 hard gate，就继续执行。
+
+新规则使用 `version: 3`、`subagent_policy`、`peer_review_policy`、
+`combined_assist_policy`、`use_subagents`、`use_peer_p`、`use_both`。
+`human_pause_policy`、`pause_for_human` 或 `git_finalization` 等字段应视为旧规则。
 
 这些规则只在用户已经授权连续工作的前提下生效。
 它们不授权新的 scope，不授权 task 外的正式项目修改，也不授权危险 git、release、
-deploy、数据丢失或安全边界操作。
+deploy、数据丢失、公开副作用、凭据访问或安全边界操作。
 再次运行 `council-longrun` 会重新定义规则。
 
 ## 对方 headless 工具

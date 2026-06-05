@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.10.2 是一个“最近轮次交接”桥梁。
+Agent Council v2.10.3 是一个“最近轮次交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -28,6 +28,7 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
     council-help [zh|en]
     council-version [--check]
     council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]
+    council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]
     council-longrun [--show|--reset]
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。
@@ -43,18 +44,27 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
 如果 `council-upgrade` 完成后 `council-help` 仍显示旧版本，
 通常说明当前命令来自另一个 standalone 位置或 plugin 缓存。
 
+使用 `council-uninstall --check` 可以预览 standalone 卸载目标。
+只有带 `--apply` 才会删除。只有你也想删除 `.agent-council/` 讨论状态时，
+才加 `--remove-state`。Codex plugin 安装应使用：
+
+```sh
+codex plugin remove agent-council@agent-council-marketplace
+```
+
 使用 `council-status {topic_id} --doctor` 可以检查大小写路径冲突、
 turn 连续性、过期 consensus、status/consensus 漂移。
 
 `council-open` 可以省略 topic-id。省略时会自动生成类似 `2026-06-03-1`
 的日期序号名称。
 
-使用 `council-longrun` 可以配置显式长跑自审规则。它会用几个带说明的简短选择题生成
-`.agent-council/longrun/rules.md`。默认组合是 `balanced` 复审强度、`strategic`
-peer review、以及 `git_safe` human pause / git 收尾：低风险已授权工作可继续，
-peer headless review 只用于设计/发布/安全/重大取舍检查，用户已要求 git 收尾且检查
-通过时可以继续精确 add/commit/push。force-push、merge/rebase、deploy/release、
-破坏性操作、宽泛 staging、branch/remote 不清楚、或用户未授权的 git 操作仍会暂停。
+使用 `council-longrun` 可以配置显式长跑辅助判断规则。它会在 chat 里用三组规整选项表
+询问：subagents、peer review、combined assistance，并生成
+`.agent-council/longrun/rules.md`。默认组合是 `balanced` subagents、`strategic`
+peer review、以及 `high_risk` combined assistance：中等不确定时用 subagents，
+设计/发布/安全/重大取舍时用 peer headless review，架构、blocker、发布/安全边界、
+大范围变更或难回滚选择时两者一起用。`council-longrun` 不配置什么时候打断你；
+辅助判断结论清楚、仍在授权 scope 内、且没有外部 hard gate 时，就继续往下执行。
 
     $council-longrun
     $council-longrun --show
