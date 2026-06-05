@@ -63,6 +63,15 @@ Do not automatically modify formal project files.
 Do not automatically trigger another Council round.
 Do not automatically trigger `council-apply`.
 
+Peer check completion is not necessarily user-task completion. If this skill is
+invoked during an active user-authorized task and the peer result is completed
+with no blockers, resume the original user-authorized work immediately after a
+concise peer result, as long as the next action remains inside the user's
+current scope. Do not pause for human confirmation merely because the peer check
+finished. Stop after the peer result only when the user asked solely to run
+`council-peer-p`, when the peer reports blockers, or when the next action would
+modify files outside the authorized scope.
+
 ## Prompt Handling
 
 Parse the user input as the prompt for the peer headless command.
@@ -517,6 +526,7 @@ Side effects:
 - Final status: completed | timed out | no output
 - Council files modified: none
 - Formal project files modified: none
+- Next action: resume original user-authorized work | stop after requested peer check | blocked by peer result
 ```
 
 If saved to a file, include the exact path under `Side effects`.

@@ -40,6 +40,7 @@ Detect the project root as the current working directory unless the user passes
 Known standalone skill directories are:
 
 - `council-open`
+- `council`
 - `council-review`
 - `council-respond`
 - `council-apply`
@@ -107,8 +108,10 @@ After uninstalling, verify removed commands are absent:
 
 ```sh
 test ! -e "$PROJECT_ROOT/.agents/skills/council-help"
+test ! -e "$PROJECT_ROOT/.agents/skills/council"
 test ! -e "$PROJECT_ROOT/.agents/skills/council-peer-p"
 test ! -e "$PROJECT_ROOT/.claude/skills/council-help"
+test ! -e "$PROJECT_ROOT/.claude/skills/council"
 test ! -e "$PROJECT_ROOT/.claude/skills/council-peer-p"
 ```
 

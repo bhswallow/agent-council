@@ -46,6 +46,21 @@ assert_codex_implicit_invocation_disabled() {
   ' "$1" || fail "Missing policy.allow_implicit_invocation: false in $1"
 }
 
+assert_shell_skill_loop_contains() {
+  file="$1"
+  skill="$2"
+  awk -v skill="$skill" '
+    $1 == "for" && $2 == "skill" && $3 == "in" {
+      for (i = 4; i <= NF; i++) {
+        token = $i
+        sub(/;$/, "", token)
+        if (token == skill) found = 1
+      }
+    }
+    END { exit found ? 0 : 1 }
+  ' "$file"
+}
+
 assert_peer_headless_skill() {
   skill="$1"
   file="$ROOT/plugins/agent-council/skills/$skill/SKILL.md"
@@ -77,6 +92,8 @@ assert_peer_headless_skill() {
   grep -q '15 to' "$file" || fail "$skill must define status update interval"
   grep -q 'Default timeout: 600 seconds (10 minutes)' "$file" || fail "$skill default timeout must be 600 seconds"
   grep -q 'Timeout: 600s' "$file" || fail "$skill status template must show 600s timeout"
+  grep -q 'resume the original user-authorized work' "$file" || fail "$skill must continue the original authorized task after a clean peer check"
+  grep -q 'Next action: resume original user-authorized work' "$file" || fail "$skill output must state whether it will continue or stop"
   grep -q '30 seconds' "$file" || fail "$skill diagnose ping should stay short"
   grep -q 'Whitespace-only input and punctuation-only input do not count as a prompt' "$file" || fail "$skill must ignore empty punctuation-only prompts"
   grep -q 'selected visible conversation rounds' "$file" || fail "$skill must use selected visible conversation rounds"
@@ -143,7 +160,7 @@ for f in "${required[@]}"; do
   require_file "$f"
 done
 
-skills=(council-open council-review council-apply council-status council-help council-version council-upgrade council-uninstall council-peer-p council-claude-p council-longrun)
+skills=(council council-open council-review council-apply council-status council-help council-version council-upgrade council-uninstall council-peer-p council-claude-p council-longrun)
 
 for skill in "${skills[@]}"; do
   skill_file="$ROOT/plugins/agent-council/skills/$skill/SKILL.md"
@@ -155,9 +172,9 @@ for skill in "${skills[@]}"; do
     fail "FILES.md missing SKILL.md entry for skill: $skill"
   grep -q "plugins/agent-council/skills/$skill/agents/openai.yaml" "$ROOT/FILES.md" || \
     fail "FILES.md missing Codex metadata entry for skill: $skill"
-  grep -Eq "for skill in .*\\b$skill\\b" "$ROOT/install.sh" || \
+  assert_shell_skill_loop_contains "$ROOT/install.sh" "$skill" || \
     fail "install.sh does not install skill: $skill"
-  grep -Eq "for skill in .*\\b$skill\\b" "$ROOT/uninstall.sh" || \
+  assert_shell_skill_loop_contains "$ROOT/uninstall.sh" "$skill" || \
     fail "uninstall.sh does not remove skill: $skill"
 
   first_line="$(sed -n '1p' "$skill_file")"

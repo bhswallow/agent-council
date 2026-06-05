@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.10.4 is a recent-round bridge.
+Agent Council v2.10.5 is a recent-round bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -23,6 +23,7 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
 
 ## Commands
 
+    council [zh|en] [command]
     council-open [topic-id] [--overwrite] [-n[=N|all]|--rounds[=N|all]] [--full] [-- handoff note]
     council-review {topic_id} [CONSENSUS] [-- review instruction]
     council-apply {topic_id} [-- apply instruction]
@@ -34,6 +35,9 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
     council-longrun [--show|--reset]
 
 `council-respond` was removed in v2.0.2. Use `council-review` instead.
+
+Use `council` as the top-level command index when you want a quick reminder or
+are unsure which Council command to run.
 
 Use `council-upgrade` to check standalone install versions.
 It is check-only by default. Use `council-upgrade --apply` to update. Use

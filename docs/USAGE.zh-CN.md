@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.10.4 是一个“最近轮次交接”桥梁。
+Agent Council v2.10.5 是一个“最近轮次交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -21,6 +21,7 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
 
 ## 命令
 
+    council [zh|en] [command]
     council-open [topic-id] [--overwrite] [-n[=N|all]|--rounds[=N|all]] [--full] [-- 交接说明]
     council-review {topic_id} [CONSENSUS] [-- 评审要求]
     council-apply {topic_id} [-- 应用要求]
@@ -32,6 +33,8 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
     council-longrun [--show|--reset]
 
 `council-respond` 已在 v2.0.2 移除。请改用 `council-review`。
+
+如果你不确定该用哪个 Council 命令，可以先运行 `council` 查看顶层命令索引。
 
 使用 `council-upgrade` 可以检查 standalone 安装版本。
 它默认只检查不修改。使用 `council-upgrade --apply` 才会更新。

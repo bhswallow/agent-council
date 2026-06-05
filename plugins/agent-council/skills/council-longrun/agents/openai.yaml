@@ -1,5 +1,5 @@
 interface:
   display_name: "Council Longrun"
-  short_description: "Configure explicit long-run self-review and pause rules."
+  short_description: "Configure long-run assisted judgment rules."
 policy:
   allow_implicit_invocation: false

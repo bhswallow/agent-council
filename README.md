@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.10.4
+Current version: 2.10.5
 
 Agent Council is a lightweight, manual recent-round bridge for teams using
 Claude Code and Codex in the same repository.
@@ -104,6 +104,7 @@ Agent Council keeps the review loop intentionally small:
 
 Support commands are also explicit:
 
+- `council` shows the top-level command index.
 - `council-help` shows concise usage help.
 - `council-version` prints the installed version.
 - `council-upgrade` checks for updates and can update standalone installs when
@@ -759,6 +760,7 @@ Use the installer above. Then run the skills in Claude Code with short names:
 
 ```text
 /council-help
+/council
 /council-version
 /council-open -- Use the latest visible conversation round as the handoff for peer review.
 /council-open retry-design -- Use the latest visible conversation round as the handoff for peer review.
@@ -787,6 +789,7 @@ When installed as a plugin, Claude Code namespaces skills with the plugin name:
 
 ```text
 /agent-council:council-help
+/agent-council:council
 /agent-council:council-version
 /agent-council:council-open -- Use the latest visible conversation round as the handoff for peer review.
 /agent-council:council-open retry-design -- Use the latest visible conversation round as the handoff for peer review.
@@ -808,6 +811,7 @@ Use the installer above. Then run the skills in Codex with explicit skill calls:
 
 ```text
 $council-help
+$council
 $council-version
 $council-open -- Use the latest visible conversation round as the handoff for peer review.
 $council-open retry-design -- Use the latest visible conversation round as the handoff for peer review.
@@ -837,6 +841,7 @@ After installation, use the bundled skills explicitly:
 
 ```text
 $council-help
+$council
 $council-version
 $council-open -- Use the latest visible conversation round as the handoff for peer review.
 $council-open retry-design -- Use the latest visible conversation round as the handoff for peer review.

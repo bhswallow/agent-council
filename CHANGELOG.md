@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.10.5
+
+- Added a top-level `council` command index so `$council` is a real explicit
+  Codex skill entry instead of relying on prefix discovery.
+- Updated `council-peer-p` / `council-claude-p` so a clean peer check can resume
+  the original user-authorized task instead of treating the peer report as the
+  whole task completion.
+- Added install, uninstall, documentation, and validation coverage for the new
+  command index and peer continuation rule.
+
 ## 2.10.4
 
 - Removed `disable-model-invocation: true` from Council skills so explicit

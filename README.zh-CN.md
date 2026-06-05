@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.10.4
+当前版本：2.10.5
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板，按最近可见对话轮次交接上下文。
 
@@ -97,6 +97,7 @@ Agent Council 的评审环路刻意保持简单：
 
 支持命令也必须显式调用：
 
+- `council` 查看顶层命令索引。
 - `council-help` 查看简短帮助。
 - `council-version` 输出当前安装版本。
 - `council-upgrade` 检查更新；只有显式使用 `--apply` 时才更新 standalone 安装。
@@ -697,6 +698,7 @@ Claude Code plugin 安装请在 plugin 管理器里移除 `agent-council`，然�
 
 ```text
 /council-help
+/council
 /council-version
 /council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
 /council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
@@ -725,6 +727,7 @@ Claude Code plugin 安装请在 plugin 管理器里移除 `agent-council`，然�
 
 ```text
 /agent-council:council-help
+/agent-council:council
 /agent-council:council-version
 /agent-council:council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
 /agent-council:council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
@@ -746,6 +749,7 @@ Claude Code plugin 安装请在 plugin 管理器里移除 `agent-council`，然�
 
 ```text
 $council-help
+$council
 $council-version
 $council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
 $council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
@@ -774,6 +778,7 @@ codex plugin marketplace add bhswallow/agent-council
 
 ```text
 $council-help
+$council
 $council-version
 $council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
 $council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。

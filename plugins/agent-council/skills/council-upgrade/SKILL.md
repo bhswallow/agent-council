@@ -92,6 +92,7 @@ any known Agent Council skill directory exists there, including deprecated or
 partially upgraded commands:
 
 - `council-open`
+- `council`
 - `council-review`
 - `council-respond`
 - `council-apply`
@@ -173,12 +174,16 @@ do not require Claude Code directories when `--codex-only` was used:
 ```sh
 test -d "$PROJECT_ROOT/.claude/skills/council-peer-p"
 test -d "$PROJECT_ROOT/.claude/skills/council-claude-p"
+test -d "$PROJECT_ROOT/.claude/skills/council"
 test -d "$PROJECT_ROOT/.agents/skills/council-peer-p"
 test -d "$PROJECT_ROOT/.agents/skills/council-claude-p"
+test -d "$PROJECT_ROOT/.agents/skills/council"
 test -d "$HOME/.claude/skills/council-peer-p"
 test -d "$HOME/.claude/skills/council-claude-p"
+test -d "$HOME/.claude/skills/council"
 test -d "$HOME/.agents/skills/council-peer-p"
 test -d "$HOME/.agents/skills/council-claude-p"
+test -d "$HOME/.agents/skills/council"
 ```
 
 Then remove the temporary clone.
@@ -227,7 +232,8 @@ Keep the response concise:
 - whether Claude Code and/or Codex standalone skills were updated;
 - whether stale `council-respond` and `claude-p` were removed;
 - whether replacements `council-peer-p` and `council-claude-p` are present;
-- next verification command: `council-version`, then `council-help`.
+- whether the top-level index command `council` is present;
+- next verification command: `council-version`, then `council`.
 
 For check-only responses, include this command when an update is available:
 

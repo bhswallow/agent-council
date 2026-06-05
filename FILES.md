@@ -17,6 +17,8 @@
     .agents/plugins/marketplace.json
     plugins/agent-council/.claude-plugin/plugin.json
     plugins/agent-council/.codex-plugin/plugin.json
+    plugins/agent-council/skills/council/SKILL.md
+    plugins/agent-council/skills/council/agents/openai.yaml
     plugins/agent-council/skills/council-open/SKILL.md
     plugins/agent-council/skills/council-open/agents/openai.yaml
     plugins/agent-council/skills/council-review/SKILL.md
