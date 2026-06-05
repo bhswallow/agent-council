@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.10.8
+
+- Added `council-longrun --template` to print a long-running task startup
+  prompt that can default to Superpowers when installed or required by project
+  instructions.
+- The template tells future work to apply saved `council-longrun` assisted
+  judgment rules before continuing through uncertain execution points.
+
 ## 2.10.7
 
 - Published `council-peer` as the single peer-headless command surface.

@@ -6,12 +6,14 @@ description: Configure when long-running work uses subagents, council-peer, or b
 # Council Longrun
 
 Arguments:
-`[--show|--reset]`
+`[--show|--reset|--template] [--superpowers|--no-superpowers]`
 
 Examples:
 - `$council-longrun`
 - `/council-longrun`
 - `$council-longrun --show`
+- `$council-longrun --template`
+- `$council-longrun --template --superpowers`
 
 ## Purpose
 
@@ -27,14 +29,16 @@ the assisted judgment produces a clear recommendation within the user's
 authorized scope and no external hard gate applies, continue execution.
 In short, `council-longrun` does not configure when to interrupt the user.
 
-This skill does not run the long task by itself. It only records the rules the
-user chose and returns a compact summary. Future work may follow those rules
-until the user runs `council-longrun` again to redefine them.
+This skill does not run the long task by itself. It records the rules the user
+chose and can print a reusable long-run task startup template. Future work may
+follow those rules until the user runs `council-longrun` again to redefine
+them.
 
 Manual invocation boundary:
 
 - Run only when the user explicitly invokes `council-longrun`.
 - Do not start long-run mode automatically.
+- Do not create or update an active goal automatically.
 - Do not invoke `council-peer` while configuring rules.
 - Do not spawn subagents while configuring rules.
 - Do not modify formal project files.
@@ -72,6 +76,45 @@ access allows. If deletion is unavailable, overwrite `rules.md` with:
 ```yaml
 enabled: false
 ```
+
+If the user passes `--template`, print a long-run task startup prompt template
+and stop. Do not write `.agent-council/` files, do not modify project files, and
+do not start the task. The template is meant for the user to paste or adapt as
+an ordinary task instruction in the target thread.
+
+`--template` may be combined with:
+
+- `--superpowers`: make Superpowers the default project workflow.
+- `--no-superpowers`: omit Superpowers language.
+
+If neither flag is present, include Superpowers as a conditional default:
+"if Superpowers is installed or project-local instructions require it, follow
+the Superpowers workflow first." Do not claim Superpowers is installed unless it
+is visible in the current environment.
+
+The template must tell the future agent:
+
+- the user is authorizing a long-running task with a concrete goal and done
+  criteria;
+- follow the project workflow, defaulting to Superpowers when installed or
+  required by project-local instructions;
+- make and update plans as needed;
+- implement, verify, and record results at each stage;
+- protect user changes and do not revert unrelated work;
+- when execution needs judgment, tradeoff analysis, or extra confidence, apply
+  the configured `council-longrun` assisted-judgment rules: subagents,
+  `council-peer`, or both;
+- if assisted judgment is clear, inside the user-authorized scope, and no
+  external hard gate applies, continue without asking the user;
+- if `council-peer` times out or fails, record the failure and continue when the
+  risk is non-blocking; stop only for real blockers or hard gates;
+- continue after each turn toward the next most valuable gap until the goal is
+  complete or genuinely blocked.
+
+Use the user's current language. Include both a generic template and, when the
+user supplied a concrete project/task phrase after `--template`, a version with
+that phrase inserted as the goal. Keep placeholders in `{safe_placeholder}`
+form.
 
 For normal invocation, ask at most three short multiple-choice questions.
 Prefer recommended defaults. Use the user's current language for the questions,
@@ -314,6 +357,49 @@ Compatibility:
   `council-longrun`.
 
 ## User-Facing Response
+
+For `--template`, output only the template and a short note that it does not
+start the task by itself. A Chinese response should look like:
+
+```text
+长跑任务启动模板：
+
+请把当前任务开启为长跑模式：
+
+目标：
+持续推进 {project_or_feature}，直到 {done_criteria} 完成并验证通过。
+
+执行规则：
+1. 按项目既定流程执行；如果已安装 Superpowers 或项目说明要求 Superpowers，默认先遵守 Superpowers 流程。
+2. 必要时自动制定和更新计划，优先推进最有价值的缺口。
+3. 能安全判断的地方不要频繁问我，直接实现、验证、记录结果。
+4. 需要判断、取舍或额外信心时，按当前 `council-longrun` 规则辅助判断：该用 subagents 就用 subagents，该用 `council-peer` 就用 `council-peer`，高风险时两者一起用。
+5. 辅助判断结论清楚、仍在授权 scope 内、且没有外部 hard gate 时，继续执行。
+6. `council-peer` 失败或超时时，记录为复核失败；若风险非阻塞，继续推进并在结果里说明。
+7. 不破坏旧功能，不回滚我已有改动，不越过凭据、发布、危险 git、删除数据或安全边界等 hard gate。
+8. 每轮结束后继续推进下一个最有价值的缺口，直到目标完成并验证通过，或确实被 blocker 卡住。
+```
+
+An English response should mirror the same rules:
+
+```text
+Long-run task startup template:
+
+Please start the current task in long-run mode:
+
+Goal:
+Keep advancing {project_or_feature} until {done_criteria} is implemented and verified.
+
+Execution rules:
+1. Follow the project's established workflow; if Superpowers is installed or project instructions require it, use the Superpowers workflow by default.
+2. Create and update plans as needed, and prioritize the most valuable remaining gap.
+3. When judgment is safe, do not ask me repeatedly; implement, verify, and record results.
+4. When execution needs judgment, tradeoff analysis, or extra confidence, apply the current `council-longrun` rules: use subagents, `council-peer`, or both as configured.
+5. Continue when the assisted recommendation is clear, inside the authorized scope, and no external hard gate applies.
+6. If `council-peer` fails or times out, record the failed review; if the risk is non-blocking, continue and mention it in the result.
+7. Do not break existing behavior, do not revert my changes, and do not bypass hard gates for credentials, release, dangerous git, data deletion, or security boundaries.
+8. After each turn, keep advancing the next most valuable gap until the goal is complete and verified, or genuinely blocked.
+```
 
 Keep the final response short:
 

@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.10.7
+当前版本：2.10.8
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板，按最近可见对话轮次交接上下文。
 
@@ -72,8 +72,7 @@ Agent Council：
 - 不默认执行远程命令；
 - 不自动调用 Claude Code 或 Codex；
 - 把本地 topic 状态保存在 `.agent-council/`；
-- 只有用户显式运行可选工具时，才会使用 `council-peer` /
-  `council-peer`。
+- 只有用户显式运行可选工具时，才会使用 `council-peer`。
 
 报告问题和信任边界见 [SECURITY.md](SECURITY.md)。
 
@@ -104,6 +103,7 @@ Agent Council 的评审环路刻意保持简单：
 - `council-uninstall` 预览或显式移除 standalone 安装。
 - `council-longrun` 配置显式长跑辅助判断规则：什么时候用 subagents、
   peer headless review，或两者一起辅助判断后继续。
+  `council-longrun --template` 输出启动长跑任务的 prompt 模板。
 
 请统一使用 `council-review` 完成评审、回应、反驳、确认和收敛。
 
@@ -199,7 +199,7 @@ $council-longrun
 规则会定义后续工作什么时候使用：
 
 - subagents 做本地/技术辅助判断；
-- `council-peer` / `council-peer` 做独立 peer 辅助判断；
+- `council-peer` 做独立 peer 辅助判断；
 - subagents 和 `council-peer` 一起处理复杂或高风险判断。
 
 `council-longrun` 不配置什么时候打断你。打断点仍归外围 workflow、用户指令、
@@ -231,6 +231,11 @@ hard gate，就继续往下执行。
 
 再次运行 `council-longrun` 可以重新定义规则。
 运行 `council-longrun --show` 可以查看当前规则。
+
+运行 `council-longrun --template` 可以输出一段可复用的“启动长跑任务”提示词。
+模板可以在安装了 Superpowers 或项目本地说明要求 Superpowers 时默认按 Superpowers 流程走，
+并要求后续执行在需要判断时按已保存的 `council-longrun` 辅助判断规则使用 subagents、
+`council-peer` 或两者一起判断。
 
 这些规则只适用于用户已经授权的连续工作，不授权新的 scope，也不授权越过人类确认去执行
 危险 git、发布、删除数据、公开副作用、凭据访问或安全边界变更。

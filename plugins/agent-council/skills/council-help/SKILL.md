@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.10.7 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.10.8 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -39,7 +39,7 @@ Agent Council v2.10.7 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `council-version [--check]`
 - `council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]`
 - `council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]`
-- `council-longrun [--show|--reset]`
+- `council-longrun [--show|--reset|--template] [--superpowers|--no-superpowers]`
 
 示例：
 - `$council`
@@ -59,6 +59,7 @@ Agent Council v2.10.7 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `/council-uninstall --check`
 - `$council-longrun`
 - `$council-longrun --show`
+- `$council-longrun --template`
 
 原则：
 - `council-open` 可以省略 topic-id，并自动生成类似 `2026-06-03-1` 的名称。
@@ -81,6 +82,7 @@ Agent Council v2.10.7 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `council-longrun` 不配置什么时候打断你；原本 workflow 可能要停下来判断时，先按规则辅助判断，结论清楚且仍在授权 scope 内就继续。
 - 规则保存到 `.agent-council/longrun/rules.md`。
 - 再次运行 `council-longrun` 可重新定义规则。
+- `council-longrun --template` 输出启动长跑任务的 prompt；安装了 Superpowers 或项目说明要求时，可默认按 Superpowers 流程走，并在需要判断时按 longrun 规则使用 subagents、`council-peer` 或两者。
 
 可选工具：
 - `council-peer` 可以 headless 调用对方工具。
@@ -105,7 +107,7 @@ Agent Council v2.10.7 是 Claude Code 与 Codex 之间的轻量手动交接板�
 
 ## English help
 
-Agent Council v2.10.7 is a lightweight, manual recent-round bridge for Claude Code and Codex.
+Agent Council v2.10.8 is a lightweight, manual recent-round bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
@@ -120,7 +122,7 @@ Commands:
 - `council-version [--check]`
 - `council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]`
 - `council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]`
-- `council-longrun [--show|--reset]`
+- `council-longrun [--show|--reset|--template] [--superpowers|--no-superpowers]`
 
 Examples:
 - `$council-open -- Use the latest visible round as the handoff. Ask the peer to check whether the next step is reasonable.`
@@ -139,6 +141,7 @@ Examples:
 - `/council-uninstall --check`
 - `$council-longrun`
 - `$council-longrun --show`
+- `$council-longrun --template`
 
 Rule of thumb:
 - `council-open` can omit the topic id and generate one such as `2026-06-03-1`.
@@ -161,6 +164,7 @@ Longrun rules:
 - `council-longrun` does not configure when to interrupt the user; when a workflow would otherwise stop for judgment, run the configured assistance first, then continue if the recommendation is clear and inside the authorized scope.
 - Rules are saved to `.agent-council/longrun/rules.md`.
 - Run `council-longrun` again to redefine them.
+- `council-longrun --template` prints a startup prompt for a long-running task; when Superpowers is installed or required by project instructions, the prompt can default to Superpowers and use the saved longrun rules for subagents, `council-peer`, or both when judgment is needed.
 
 Optional utilities:
 - `council-peer` can run the peer tool headlessly.

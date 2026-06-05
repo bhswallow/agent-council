@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.10.7 is a recent-round bridge.
+Agent Council v2.10.8 is a recent-round bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -32,7 +32,7 @@ Agent ids and paths are lowercase: `claude`, `codex`, `latest/claude.md`, `lates
     council-version [--check]
     council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]
     council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]
-    council-longrun [--show|--reset]
+    council-longrun [--show|--reset|--template] [--superpowers|--no-superpowers]
 
 Use `council` as the top-level command index when you want a quick reminder or
 are unsure which Council command to run.
@@ -76,6 +76,13 @@ inside the authorized scope, and no external hard gate applies, continue.
 
     $council-longrun
     $council-longrun --show
+    $council-longrun --template
+
+Use `council-longrun --template` to print a reusable startup prompt for a
+specific long-running task. The template can default to Superpowers when
+Superpowers is installed or required by project instructions, and it tells the
+future agent to apply the saved `council-longrun` assisted-judgment rules
+whenever execution needs judgment, tradeoff analysis, or extra confidence.
 
 ## Optional utility: council-peer
 

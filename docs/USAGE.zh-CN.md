@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.10.7 是一个“最近轮次交接”桥梁。
+Agent Council v2.10.8 是一个“最近轮次交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -30,7 +30,7 @@ agent id 和路径统一小写：`claude`、`codex`、`latest/claude.md`、`late
     council-version [--check]
     council-upgrade [--check|--apply] [--force] [--ref {git_ref}] [--claude-only|--codex-only]
     council-uninstall [--check|--apply] [--claude-only|--codex-only] [--remove-state]
-    council-longrun [--show|--reset]
+    council-longrun [--show|--reset|--template] [--superpowers|--no-superpowers]
 
 如果你不确定该用哪个 Council 命令，可以先运行 `council` 查看顶层命令索引。
 
@@ -69,6 +69,12 @@ peer review、以及 `high_risk` combined assistance：中等不确定时用 sub
 
     $council-longrun
     $council-longrun --show
+    $council-longrun --template
+
+使用 `council-longrun --template` 可以输出一段可复用的长跑任务启动 prompt。
+模板可以在安装了 Superpowers 或项目说明要求 Superpowers 时默认按 Superpowers 流程走，
+并要求后续执行在需要判断、取舍或额外信心时，按已保存的 `council-longrun`
+辅助判断规则使用本地技术判断、peer review 或两者一起判断。
 
 ## 可选工具：council-peer
 

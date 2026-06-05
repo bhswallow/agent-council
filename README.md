@@ -1,6 +1,6 @@
 # Agent Council
 
-Current version: 2.10.7
+Current version: 2.10.8
 
 Agent Council is a lightweight, manual recent-round bridge for teams using
 Claude Code and Codex in the same repository.
@@ -79,8 +79,7 @@ Agent Council:
 - does not default to running remote commands;
 - does not automatically call Claude Code or Codex;
 - stores local topic state under `.agent-council/`;
-- uses `council-peer` / `council-peer` only when the user explicitly runs
-  that optional utility.
+- uses `council-peer` only when the user explicitly runs that optional utility.
 
 See [SECURITY.md](SECURITY.md) for reporting and trust-boundary details.
 
@@ -112,6 +111,7 @@ Support commands are also explicit:
 - `council-uninstall` previews or explicitly removes standalone installs.
 - `council-longrun` configures explicit long-run assisted-judgment rules:
   when to use subagents, peer headless review, or both before continuing.
+  `council-longrun --template` prints a long-run task startup prompt.
 
 Use `council-review` for review, reply, rebuttal, confirmation, and
 consensus.
@@ -217,7 +217,7 @@ rules to:
 The rules decide when future work should use:
 
 - subagents for local or technical judgment;
-- `council-peer` / `council-peer` for independent peer judgment;
+- `council-peer` for independent peer judgment;
 - both subagents and `council-peer` together for complex or high-risk
   judgment.
 
@@ -258,6 +258,12 @@ Older rules may show `human_pause_policy`, `pause_for_human`, or
 
 Run `council-longrun` again to redefine the rules. Run
 `council-longrun --show` to inspect the active rules.
+
+Run `council-longrun --template` to print a reusable prompt for starting a
+specific long-running task. The template can default to the project Superpowers
+workflow when Superpowers is installed or required by project-local
+instructions, and tells the future agent to apply the saved `council-longrun`
+assisted-judgment rules whenever execution needs judgment.
 
 These rules apply only when the user has already authorized ongoing work. They
 do not authorize new scope, formal project changes outside the task, force-push,

@@ -261,6 +261,10 @@ for readme in README.md README.zh-CN.md; do
     fail "$readme missing council-longrun guidance"
   grep -q '.agent-council/longrun/rules.md' "$file" || \
     fail "$readme missing longrun rules path"
+  grep -q -- 'council-longrun --template' "$file" || \
+    fail "$readme missing longrun startup template guidance"
+  grep -q 'Superpowers' "$file" || \
+    fail "$readme missing Superpowers workflow hint for longrun template"
 done
 
 for clean_doc in \
@@ -298,6 +302,13 @@ grep -q 'at most three short multiple-choice questions' "$ROOT/plugins/agent-cou
 grep -q 'Each option' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun options must explain behavior"
 grep -q 'Use the user'"'"'s current language' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must localize option explanations"
 grep -q 'Question Presentation Templates' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must include localized prompt templates"
+grep -q -- '--template' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must support startup template output"
+grep -q -- '--superpowers' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun template must support Superpowers workflow hint"
+grep -q 'Do not create or update an active goal automatically' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun template must not auto-start goals"
+grep -q 'Long-run task startup template' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must include English startup template"
+grep -q '长跑任务启动模板' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must include Chinese startup template"
+grep -q 'if Superpowers is installed' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun template must conditionally default to Superpowers"
+grep -q 'apply the current `council-longrun` rules' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun template must reference saved assisted-judgment rules"
 grep -q 'three clearly separated groups' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must present grouped choices"
 grep -q 'Markdown tables with options `A`' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must use A/B/C grouped tables"
 grep -q 'Do not require a blocking modal' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must allow chat-based choice"
@@ -324,6 +335,9 @@ grep -q 'Do not start long-run mode automatically' "$ROOT/plugins/agent-council/
 assert_longrun_default_yaml "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md"
 grep -q 'default mix is `balanced` subagents, `strategic` peer' "$ROOT/docs/USAGE.md" || fail "docs/USAGE.md must explain longrun defaults"
 grep -q '默认组合是 `balanced` subagents、`strategic`' "$ROOT/docs/USAGE.zh-CN.md" || fail "docs/USAGE.zh-CN.md must explain longrun defaults"
+grep -q -- 'council-longrun --template' "$ROOT/docs/USAGE.md" || fail "docs/USAGE.md must document longrun startup template"
+grep -q -- 'council-longrun --template' "$ROOT/docs/USAGE.zh-CN.md" || fail "docs/USAGE.zh-CN.md must document longrun startup template"
+grep -q -- 'council-longrun --template' "$ROOT/plugins/agent-council/skills/council-help/SKILL.md" || fail "council-help must list longrun template command"
 ! grep -q 'irreversible operations' "$ROOT/README.md" || fail "README.md must not use vague irreversible operations wording"
 
 grep -q 'lightweight, manual recent-round bridge' "$ROOT/README.md" || \
