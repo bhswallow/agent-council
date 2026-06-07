@@ -28,7 +28,7 @@ assert_no_utility_in_range() {
   awk -v start="$start" -v end="$end" '
     $0 ~ start { in_range = 1; saw_start = 1; next }
     in_range && $0 ~ end { saw_end = 1; in_range = 0; next }
-    in_range && /council-peer/ { found = 1 }
+    in_range && /council-peer-review/ { found = 1 }
     END {
       if (!saw_start || !saw_end || found) {
         exit 1
@@ -44,6 +44,15 @@ assert_codex_implicit_invocation_disabled() {
     in_policy && /^  allow_implicit_invocation: false$/ { found = 1 }
     END { exit found ? 0 : 1 }
   ' "$1" || fail "Missing policy.allow_implicit_invocation: false in $1"
+}
+
+assert_codex_invocation_allowed() {
+  awk '
+    /^policy:$/ { in_policy = 1; next }
+    in_policy && /^[^[:space:]]/ { in_policy = 0 }
+    in_policy && /^  allow_implicit_invocation: true$/ { found = 1 }
+    END { exit found ? 0 : 1 }
+  ' "$1" || fail "Missing policy.allow_implicit_invocation: true in $1"
 }
 
 assert_codex_discovery_metadata() {
@@ -84,14 +93,14 @@ assert_peer_headless_skill() {
   grep -q 'If both `claude` and `codex` are installed' "$file" || fail "$skill must not infer host from PATH"
   grep -q 'not part of the Agent Council review loop' "$file" || fail "$skill must be outside Council loop"
   grep -q 'Agent Council does not install Claude Code or Codex' "$file" || fail "$skill must clarify peer CLI install boundary"
-  grep -q 'The user-facing skill command is `council-peer`.' "$file" || fail "$skill must document the peer command"
+  grep -q 'The user-facing skill command is `council-peer-review`.' "$file" || fail "$skill must document the peer command"
   grep -q 'latest/council-peer.md' "$file" || fail "$skill missing topic save path"
   grep -q 'do not write `.agent-council/` paths through `--output`' "$file" || fail "$skill --output must not write Council paths"
   grep -q 'any `Bash(...)` pattern' "$file" || fail "$skill must warn on Bash allowed-tools"
-  grep -q 'Council Peer status: starting' "$file" || fail "$skill must announce starting status"
-  grep -q 'Council Peer status: running' "$file" || fail "$skill must provide running status updates"
-  grep -q 'Council Peer status: completed' "$file" || fail "$skill must announce completed status"
-  grep -q 'Council Peer status: timed out' "$file" || fail "$skill must announce timeout status"
+  grep -q 'Council Peer Review status: starting' "$file" || fail "$skill must announce starting status"
+  grep -q 'Council Peer Review status: running' "$file" || fail "$skill must provide running status updates"
+  grep -q 'Council Peer Review status: completed' "$file" || fail "$skill must announce completed status"
+  grep -q 'Council Peer Review status: timed out' "$file" || fail "$skill must announce timeout status"
   grep -q '15 to' "$file" || fail "$skill must define status update interval"
   grep -q 'Default timeout: 600 seconds (10 minutes)' "$file" || fail "$skill default timeout must be 600 seconds"
   grep -q 'Timeout: 600s' "$file" || fail "$skill status template must show 600s timeout"
@@ -107,9 +116,9 @@ assert_peer_headless_skill() {
   grep -q '`--diagnose` ignores `-n`, `--rounds`, `--full`' "$file" || fail "$skill diagnose must ignore round/full flags"
   grep -q 'Do not invent context' "$file" || fail "$skill must not invent missing context"
   grep -q -- '--diagnose' "$file" || fail "$skill must support diagnose mode"
-  grep -q 'Council Peer diagnose' "$file" || fail "$skill must define diagnose output"
-  grep -q 'Reply with exactly: council-peer-ok' "$file" || fail "$skill diagnose must include claude ping prompt"
-  grep -q 'Reply with exactly: council-peer-ok' "$file" || fail "$skill diagnose must include codex ping prompt"
+  grep -q 'Council Peer Review diagnose' "$file" || fail "$skill must define diagnose output"
+  grep -q 'Reply with exactly: council-peer-review-ok' "$file" || fail "$skill diagnose must include claude ping prompt"
+  grep -q 'Reply with exactly: council-peer-review-ok' "$file" || fail "$skill diagnose must include codex ping prompt"
   grep -q -- '--codex-sandbox' "$file" || fail "$skill must document codex sandbox"
   grep -q 'default `--codex-sandbox` is `read-only`' "$file" || fail "$skill codex default sandbox must be read-only"
   grep -q '`--output` and' "$file" || fail "$skill must treat --output as skill-local"
@@ -163,7 +172,7 @@ for f in "${required[@]}"; do
   require_file "$f"
 done
 
-skills=(council council-open council-review council-apply council-status council-help council-version council-upgrade council-uninstall council-peer council-longrun)
+skills=(council council-open council-review council-apply council-status council-help council-version council-upgrade council-uninstall council-peer-review council-longrun)
 
 for skill in "${skills[@]}"; do
   skill_file="$ROOT/plugins/agent-council/skills/$skill/SKILL.md"
@@ -189,18 +198,18 @@ for skill in "${skills[@]}"; do
   ! printf '%s\n' "$frontmatter" | grep -qx 'disable-model-invocation: true' || \
     fail "Do not set disable-model-invocation: true; explicit skill invocation must remain visible: $skill_file"
 
-  assert_codex_implicit_invocation_disabled "$codex_file"
+  if [ "$skill" = "council-peer-review" ]; then
+    assert_codex_invocation_allowed "$codex_file"
+  else
+    assert_codex_implicit_invocation_disabled "$codex_file"
+  fi
   assert_codex_discovery_metadata "$codex_file"
 done
 
-[ -f "$ROOT/plugins/agent-council/skills/council-peer/SKILL.md" ] || \
-  fail "Missing council-peer utility skill"
-[ -f "$ROOT/plugins/agent-council/skills/council-peer/agents/openai.yaml" ] || \
-  fail "Missing council-peer Codex metadata"
-[ -f "$ROOT/plugins/agent-council/skills/council-peer/SKILL.md" ] || \
-  fail "Missing council-peer utility skill"
-[ -f "$ROOT/plugins/agent-council/skills/council-peer/agents/openai.yaml" ] || \
-  fail "Missing council-peer Codex metadata"
+[ -f "$ROOT/plugins/agent-council/skills/council-peer-review/SKILL.md" ] || \
+  fail "Missing council-peer-review utility skill"
+[ -f "$ROOT/plugins/agent-council/skills/council-peer-review/agents/openai.yaml" ] || \
+  fail "Missing council-peer-review Codex metadata"
 [ -f "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" ] || \
   fail "Missing council-longrun skill"
 [ -f "$ROOT/plugins/agent-council/skills/council-longrun/agents/openai.yaml" ] || \
@@ -210,7 +219,7 @@ done
 [ -f "$ROOT/plugins/agent-council/skills/council-uninstall/agents/openai.yaml" ] || \
   fail "Missing council-uninstall Codex metadata"
 
-for old_skill in claude-p council-respond council-peer-p council-claude-p; do
+for old_skill in claude-p council-respond council-peer council-peer-p council-claude-p; do
   if [ -d "$ROOT/plugins/agent-council/skills/$old_skill" ]; then
     fail "Old Agent Council skill directory must not remain in the plugin bundle: $old_skill"
   fi
@@ -237,10 +246,10 @@ for readme in README.md README.zh-CN.md; do
   grep -q '2026-06-03-1' "$file" || fail "$readme missing automatic topic id example"
   grep -qi 'human-invoked\|显式唤醒' "$file" || fail "$readme missing manual invocation boundary"
   grep -qi 'Optional Workflow Reminders\|可选工作流提醒' "$file" || fail "$readme missing optional workflow reminders"
-  grep -qi 'council-peer.*optional utility\|optional utility.*council-peer\|council-peer.*可选工具\|可选工具.*council-peer' "$file" || \
-    fail "$readme must describe council-peer as an optional utility"
-  grep -q 'council-peer' "$file" || \
-    fail "$readme missing council-peer guidance"
+  grep -qi 'council-peer-review.*optional utility\|optional utility.*council-peer-review\|council-peer-review.*可选工具\|可选工具.*council-peer-review' "$file" || \
+    fail "$readme must describe council-peer-review as an optional utility"
+  grep -q 'council-peer-review' "$file" || \
+    fail "$readme missing council-peer-review guidance"
   grep -qi 'no substantive text\|没有实质文字' "$file" || \
     fail "$readme missing peer-headless empty prompt fallback"
   grep -q 'conversation round' "$file" || \
@@ -272,7 +281,7 @@ for clean_doc in \
   docs/USAGE.zh-CN.md \
   SECURITY.md \
   plugins/agent-council/skills/council-help/SKILL.md \
-  plugins/agent-council/skills/council-peer/SKILL.md \
+  plugins/agent-council/skills/council-peer-review/SKILL.md \
   plugins/agent-council/skills/council-longrun/SKILL.md \
   plugins/agent-council/skills/council-upgrade/SKILL.md \
   plugins/agent-council/skills/council-uninstall/SKILL.md \
@@ -284,18 +293,15 @@ done
 assert_no_utility_in_range "$ROOT/README.md" '^## Commands$' '^## What It Solves$'
 assert_no_utility_in_range "$ROOT/README.md" '^## Basic Workflow$' '^## Topic Ids$'
 assert_no_utility_in_range "$ROOT/README.md" '^## Claude Code$' '^## Codex$'
-assert_no_utility_in_range "$ROOT/README.md" '^## Codex$' '^## Basic Workflow$'
 assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## 命令$' '^## 解决什么问题$'
 assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## 基本流程$' '^## Topic Id$'
 assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## Claude Code$' '^## Codex$'
-assert_no_utility_in_range "$ROOT/README.zh-CN.md" '^## Codex$' '^## 基本流程$'
-assert_no_utility_in_range "$ROOT/docs/USAGE.md" '^## Commands$' '^## Optional utility: council-peer$'
+assert_no_utility_in_range "$ROOT/docs/USAGE.md" '^## Commands$' '^## Optional utility: council-peer-review$'
 assert_no_utility_in_range "$ROOT/docs/USAGE.md" '^## Open a topic$' '^## Notes$'
-assert_no_utility_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 命令$' '^## 可选工具：council-peer$'
+assert_no_utility_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 命令$' '^## 可选工具：council-peer-review$'
 assert_no_utility_in_range "$ROOT/docs/USAGE.zh-CN.md" '^## 开启话题$' '^## 说明$'
 
-assert_peer_headless_skill council-peer
-assert_peer_headless_skill council-peer
+assert_peer_headless_skill council-peer-review
 grep -q 'at most three short multiple-choice questions' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must use short choices"
 grep -q 'Each option' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun options must explain behavior"
 grep -q 'Use the user'"'"'s current language' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must localize option explanations"
@@ -311,13 +317,13 @@ grep -q 'three clearly separated groups' "$ROOT/plugins/agent-council/skills/cou
 grep -q 'Markdown tables with options `A`' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must use A/B/C grouped tables"
 grep -q 'Do not require a blocking modal' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must allow chat-based choice"
 grep -q 'Subagents 辅助判断' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label Chinese subagent strategy clearly"
-grep -q 'Peer review / council-peer 辅助判断' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label Chinese peer strategy clearly"
-grep -q 'Combined assistance / subagents + council-peer' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label combined assistance clearly"
+grep -q 'Peer review / council-peer-review 辅助判断' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label Chinese peer strategy clearly"
+grep -q 'Combined assistance / subagents + council-peer-review' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label combined assistance clearly"
 grep -q 'Subagents assisted judgment' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label English subagent strategy clearly"
-grep -q 'Peer review / council-peer assisted judgment' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label English peer strategy clearly"
+grep -q 'Peer review / council-peer-review assisted judgment' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must label English peer strategy clearly"
 grep -q '.agent-council/longrun/rules.md' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must write rules.md"
 grep -q 'use subagents' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define subagent use"
-grep -q 'council-peer' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define peer use"
+grep -q 'council-peer-review' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define peer use"
 grep -q 'use_both:' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must define combined assistance"
 grep -q 'combined_assist_policy: high_risk' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun default must use high_risk combined assistance"
 grep -q 'interruption_policy: not_configured_by_council_longrun' "$ROOT/plugins/agent-council/skills/council-longrun/SKILL.md" || fail "council-longrun must not configure interruption policy"
@@ -383,7 +389,7 @@ grep -q '安全模型' "$ROOT/README.zh-CN.md" || fail "README.zh-CN.md missing 
 grep -q 'does not collect tokens' "$ROOT/SECURITY.md" || fail "SECURITY.md missing token boundary"
 grep -q 'does not upload code' "$ROOT/SECURITY.md" || fail "SECURITY.md missing upload boundary"
 grep -q 'does not automatically call Claude Code, Codex' "$ROOT/SECURITY.md" || fail "SECURITY.md missing auto-call boundary"
-grep -q 'council-peer' "$ROOT/SECURITY.md" || fail "SECURITY.md missing optional peer utility boundary"
+grep -q 'council-peer-review' "$ROOT/SECURITY.md" || fail "SECURITY.md missing optional peer utility boundary"
 grep -q 'manual bridge' "$ROOT/CONTRIBUTING.md" || fail "CONTRIBUTING.md missing project scope"
 grep -q 'Expected Behavior' "$ROOT/CODE_OF_CONDUCT.md" || fail "CODE_OF_CONDUCT.md missing expected behavior"
 grep -q 'Manual Boundary' "$ROOT/.github/PULL_REQUEST_TEMPLATE.md" || fail "PR template missing manual boundary checklist"
@@ -443,7 +449,7 @@ grep -q -- '--apply --force' "$ROOT/plugins/agent-council/skills/council-upgrade
 grep -q 'dirty installs' "$ROOT/plugins/agent-council/skills/council-upgrade/SKILL.md" || fail "council-upgrade must define force dirty install cleanup"
 grep -q -- '--force' "$ROOT/install.sh" || fail "install.sh missing --force support"
 grep -q 'Required skill missing after install' "$ROOT/install.sh" || fail "install.sh must verify required replacement skills"
-grep -q 'council-peer' "$ROOT/install.sh" || fail "install.sh must verify peer skill"
+grep -q 'council-peer-review' "$ROOT/install.sh" || fail "install.sh must verify peer skill"
 grep -q 'council-peer-p' "$ROOT/install.sh" || fail "install.sh must clean old peer skill directories"
 grep -q 'council-peer-p' "$ROOT/uninstall.sh" || fail "uninstall.sh must remove old peer skill directories"
 grep -q -- 'council-upgrade --apply' "$ROOT/plugins/agent-council/skills/council-version/SKILL.md" || fail "council-version must recommend explicit apply upgrade"

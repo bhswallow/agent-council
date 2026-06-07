@@ -29,8 +29,8 @@ Council 必须由用户显式唤醒。它不能自动叫停任务、自动创建
 这些规则可以告诉后续工作什么时候使用：
 
 - subagents 做本地或技术判断；
-- `council-peer-p` / `council-claude-p` 做独立 peer 判断；
-- subagents 和 `council-peer-p` 一起处理复杂或高风险判断。
+- `council-peer-review` 做独立 peer 判断；
+- subagents 和 `council-peer-review` 一起处理复杂或高风险判断。
 
 这些规则不能配置什么时候打断用户。打断时机属于外围 workflow、用户指令、tool policy、
 凭据、sandbox、发布流程或其他外部 hard gate。
@@ -49,8 +49,7 @@ deploy、数据丢失、公开副作用、凭据访问或安全边界操作。
 
 ## 对方 headless 工具
 
-`council-peer-p` 是可选的一次性对方工具 headless 调用命令的推荐中性名称。
-`council-claude-p` 作为兼容别名继续可用。
+`council-peer-review` 是可选的一次性对方工具 headless 调用命令。
 
 在 Codex 中运行时，它通过 `claude -p` 调 Claude Code。在 Claude Code 中运行时，
 它通过 `codex exec --sandbox read-only` 调 Codex。

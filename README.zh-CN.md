@@ -1,6 +1,6 @@
 # Agent Council
 
-当前版本：2.10.9
+当前版本：2.10.10
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板，按最近可见对话轮次交接上下文。
 
@@ -72,7 +72,7 @@ Agent Council：
 - 不默认执行远程命令；
 - 不自动调用 Claude Code 或 Codex；
 - 把本地 topic 状态保存在 `.agent-council/`；
-- 只有用户显式运行可选工具时，才会使用 `council-peer`。
+- 只有用户显式运行可选工具时，才会使用 `council-peer-review`。
 
 报告问题和信任边界见 [SECURITY.md](SECURITY.md)。
 
@@ -199,8 +199,8 @@ $council-longrun
 规则会定义后续工作什么时候使用：
 
 - subagents 做本地/技术辅助判断；
-- `council-peer` 做独立 peer 辅助判断；
-- subagents 和 `council-peer` 一起处理复杂或高风险判断。
+- `council-peer-review` 做独立 peer 辅助判断；
+- subagents 和 `council-peer-review` 一起处理复杂或高风险判断。
 
 `council-longrun` 不配置什么时候打断你。打断点仍归外围 workflow、用户指令、
 tool policy、凭据、sandbox、发布流程或其他外部 hard gate 管。原本 workflow 可能要停下来
@@ -212,9 +212,9 @@ hard gate，就继续往下执行。
 - subagents: `balanced`：中等不确定、跨文件、覆盖不清、实现路径不确定时用
   subagents；
 - peer review: `strategic`：design、plan、发布前、安全/权限边界、重大取舍时跑
-  `council-peer`，不用于普通小改动；
+  `council-peer-review`，不用于普通小改动；
 - combined assistance: `high_risk`：架构、发布、安全边界、blocker、重大取舍、大范围变更、
-  难回滚选择时同时用 subagents 和 `council-peer`。
+  难回滚选择时同时用 subagents 和 `council-peer-review`。
 
 其他选项也会明确说明：
 
@@ -235,7 +235,7 @@ hard gate，就继续往下执行。
 运行 `council-longrun --template` 可以输出一段可复用的“启动长跑任务”提示词。
 模板可以在安装了 Superpowers 或项目本地说明要求 Superpowers 时默认按 Superpowers 流程走，
 并要求后续执行在需要判断时按已保存的 `council-longrun` 辅助判断规则使用 subagents、
-`council-peer` 或两者一起判断。
+`council-peer-review` 或两者一起判断。
 
 这些规则只适用于用户已经授权的连续工作，不授权新的 scope，也不授权越过人类确认去执行
 危险 git、发布、删除数据、公开副作用、凭据访问或安全边界变更。
@@ -248,7 +248,7 @@ Agent Council 是直接调用工具的补充，不是替代品。
 | --- | --- | --- | --- | --- |
 | Agent Council | 手动 recent-round 交接、互评、共识保存 | 文件显式、设置轻、不隐藏调用、`council-apply` 前不污染项目文件 | 需要用户手动切到另一个工具；不是即时互调；不自动获取对方回答 | 需要可追溯决策记录和明确 apply 边界 |
 | Claude Code 中的 Codex 插件 | 在 Claude Code 里直接问 Codex，做一次性 review 或替代方案 | 快速获得第二意见，不必离开 Claude Code | 需要额外配置；可能有 token/API 成本；除非写记录，否则不如 Council 可追溯 | 速度比可审计交接更重要 |
-| 通过 `council-peer` 调对方工具 | 从 Codex 调 Claude，或从 Claude Code 调 Codex | 适合脚本化检查、JSON review、类似 CI 的单轮任务 | 需要打包 prompt/context；对方工具的认证、计费和限制独立 | 任务天然是一次性脚本调用 |
+| 通过 `council-peer-review` 调对方工具 | 从 Codex 调 Claude，或从 Claude Code 调 Codex | 适合脚本化检查、JSON review、类似 CI 的单轮任务 | 需要打包 prompt/context；对方工具的认证、计费和限制独立 | 任务天然是一次性脚本调用 |
 
 可以组合使用：先用直接调用快速探路，只有当结果需要成为共享决策时，再用 Agent Council 落盘。
 
@@ -258,9 +258,9 @@ Agent Council 是直接调用工具的补充，不是替代品。
 - [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage)
 - [Run Claude Code programmatically](https://code.claude.com/docs/en/headless)
 
-## 可选工具：council-peer
+## 可选工具：council-peer-review
 
-`council-peer` 是 optional utility（可选工具），不是 Agent Council 主流程的一部分。
+`council-peer-review` 是 optional utility（可选工具），不是 Agent Council 主流程的一部分。
 Council 主流程仍然是 `council-open`、`council-review`、`council-apply`、
 `council-status` 和 `council-help`。
 
@@ -271,7 +271,7 @@ Council 主流程仍然是 `council-open`、`council-review`、`council-apply`�
 
 使用前提和边界：
 
-- 使用 `council-peer` 做一次性对方工具检查。
+- 使用 `council-peer-review` 做一次性对方工具检查。
 - 对方 CLI 必须已经安装并在 `PATH` 中可用。
 - 从 Codex 调用时，对方命令是 `claude`。
 - 从 Claude Code 调用时，对方命令是 `codex`。
@@ -291,18 +291,18 @@ Council 主流程仍然是 `council-open`、`council-review`、`council-apply`�
 示例：
 
 ```text
-$council-peer
-$council-peer --diagnose
-$council-peer -n=3 "Review the recent plan for blockers."
-/council-peer --codex-model gpt-5 "Review the latest plan for blockers."
-$council-peer --rounds=all --full "Summarize the visible conversation and call out risks."
-$council-peer "Review docs/design.md for blockers and missing tests."
-$council-peer --output-format json "Summarize the current repository risks."
-$council-peer --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
-$council-peer --topic product-l1-gate "Review the latest Council handoff for blockers."
+$council-peer-review
+$council-peer-review --diagnose
+$council-peer-review -n=3 "Review the recent plan for blockers."
+/council-peer-review --codex-model gpt-5 "Review the latest plan for blockers."
+$council-peer-review --rounds=all --full "Summarize the visible conversation and call out risks."
+$council-peer-review "Review docs/design.md for blockers and missing tests."
+$council-peer-review --output-format json "Summarize the current repository risks."
+$council-peer-review --allowed-tools "Read,Grep,Glob" "Review docs/design.md for blockers."
+$council-peer-review --topic product-l1-gate "Review the latest Council handoff for blockers."
 ```
 
-如果 `$council-peer` 后面没有实质文字，只有空白或标点也会被视为没有
+如果 `$council-peer-review` 后面没有实质文字，只有空白或标点也会被视为没有
 prompt。此时 skill 会取所选最近可见 conversation rounds 作为上下文，自动组织一个
 适合对方工具的单轮 review 问题，例如检查 blocker、遗漏假设、风险，以及是否适合继续
 推进。它应根据当前 topic 和语种调整问题，而不是套固定模板。
@@ -328,13 +328,17 @@ review。若要进入标准 Council 互审循环，仍需手动运行 `council-o
 prompt 中引用该文件。headless 对方命令只会收到 skill 选中的 prompt/context，
 不能自己读取无限制的当前聊天记录。
 
-`council-peer` 不应该让用户盯着空白等待。它应该在 headless 进程启动时提示，
+`council-peer-review` 不应该让用户盯着空白等待。它应该在 headless 进程启动时提示，
 运行中报告已等待时间，结束时明确说明是完成、超时，还是没有输出。
+
+如果 Agent Council 是通过 Codex plugin 安装的，Codex 会给 skill 加上 plugin
+命名空间。此时使用 `$agent-council:council-peer-review`，不要使用 standalone
+形态的 `$council-peer-review`。
 
 如果它超时或没有有用输出，可以运行：
 
 ```text
-$council-peer --diagnose
+$council-peer-review --diagnose
 ```
 
 诊断模式会检查检测到的对方命令路径、版本，以及一个只读短 ping：`claude -p` 或
@@ -531,10 +535,13 @@ $council-apply {topic_id} -- Apply the consensus.
 
 如果状态是 `BLOCKED`，必须说明不能 apply，除非用户明确覆盖风险。
 
-Codex skill metadata 使用 `allow_implicit_invocation: false`，确保 Council 命令只能由用户显式唤醒，
-不会自动触发。不要给 Council skills 使用 `disable-model-invocation: true`，
-因为这会让 `$council-peer` 这类显式命令从 Codex 可用 skill 列表里消失。
-下一步命令由 `council-review` 的输出规则决定。
+普通 Council workflow 命令的 Codex skill metadata 使用
+`allow_implicit_invocation: false`，确保它们只能由用户显式唤醒，不会自动触发。
+`council-peer-review` 是 discoverability 例外：它使用
+`allow_implicit_invocation: true`，让 Codex 能显示这个显式的一次性 review 入口。
+不要给 Council skills 使用 `disable-model-invocation: true`，因为这会让
+`$council-peer-review` 这类显式命令从 Codex 可用 skill 列表里消失。下一步命令由
+`council-review` 的输出规则决定。
 
 Council 的 next-step guidance 只是当前 topic 内的建议。
 它不是停止、恢复、串联、commit、push、merge、deploy 或进入下一 task 的授权。
@@ -645,7 +652,7 @@ $council-version --check
 standalone 安装中，`council-upgrade` 默认只检查不修改。
 需要更新时，请从当前项目或 home 安装位置再次执行 `council-upgrade --apply`。
 如果 standalone 安装已经很脏，使用 `council-upgrade --apply --force` 整理残留
-skill 目录、重装当前完整 skill 集，并验证 `council-peer` 存在。只有当你明确想使用
+skill 目录、重装当前完整 skill 集，并验证 `council-peer-review` 存在。只有当你明确想使用
 某个 branch、tag 或 commit 时，才需要加 `--ref {git_ref}`。
 
 plugin 安装需要从 marketplace 重新安装 `agent-council` plugin，并 reload plugins 或重启工具。
@@ -764,19 +771,21 @@ codex plugin marketplace add bhswallow/agent-council
 
 然后打开 Codex，执行 `/plugins`，选择 Agent Council marketplace，安装 `agent-council` plugin。
 
-安装后显式调用内置 skills：
+安装后，Codex 会给 plugin skills 加上 plugin 命名空间。请显式调用：
 
 ```text
-$council-help
-$council
-$council-version
-$council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
-$council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
-$council-review retry-design
-$council-apply retry-design
-$council-status retry-design
-$council-upgrade --check
-$council-uninstall --check
+$agent-council:council-help
+$agent-council:council
+$agent-council:council-version
+$agent-council:council-open -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
+$agent-council:council-open retry-design -- 使用最近一个可见对话轮次作为给对方评审的交接内容。
+$agent-council:council-review retry-design
+$agent-council:council-apply retry-design
+$agent-council:council-status retry-design
+$agent-council:council-peer-review
+$agent-council:council-peer-review --diagnose
+$agent-council:council-upgrade --check
+$agent-council:council-uninstall --check
 ```
 
 从旧版 plugin 升级时，如果 `/plugins` 里仍列出残留的 Agent Council 命令，

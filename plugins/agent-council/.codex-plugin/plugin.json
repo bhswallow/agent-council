@@ -1,16 +1,41 @@
 {
   "name": "agent-council",
-  "version": "2.10.9",
+  "version": "2.10.10",
   "description": "A lightweight recent-round bridge for manual Claude Code and Codex review loops.",
+  "author": {
+    "name": "Agent Council Maintainers"
+  },
+  "homepage": "https://github.com/bhswallow/agent-council",
+  "repository": "https://github.com/bhswallow/agent-council",
   "license": "MIT",
+  "keywords": [
+    "agent-council",
+    "review",
+    "handoff",
+    "workflow",
+    "codex",
+    "claude"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent Council",
     "shortDescription": "Recent-round bridge for Claude Code and Codex reviews",
+    "longDescription": "Agent Council provides explicit, auditable handoff and review skills for Codex and Claude Code workflows, including topic handoffs, peer review, consensus capture, version checks, upgrade/uninstall helpers, long-run assisted-judgment rules, and optional one-shot peer headless review.",
+    "developerName": "Agent Council Maintainers",
     "category": "Development",
     "capabilities": [
       "Read",
       "Write"
-    ]
+    ],
+    "websiteURL": "https://github.com/bhswallow/agent-council",
+    "privacyPolicyURL": "https://github.com/bhswallow/agent-council/blob/main/SECURITY.md",
+    "termsOfServiceURL": "https://github.com/bhswallow/agent-council/blob/main/LICENSE",
+    "defaultPrompt": [
+      "Show Agent Council commands.",
+      "Open a Council handoff for peer review.",
+      "Run a one-shot Council peer review."
+    ],
+    "brandColor": "#60A5FA",
+    "screenshots": []
   }
 }

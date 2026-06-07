@@ -1,5 +1,6 @@
 interface:
   display_name: "Council Version"
   short_description: "Show Agent Council version."
+
 policy:
   allow_implicit_invocation: false

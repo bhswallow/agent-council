@@ -1,0 +1,6 @@
+interface:
+  display_name: "Council Peer Review"
+  short_description: "Run one-shot peer review headlessly."
+
+policy:
+  allow_implicit_invocation: true

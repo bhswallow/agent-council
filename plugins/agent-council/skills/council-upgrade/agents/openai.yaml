@@ -1,5 +1,6 @@
 interface:
   display_name: "Council Upgrade"
   short_description: "Upgrade Agent Council."
+
 policy:
   allow_implicit_invocation: false

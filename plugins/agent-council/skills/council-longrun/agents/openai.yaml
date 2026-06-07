@@ -1,5 +1,6 @@
 interface:
   display_name: "Council Longrun"
   short_description: "Configure long-run assisted judgment rules."
+
 policy:
   allow_implicit_invocation: false

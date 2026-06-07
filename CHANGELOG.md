@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.10.10
+
+- Renamed the peer-headless utility entry point to `council-peer-review` so
+  Codex users have a clearer one-shot review command to invoke.
+- Enabled Codex discovery for `council-peer-review` while keeping the skill
+  text explicit that it should only run after user invocation.
+- Removed the old `council-peer` skill directory from the plugin bundle and
+  updated standalone install cleanup to reconcile stale peer command names.
+
 ## 2.10.9
 
 - Restored Codex skill discovery metadata to the top-level `interface:` shape

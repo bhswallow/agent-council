@@ -1,6 +1,6 @@
 # 使用说明
 
-Agent Council v2.10.9 是一个“最近轮次交接”桥梁。
+Agent Council v2.10.10 是一个“最近轮次交接”桥梁。
 它适合 Claude Code 和 Codex 需要互相评审对方最新内容，但又不共享同一个聊天窗口的场景。
 
 Agent Council 是 Claude Code 与 Codex 之间的轻量手动交接板。
@@ -76,9 +76,9 @@ peer review、以及 `high_risk` combined assistance：中等不确定时用 sub
 并要求后续执行在需要判断、取舍或额外信心时，按已保存的 `council-longrun`
 辅助判断规则使用本地技术判断、peer review 或两者一起判断。
 
-## 可选工具：council-peer
+## 可选工具：council-peer-review
 
-`council-peer` 不是 Council 主流程的一部分。它是一次性工具，用来 headless
+`council-peer-review` 不是 Council 主流程的一部分。它是一次性工具，用来 headless
 调用对方工具。
 
 在 Codex 中运行时，它通过 `claude -p` 调 Claude Code。在 Claude Code 中运行时，
@@ -103,18 +103,18 @@ conversation round 指一条用户消息，加上紧随其后的 Codex 或 Claud
 运行中也应输出状态，包括 starting、已等待时间、completed、timed out 或
 no-output 状态。
 
-如果对方命令超时或没有有用输出，运行 `$council-peer --diagnose`。
+如果对方命令超时或没有有用输出，运行 `$council-peer-review --diagnose`。
 诊断模式会检查检测到的对方命令、版本，以及一个只读短 ping。它不会写文件。
 
 示例：
 
-    $council-peer
-    $council-peer --diagnose
-    $council-peer -n=3 "Review the recent plan for blockers."
-    /council-peer --codex-model gpt-5 "Review the latest plan for blockers."
-    $council-peer --rounds=all --full "Summarize the visible conversation and call out risks."
-    $council-peer "Review docs/design.md for blockers."
-    $council-peer --topic product-l1-gate "Review the latest Council handoff for blockers."
+    $council-peer-review
+    $council-peer-review --diagnose
+    $council-peer-review -n=3 "Review the recent plan for blockers."
+    /council-peer-review --codex-model gpt-5 "Review the latest plan for blockers."
+    $council-peer-review --rounds=all --full "Summarize the visible conversation and call out risks."
+    $council-peer-review "Review docs/design.md for blockers."
+    $council-peer-review --topic product-l1-gate "Review the latest Council handoff for blockers."
 
 ## 开启话题
 

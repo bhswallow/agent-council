@@ -60,7 +60,7 @@ remove_path() {
 }
 
 remove_claude() {
-  for skill in council council-open council-review council-respond council-apply council-status council-help council-upgrade council-uninstall council-version council-peer council-longrun claude-p council-peer-p council-claude-p; do
+  for skill in council council-open council-review council-respond council-apply council-status council-help council-upgrade council-uninstall council-version council-peer-review council-peer council-longrun claude-p council-peer-p council-claude-p; do
     remove_path "$ROOT/.claude/skills/$skill"
   done
   if [ "$APPLY" = true ]; then
@@ -71,7 +71,7 @@ remove_claude() {
 }
 
 remove_codex() {
-  for skill in council council-open council-review council-respond council-apply council-status council-help council-upgrade council-uninstall council-version council-peer council-longrun claude-p council-peer-p council-claude-p; do
+  for skill in council council-open council-review council-respond council-apply council-status council-help council-upgrade council-uninstall council-version council-peer-review council-peer council-longrun claude-p council-peer-p council-claude-p; do
     remove_path "$ROOT/.agents/skills/$skill"
   done
   if [ "$APPLY" = true ]; then

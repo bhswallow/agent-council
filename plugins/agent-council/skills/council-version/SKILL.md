@@ -26,7 +26,7 @@ workflow mechanics. This skill only reports the active installed version.
 
 Report:
 
-- installed version: `2.10.9`
+- installed version: `2.10.10`
 - whether this appears to be standalone or plugin usage, if the path is visible
 - if `--check` is present, compare against:
 
@@ -40,7 +40,7 @@ If the installed version is older than the latest version, tell standalone users
 /council-upgrade --apply
 ```
 
-If current commands such as `council-peer` are missing after an upgrade, tell
+If current commands such as `council-peer-review` are missing after an upgrade, tell
 standalone users to run:
 
 ```text
@@ -67,7 +67,7 @@ codex plugin remove agent-council@agent-council-marketplace
 Keep it short:
 
 ```text
-Agent Council v2.10.9
+Agent Council v2.10.10
 ```
 
 If `--check` is used, add latest-version status and one upgrade hint.

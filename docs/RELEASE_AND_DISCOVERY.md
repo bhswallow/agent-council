@@ -84,7 +84,9 @@ Confirm:
 - `.agents/plugins/marketplace.json` points to `./plugins/agent-council`;
 - `plugins/agent-council/.codex-plugin/plugin.json` is current;
 - every skill has `agents/openai.yaml`;
-- `allow_implicit_invocation: false` remains consistent;
+- normal Council workflow skills keep `allow_implicit_invocation: false`;
+- `council-peer-review` keeps `allow_implicit_invocation: true` so Codex can
+  expose the explicit one-shot review entry point;
 - README install path fits within three steps.
 
 Community post title:

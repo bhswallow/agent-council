@@ -1,6 +1,6 @@
 # Usage
 
-Agent Council v2.10.9 is a recent-round bridge.
+Agent Council v2.10.10 is a recent-round bridge.
 Use it when Claude Code and Codex need to comment on each other's latest
 message without sharing the same chat window.
 
@@ -84,9 +84,9 @@ Superpowers is installed or required by project instructions, and it tells the
 future agent to apply the saved `council-longrun` assisted-judgment rules
 whenever execution needs judgment, tradeoff analysis, or extra confidence.
 
-## Optional utility: council-peer
+## Optional utility: council-peer-review
 
-`council-peer` is not part of the Council main flow. It is a one-shot utility
+`council-peer-review` is not part of the Council main flow. It is a one-shot utility
 for calling the peer tool headlessly.
 
 From Codex, it runs Claude Code through `claude -p`. From Claude Code, it runs
@@ -102,7 +102,7 @@ context and asks the peer for a focused one-shot review. Whitespace-only and
 punctuation-only input do not count as a prompt.
 
 A conversation round means one user message plus the immediately following
-Codex or Claude Code reply. By default `council-peer` uses the latest 1
+Codex or Claude Code reply. By default `council-peer-review` uses the latest 1
 round as summarized context. Use `-n` / `--rounds` to choose more visible
 rounds, and add `--full` only when the peer should receive the selected visible
 text verbatim.
@@ -119,18 +119,18 @@ It should also show status updates while running, including starting, elapsed
 running time, completed, timed out, or no-output states.
 
 If the peer command times out or returns no useful output, run
-`$council-peer --diagnose`. Diagnose mode checks the detected peer command,
+`$council-peer-review --diagnose`. Diagnose mode checks the detected peer command,
 version, and a short read-only ping. It writes no files.
 
 Examples:
 
-    $council-peer
-    $council-peer --diagnose
-    $council-peer -n=3 "Review the recent plan for blockers."
-    /council-peer --codex-model gpt-5 "Review the latest plan for blockers."
-    $council-peer --rounds=all --full "Summarize the visible conversation and call out risks."
-    $council-peer "Review docs/design.md for blockers."
-    $council-peer --topic product-l1-gate "Review the latest Council handoff for blockers."
+    $council-peer-review
+    $council-peer-review --diagnose
+    $council-peer-review -n=3 "Review the recent plan for blockers."
+    /council-peer-review --codex-model gpt-5 "Review the latest plan for blockers."
+    $council-peer-review --rounds=all --full "Summarize the visible conversation and call out risks."
+    $council-peer-review "Review docs/design.md for blockers."
+    $council-peer-review --topic product-l1-gate "Review the latest Council handoff for blockers."
 
 ## Open a topic
 

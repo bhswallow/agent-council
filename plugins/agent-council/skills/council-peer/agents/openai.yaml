@@ -1,5 +1,0 @@
-interface:
-  display_name: "Council Peer"
-  short_description: "Run peer headless review."
-policy:
-  allow_implicit_invocation: false

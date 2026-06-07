@@ -10,7 +10,7 @@ boundaries visible:
 - `council-open`, `council-review`, and `council-status` write only Council
   state.
 - `council-apply` is the explicit command that may modify formal project files.
-- `council-peer` is an optional utility. It calls the peer CLI only when the
+- `council-peer-review` is an optional utility. It calls the peer CLI only when the
   user explicitly invokes it.
 
 ## Reporting

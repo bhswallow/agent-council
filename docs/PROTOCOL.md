@@ -32,8 +32,8 @@ It asks a few short choices and writes:
 The rules may tell future work when to use:
 
 - subagents for local or technical judgment;
-- `council-peer-p` / `council-claude-p` for independent peer judgment;
-- both subagents and `council-peer-p` for complex or high-risk judgment.
+- `council-peer-review` for independent peer judgment;
+- both subagents and `council-peer-review` for complex or high-risk judgment.
 
 The rules must not configure when to interrupt the user. Interruption timing
 belongs to the surrounding workflow, user instructions, tool policy,
@@ -57,8 +57,7 @@ rules.
 
 ## Peer headless utility
 
-`council-peer-p` is the preferred neutral name for the optional one-shot peer
-headless utility. `council-claude-p` remains a compatibility alias.
+`council-peer-review` is the optional one-shot peer headless utility.
 
 From Codex, the utility calls Claude Code through `claude -p`. From Claude Code,
 it calls Codex through `codex exec --sandbox read-only`.

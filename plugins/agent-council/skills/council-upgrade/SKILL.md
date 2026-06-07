@@ -97,7 +97,7 @@ partially upgraded directories:
 - `council-help`
 - `council-upgrade`
 - `council-version`
-- `council-peer`
+- `council-peer-review`
 - `council-longrun`
 
 This fixes dirty installs where stale directories remain or `council-help` is
@@ -153,13 +153,13 @@ actually upgraded. Do not require Codex directories when `--claude-only` was
 used, and do not require Claude Code directories when `--codex-only` was used:
 
 ```sh
-test -d "$PROJECT_ROOT/.claude/skills/council-peer"
+test -d "$PROJECT_ROOT/.claude/skills/council-peer-review"
 test -d "$PROJECT_ROOT/.claude/skills/council"
-test -d "$PROJECT_ROOT/.agents/skills/council-peer"
+test -d "$PROJECT_ROOT/.agents/skills/council-peer-review"
 test -d "$PROJECT_ROOT/.agents/skills/council"
-test -d "$HOME/.claude/skills/council-peer"
+test -d "$HOME/.claude/skills/council-peer-review"
 test -d "$HOME/.claude/skills/council"
-test -d "$HOME/.agents/skills/council-peer"
+test -d "$HOME/.agents/skills/council-peer-review"
 test -d "$HOME/.agents/skills/council"
 ```
 
@@ -208,7 +208,7 @@ Keep the response concise:
 - whether `--force` was used;
 - whether Claude Code and/or Codex standalone skills were updated;
 - whether stale standalone skill directories were reconciled;
-- whether `council-peer` is present;
+- whether `council-peer-review` is present;
 - whether the top-level index command `council` is present;
 - next verification command: `council-version`, then `council`.
 

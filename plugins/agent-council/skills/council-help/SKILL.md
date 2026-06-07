@@ -24,7 +24,7 @@ help short; prefer command examples over long conceptual explanations.
 
 ## Chinese help
 
-Agent Council v2.10.9 是 Claude Code 与 Codex 之间的轻量手动交接板。
+Agent Council v2.10.10 是 Claude Code 与 Codex 之间的轻量手动交接板。
 
 它不自动调用另一个工具，只把最新观点、评审请求和最终共识落盘，让另一个工具可以接住。
 它只能由用户显式唤醒；不会自动叫停任务，也不会在 topic 结束后自动串联下一任务。
@@ -77,16 +77,16 @@ Agent Council v2.10.9 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - `council-uninstall` 默认只检查；只有带 `--apply` 才删除 standalone skills，plugin 安装应走 plugin 管理器或 `codex plugin remove agent-council@agent-council-marketplace`。
 
 长跑规则：
-- 用三组选择定义什么时候用 subagents、什么时候用 `council-peer`、什么时候两者一起用。
+- 用三组选择定义什么时候用 subagents、什么时候用 `council-peer-review`、什么时候两者一起用。
 - 默认组合是 `balanced` + `strategic` + `high_risk`：中等不确定时用 subagents；design/plan/发布/安全/重大取舍时用 peer review；架构、blocker、发布/安全边界、大范围变更、难回滚选择时两者一起用。
 - `council-longrun` 不配置什么时候打断你；原本 workflow 可能要停下来判断时，先按规则辅助判断，结论清楚且仍在授权 scope 内就继续。
 - 规则保存到 `.agent-council/longrun/rules.md`。
 - 再次运行 `council-longrun` 可重新定义规则。
-- `council-longrun --template` 输出启动长跑任务的 prompt；安装了 Superpowers 或项目说明要求时，可默认按 Superpowers 流程走，并在需要判断时按 longrun 规则使用 subagents、`council-peer` 或两者。
+- `council-longrun --template` 输出启动长跑任务的 prompt；安装了 Superpowers 或项目说明要求时，可默认按 Superpowers 流程走，并在需要判断时按 longrun 规则使用 subagents、`council-peer-review` 或两者。
 
 可选工具：
-- `council-peer` 可以 headless 调用对方工具。
-- 如果升级后缺少 `council-peer`，standalone 用 `council-upgrade --apply --force`，plugin 需要重新安装并 reload。
+- `council-peer-review` 可以 headless 调用对方工具。
+- 如果升级后缺少 `council-peer-review`，standalone 用 `council-upgrade --apply --force`，plugin 需要重新安装并 reload。
 - 它不是 Council 互审循环的一部分。
 - 在 Codex 中运行时调用 `claude -p`；在 Claude Code 中运行时调用 `codex exec --sandbox read-only`。
 - 适合在 Codex、Claude Code 或脚本化环境中做一次性对方工具检查。
@@ -97,17 +97,20 @@ Agent Council v2.10.9 是 Claude Code 与 Codex 之间的轻量手动交接板�
 - 不能读取无限制的聊天记录；超时或无输出时应明确说明。
 - 普通 headless review 默认 timeout 是 600 秒（10 分钟）。
 - 运行时应输出 starting/running/completed/timed out 状态，避免用户空等。
-- 超时或无输出时可运行 `$council-peer --diagnose`，检查对方命令、版本和短 ping。
-- 示例：`$council-peer`
-- 示例：`$council-peer --diagnose`
-- 示例：`$council-peer -n=3 "Review the recent plan for blockers."`
-- 示例：`/council-peer --codex-model gpt-5 "Review the latest plan for blockers."`
-- 示例：`$council-peer --topic product-l1-gate "Review the latest Council handoff for blockers."`
-- 示例：`$council-peer "Review docs/design.md for blockers and missing tests."`
+- standalone 用 `$council-peer-review ...`；Codex plugin 用 `$agent-council:council-peer-review ...`。
+- 超时或无输出时可运行 `$council-peer-review --diagnose` 或 `$agent-council:council-peer-review --diagnose`，检查对方命令、版本和短 ping。
+- 示例：`$council-peer-review`
+- 示例：`$agent-council:council-peer-review`
+- 示例：`$council-peer-review --diagnose`
+- 示例：`$agent-council:council-peer-review --diagnose`
+- 示例：`$council-peer-review -n=3 "Review the recent plan for blockers."`
+- 示例：`/council-peer-review --codex-model gpt-5 "Review the latest plan for blockers."`
+- 示例：`$council-peer-review --topic product-l1-gate "Review the latest Council handoff for blockers."`
+- 示例：`$council-peer-review "Review docs/design.md for blockers and missing tests."`
 
 ## English help
 
-Agent Council v2.10.9 is a lightweight, manual recent-round bridge for Claude Code and Codex.
+Agent Council v2.10.10 is a lightweight, manual recent-round bridge for Claude Code and Codex.
 
 It records what one tool wants the other to review, lets the peer reply, and preserves consensus without polluting project files.
 It is invoked explicitly by the user; it does not stop tasks automatically or chain into the next task after a topic ends.
@@ -159,30 +162,33 @@ Rule of thumb:
 - `council-uninstall` is check-only by default; it deletes standalone skills only with `--apply`. Plugin installs should use the plugin manager or `codex plugin remove agent-council@agent-council-marketplace`.
 
 Longrun rules:
-- Three grouped choices define when to use subagents, when to use `council-peer`, and when to use both together.
+- Three grouped choices define when to use subagents, when to use `council-peer-review`, and when to use both together.
 - The default mix is `balanced` + `strategic` + `high_risk`: use subagents for moderate ambiguity; peer review for design/plan/release/security/major tradeoffs; both for architecture, blockers, release/security boundaries, broad scope changes, or hard-to-reverse choices.
 - `council-longrun` does not configure when to interrupt the user; when a workflow would otherwise stop for judgment, run the configured assistance first, then continue if the recommendation is clear and inside the authorized scope.
 - Rules are saved to `.agent-council/longrun/rules.md`.
 - Run `council-longrun` again to redefine them.
-- `council-longrun --template` prints a startup prompt for a long-running task; when Superpowers is installed or required by project instructions, the prompt can default to Superpowers and use the saved longrun rules for subagents, `council-peer`, or both when judgment is needed.
+- `council-longrun --template` prints a startup prompt for a long-running task; when Superpowers is installed or required by project instructions, the prompt can default to Superpowers and use the saved longrun rules for subagents, `council-peer-review`, or both when judgment is needed.
 
 Optional utilities:
-- `council-peer` can run the peer tool headlessly.
-- If an upgrade leaves `council-peer` missing, use `council-upgrade --apply --force` for standalone installs, or reinstall and reload the plugin.
+- `council-peer-review` can run the peer tool headlessly.
+- If an upgrade leaves `council-peer-review` missing, use `council-upgrade --apply --force` for standalone installs, or reinstall and reload the plugin.
 - It is not part of the Council review loop.
 - From Codex it calls `claude -p`; from Claude Code it calls `codex exec --sandbox read-only`.
 - Use it when you need a one-shot peer check from Codex, Claude Code, or a script-like environment.
-- Use `$council-peer ...` as the skill command.
+- Use `$council-peer-review ...` as the skill command.
 - It requires the peer CLI in `PATH` and writes no Council topic or project files by default.
 - With a substantive prompt, it sends that prompt; with no substantive prompt, it builds a focused review prompt from selected recent visible conversation rounds.
 - It supports `-n` / `--rounds` and `--full`; by default it sends a summary of the latest 1 round, and `--full` sends selected visible rounds verbatim.
 - It cannot read an unlimited chat transcript by itself and should report timeout/no-output clearly.
 - The default headless review timeout is 600 seconds (10 minutes).
 - It should report starting/running/completed/timed out status so the user is not left waiting silently.
-- On timeout or no output, run `$council-peer --diagnose` to check the peer command, version, and a short ping.
-- Example: `$council-peer`
-- Example: `$council-peer --diagnose`
-- Example: `$council-peer -n=3 "Review the recent plan for blockers."`
-- Example: `/council-peer --codex-model gpt-5 "Review the latest plan for blockers."`
-- Example: `$council-peer --topic product-l1-gate "Review the latest Council handoff for blockers."`
-- Example: `$council-peer "Review docs/design.md for blockers and missing tests."`
+- Use `$council-peer-review ...` for standalone installs; use `$agent-council:council-peer-review ...` for Codex plugin installs.
+- On timeout or no output, run `$council-peer-review --diagnose` or `$agent-council:council-peer-review --diagnose` to check the peer command, version, and a short ping.
+- Example: `$council-peer-review`
+- Example: `$agent-council:council-peer-review`
+- Example: `$council-peer-review --diagnose`
+- Example: `$agent-council:council-peer-review --diagnose`
+- Example: `$council-peer-review -n=3 "Review the recent plan for blockers."`
+- Example: `/council-peer-review --codex-model gpt-5 "Review the latest plan for blockers."`
+- Example: `$council-peer-review --topic product-l1-gate "Review the latest Council handoff for blockers."`
+- Example: `$council-peer-review "Review docs/design.md for blockers and missing tests."`

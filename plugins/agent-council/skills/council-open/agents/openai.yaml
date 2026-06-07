@@ -1,5 +1,6 @@
 interface:
   display_name: "Council Open"
   short_description: "Open a recent-round bridge topic."
+
 policy:
   allow_implicit_invocation: false
