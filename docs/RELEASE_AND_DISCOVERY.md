@@ -6,8 +6,18 @@ community announcement.
 ## Local Release Readiness
 
 - Run `./validate.sh`.
+- For Codex plugin discovery changes, also run the official local plugin
+  validator when available:
+
+  ```sh
+  python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/agent-council
+  ```
+
 - Confirm `VERSION`, README files, plugin manifests, and marketplace catalogs
   use the same version.
+- When adding or renaming skills, confirm every `SKILL.md` frontmatter parses as
+  YAML. Quote descriptions that contain `: `, otherwise Codex may install the
+  plugin but fail to expose the skill in a new chat.
 - Reinstall into a temporary project and confirm standalone skills appear under
   `.claude/skills/` and `.agents/skills/`.
 - Confirm old `council-respond` and `claude-p` standalone directories are not

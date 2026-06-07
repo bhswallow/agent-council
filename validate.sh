@@ -66,6 +66,21 @@ assert_codex_discovery_metadata() {
   ' "$file" || fail "Missing interface display metadata in $file"
 }
 
+assert_frontmatter_yaml_safe() {
+  file="$1"
+  awk '
+    NR == 1 && $0 == "---" { in_frontmatter = 1; next }
+    in_frontmatter && $0 == "---" { exit }
+    in_frontmatter && /^[A-Za-z0-9_-]+:[[:space:]]+/ {
+      value = $0
+      sub(/^[^:]+:[[:space:]]+/, "", value)
+      if (value ~ /:[[:space:]]/ && value !~ /^["'\'']/) {
+        exit 1
+      }
+    }
+  ' "$file" || fail "SKILL.md frontmatter values containing ': ' must be quoted: $file"
+}
+
 assert_shell_skill_loop_contains() {
   file="$1"
   skill="$2"
@@ -193,6 +208,7 @@ for skill in "${skills[@]}"; do
   [ "$first_line" = "---" ] || fail "SKILL.md frontmatter must start with ---: $skill_file"
   sed -n '2,10p' "$skill_file" | grep -qx -- '---' || \
     fail "SKILL.md frontmatter must close with standalone --- in first 10 lines: $skill_file"
+  assert_frontmatter_yaml_safe "$skill_file"
 
   frontmatter="$(skill_frontmatter "$skill_file")"
   ! printf '%s\n' "$frontmatter" | grep -qx 'disable-model-invocation: true' || \
@@ -378,6 +394,39 @@ for path, key_path in checks:
         raise SystemExit(
             f"Version mismatch in {path.relative_to(root)}:{dotted}: {value} != {version}"
         )
+PY
+
+python3 - "$ROOT" <<'PY'
+import json
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1])
+manifest_path = root / "plugins/agent-council/.codex-plugin/plugin.json"
+manifest = json.loads(manifest_path.read_text())
+
+def require_object(payload, key, path):
+    value = payload.get(key)
+    if not isinstance(value, dict):
+        raise SystemExit(f"{path}.{key} must be an object for Codex plugin discovery")
+    return value
+
+def require_string(payload, key, path):
+    value = payload.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise SystemExit(f"{path}.{key} must be a non-empty string for Codex plugin discovery")
+
+def require_string_list(payload, key, path):
+    value = payload.get(key)
+    if not isinstance(value, list) or not value or not all(isinstance(item, str) and item.strip() for item in value):
+        raise SystemExit(f"{path}.{key} must be a non-empty string array for Codex plugin discovery")
+
+require_object(manifest, "author", "plugin.json")
+require_string(manifest["author"], "name", "plugin.json.author")
+interface = require_object(manifest, "interface", "plugin.json")
+for field in ("displayName", "shortDescription", "longDescription", "developerName", "category"):
+    require_string(interface, field, "plugin.json.interface")
+require_string_list(interface, "defaultPrompt", "plugin.json.interface")
 PY
 
 grep -q "Current version: $VERSION" "$ROOT/README.md" || fail "README.md version does not match VERSION"
